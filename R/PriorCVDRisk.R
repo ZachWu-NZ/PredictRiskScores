@@ -21,7 +21,7 @@ PriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, da
 
   # Inputs Settings
   male    <- +(vars$sex %in% c("M", "Male", 1))
-  smoker  <- +(vars$smoker %in% c("Y", "Smoker", 4:5))
+  smoker  <- +(vars$smoker %in% c("Y", "Smoker", 3:5))
   diab    <- +(vars$diabetes %in% c("Y", 1))
   af      <- +(vars$af %in% c("Y", 1))
   hf      <- +(vars$hf %in% c("Y", 1))
@@ -130,11 +130,11 @@ PriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, da
 
 # # Example Usage:
 # As Calculator (i.e. dataset not provided)
-# PriorCvdRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0, af=0, hf=1, days=65, bmi=NA,
+# PriorCVDRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0, af=0, hf=1, days=65, bmi=NA,
 #              sbp=118, tchdl=3.3, hba1c=NA, scr=52, bpl=1, lld=1, athromb=1)
 #
 # As Vectoriser (i.e. dataset provided)
-# PriorCvdRisk(DT, sex=view_ag_sex, age=index_age, eth=view_ag_eth, nzdep=index_en_nzdep_quintiles, smoker=pt_smoking, diabetes=imp_hx_diabetes,
+# PriorCVDRisk(DT, sex=view_ag_sex, age=index_age, eth=view_ag_eth, nzdep=index_en_nzdep_quintiles, smoker=pt_smoking, diabetes=imp_hx_diabetes,
 #              af=imp_hx_af, hf=imp_hx_heart_failure, days=days_since_event_predict, bmi=pt_en_bmi, sbp=sbp, tchdl=imp_index_tchdl_ratio,
 #              hba1c=hba1c_index2yr, scr=creatinine_index2yr, bpl=ph_all_bplds_prior_6mths, lld=ph_all_llds_prior_6mths, athromb=antithrombotics,
 #              dp = 6)

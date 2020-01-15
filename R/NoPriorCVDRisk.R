@@ -1,0 +1,151 @@
+
+NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, familyhx, sbp, tchdl, bpl, lld, athromb,...){
+
+  vars   <- as.list(match.call()[-1])
+
+  # Decimal Settings
+  if(length(list(...))==0){
+    dp      <- 4
+  }else{
+    dp      <- vars$dp
+    vars$dp <- NULL
+  }
+
+  # Vectorise Settings (uses data from a table)
+  if(deparse(substitute(dat))!=""){
+    dat     <- as.data.frame(dat, row.names = NULL)
+    vars    <- vars[-1]
+    names   <- as.vector(sapply(vars, as.character))
+    vars[]  <- dat[, names]
+  }
+
+  # Inputs Settings
+  sex       <- +(vars$sex %in% c("M", "Male", 1))
+  diab      <- +(vars$diabetes %in% c("Y", 1))
+  af        <- +(vars$af %in% c("Y", 1))
+  familyhx  <- +(vars$familyhx %in% c("Y", 1))
+  bpl       <- +(vars$bpl %in% c("Y", 1))
+  lld       <- +(vars$lld %in% c("Y", 1))
+  athromb   <- +(vars$athromb %in% c("Y", 1))
+
+  tchdl   <- vars$tchdl
+  nzdep   <- vars$nzdep
+  age     <- vars$age
+  sbp     <- vars$sbp
+
+  # nb: Each list is ordered to match item order in coeffs list
+  eth     <- list(maori    = +(vars$eth %in% c("Maori", 12)),
+                  pacific  = +(vars$eth %in% c("Pacific", 30:37)),
+                  indian   = +(vars$eth %in% c("Indian", 43)),
+                  asian    = +(vars$eth %in% c("Chinese", "East Asian", 40:42)))
+
+  smoke   <- list(ex_smoke = +(vars$smoker %in% c("Ex-smoker", "ex", 1:2)),
+                  cur_smoke = +(vars$smoker %in% c("Current Smoker", "Current", 3:5)))
+
+  # Interaction / Recentering
+  if(sex == 0){ # Female
+
+    cen.age   <- age - 56.13665
+    cen.nzdep <- nzdep - 2.990826
+    cen.sbp   <- sbp - 129.0173
+    cen.tchdl <- tchdl - 3.726268
+
+  } else { # Male
+
+    cen.age   <- age - 51.79953
+    cen.nzdep <- nzdep - 2.972793
+    cen.sbp   <- sbp - 129.1095
+    cen.tchdl <- tchdl - 4.38906
+
+  }
+
+  interaction <- list(int_age_diab = ifelse(diab == 0, 0, cen.age),
+                      int_age_sbp  = cen.age * cen.sbp,
+                      int_sbp_bplt = ifelse(bpl==0, 0, cen.sbp))
+
+  # List input values
+  # nb: Order to match coeffs list
+  values <- c(list(age = cen.age), eth, smoke, list(nzdep = cen.nzdep), list(diab = diab), list(af = af), list(familyhx = familyhx),
+              list(lld = lld), list(athromb = athromb), list(bpl = bpl), list(sbp = cen.sbp), list(tchdl = cen.tchdl),
+              interaction)
+
+  # Replace Missing
+  values <- lapply(values, function(x)
+    replace(x, is.na(x), 0))
+
+  # Coefficients
+  fem.coeff <- list(age     = 0.0756412,
+                    maori   = 0.3910183,
+                    pacific = 0.2010224,
+                    indian  = 0.1183427,
+                    asian   = -0.28551,
+                    ex_smoke = 0.087476,
+                    cur_smoke = 0.6226384,
+                    nzdep     = 0.1080795,
+                    diabetes = 0.5447632,
+                    af       = 0.8927126,
+                    familyhx = 0.0445534,
+                    lld = -0.0593798,
+                    athromb = 0.1172496,
+                    bpl = 0.339925,
+                    sbp = 0.0136606,
+                    tchdl = 0.1226753,
+                    int_age_diab = -0.0222549,
+                    int_age_sbp = -0.0004425,
+                    int_sbp_bplt = -0.004313)
+
+  male.coeff <- list(age     = 0.0675532,
+                     maori   = 0.2899054,
+                     pacific = 0.1774195,
+                     indian  = 0.2902049,
+                     asian   = -0.3975687,
+                     ex_smoke = 0.0753246,
+                     cur_smoke = 0.5058041,
+                     nzdep    = 0.0794903,
+                     diabetes = 0.5597023,
+                     af       = 0.5880131,
+                     familyhx = 0.1326587,
+                     lld = -0.0537314,
+                     athromb = 0.0934141,
+                     bpl = 0.2947634,
+                     sbp = 0.0163778,
+                     tchdl = 0.1283758,
+                     int_age_diab = -0.020235,
+                     int_age_sbp = -0.0004184,
+                     int_sbp_bplt = -0.0053077)
+
+  # Calculations
+  if(sex == 0){  #Female
+    coeffs <- fem.coeff
+    survival <- 0.983169213058
+
+  } else { #Male
+    coeffs <- male.coeff
+    survival <- 0.974755526232
+  }
+
+  value.score <- Map("*", values, coeffs)
+  sum.score   <- Reduce("+", value.score)
+  risk.score  <- (1- survival ^ exp(sum.score)) *100
+  # browser()
+  rounded.val <- as.numeric(formatC(round(risk.score, dp),
+                                    format = 'f',
+                                    digits = dp))
+
+  return(rounded.val)
+
+}
+
+
+# # Example Usage:
+# As Calculator (i.e. dataset not provided)
+NoPriorCVDRisk(sex="F", age=65, eth="Indian", smoker=0, nzdep=5,  diabetes=0, af=0, familyhx=1,
+               lld=1, athromb=1, bpl=1, sbp=118, tchdl=3.3)
+
+
+# As Vectoriser (i.e. dataset provided)
+# PriorCvdRisk(DT, sex=view_ag_sex, age=index_age, eth=view_ag_eth, nzdep=index_en_nzdep_quintiles, smoker=pt_smoking, diabetes=imp_hx_diabetes,
+#              af=imp_hx_af, hf=imp_hx_heart_failure, days=days_since_event_predict, bmi=pt_en_bmi, sbp=sbp, tchdl=imp_index_tchdl_ratio,
+#              hba1c=hba1c_index2yr, scr=creatinine_index2yr, bpl=ph_all_bplds_prior_6mths, lld=ph_all_llds_prior_6mths, athromb=antithrombotics,
+#              dp = 6)
+

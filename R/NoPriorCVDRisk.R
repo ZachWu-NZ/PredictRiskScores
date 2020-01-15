@@ -138,9 +138,9 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
 
 
 # # Example Usage:
-# As Calculator (i.e. dataset not provided)
-NoPriorCVDRisk(sex="F", age=65, eth="Indian", smoker=0, nzdep=5,  diabetes=0, af=0, familyhx=1,
-               lld=1, athromb=1, bpl=1, sbp=118, tchdl=3.3)
+# # As Calculator (i.e. dataset not provided)
+# NoPriorCVDRisk(sex="F", age=65, eth="Indian", smoker=0, nzdep=5,  diabetes=0, af=0, familyhx=1,
+#                lld=1, athromb=1, bpl=1, sbp=118, tchdl=3.3)
 
 
 # As Vectoriser (i.e. dataset provided)

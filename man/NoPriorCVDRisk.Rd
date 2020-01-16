@@ -17,8 +17,6 @@ NoPriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes, af, familyhx, sbp, t
 
 \item{nzdep}{NZ deprivation index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived)}
 
-\item{smoking}{Smoking status - input as labels "Ex-smoker", "Ex", "Current Smoker", "Current", "Smoker", "Y", "Yes"}
-
 \item{diabetes}{Diabetes status - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
 
 \item{af}{Atrrial fibrillation status - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
@@ -35,6 +33,7 @@ NoPriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes, af, familyhx, sbp, t
 
 \item{...}{Set decimal place for integers. Default is 4. Optional.}
 
+\item{smoking}{Smoking status - input as labels "Ex-smoker", "Ex", "Current Smoker", "Current", "Smoker", "Y", "Yes"}
 }
 \value{
 Returns either a single risk score or a numeric vector of risk scores.

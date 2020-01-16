@@ -39,11 +39,7 @@ NoPriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes, af, familyhx, sbp, t
 Returns either a single risk score or a numeric vector of risk scores.
 }
 \description{
-<<<<<<< HEAD
 \code{NoPriorCVDRisk} calculates the 5 year risk of CVD for people without a history of CVD. If a dataset of input values are not supplied, then individual values for each coefficent can be specified.
-=======
-\code{PriorCVDRisk} calculates the 5 year risk of CVD for people without a history of CVD. If a dataset of input values are not supplied, then individual values for each coefficent can be specified.
->>>>>>> c62410ca32a5c4f22f43421d93874634be3a0e5c
 If a dataset of input values are supplied, then a score is produced for each row of data, resulting in a numeric vector of the same row length.
 A specific format is required for each variable input value. Encoding may be required. See arguments.
 }

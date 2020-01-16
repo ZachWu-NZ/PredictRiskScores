@@ -1,7 +1,7 @@
 #' PREDICT CVD risk Score for People With Prior CVD
 #'
-#' \code{PriorCVDRisk} calculates the 5 year risk of CVD for people with a history of CVD. If a dataset of input values are not supplied, then individual values for each coefficent can be specified.
-#' If a dataset of input values are supplied, then a score is produced for each row of data, resulting in a numeric vector of the same row length.
+#' \code{PriorCVDRisk} calculates the 5 year risk of cardiovascular disease (CVD) (hospitalisation for acute coronary syndrome, heart failure, stroke or other cerebrovascular disease, peripheral vascular death, cardiovascular death),
+#' for people with a history of atherosclerotic CVD. If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied, then a risk estimate is produced for each row of data, resulting in a numeric vector of the same length.
 #' A specific format is required for each variable input value. Encoding may be required. See arguments.
 #'
 #' @usage PriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf,
@@ -9,29 +9,28 @@
 #'
 #' @param dat   A data.frame or data.table containing input data. Optional. See Details.
 #' @param sex   Sex or gender - input as labels M, Male, F, Female; or encode binary where 1 is male and 0 is female
-#' @param age   Age - input as numeric value between 35 and 79
-#' @param eth   Ethnicity - input as labels "Chinese", "Indian", "Other Asian", "Fijian Indian", "Maori", "Pacific", "Other", or "Unknown"
-#' @param nzdep NZ deprivation index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived)
-#' @param smoking Smoking status - input as labels "Y", "Yes", "Smoker"
+#' @param age   Age - input as numeric value between 30 and 79
+#' @param eth   Ethnicity - input as labels "Chinese", "Indian", "Other Asian", "Fijian Indian", "Maori", "Pacific", or "Other"
+#' @param nzdep Index of socioeconomic deprivation, specifically the New Zealand Deprivation Index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived)
+#' @param smoking Current smoker - input as labels "Y", "Yes", "Smoker", or encode binary where 1 is "Yes"
 #' @param diabetes Diabetes status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param af Atrrial fibrillation status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param hf Heart failure history - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param days Time since last CVD event - input as numeric value representing days
-#' @param bmi Body mass index - input as numeric value representing BMI in KG/m^2
-#' @param sbp Systolic blood pressure - input as numeric value representing actual systolic blood pressure
-#' @param tchdl Total-HDL cholesterol ratio - input as numeric value representing actual lab total:HDL value
-#' @param hba1c HbA1C - input as numeric value representing actual lab HbA1c value
-#' @param scr Serum creatinine - input as numeric value representing actual lab serum creatinine value
-#' @param bpl On blood pressure lowering treatment - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param lld On lipid lowering treatment - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param athromb On antithrombotic including antiplatelet or anticoagulant treatment - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param af Atrial fibrillation status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param hf Heart failure - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param days Time since last the most recent CVD event - input as numeric value representing days. If the event was angina or peripheral vascular disease, then enter 1826. If the date of most recent CVD event was not known, then keep as NA.
+#' @param bmi Body mass index - input as numeric value representing BMI in kg/m^2
+#' @param sbp Systolic blood pressure - input as numeric value representing measured systolic blood pressure in mmHg
+#' @param tchdl Total-HDL cholesterol ratio - input as numeric value representing most recent value of total:HDL cholesterol
+#' @param hba1c HbA1C - input as numeric value representing most recent value of HbA1c in mmol/mol
+#' @param scr Serum creatinine - input as numeric value representing most recent value of serum creatinine in micromol/L
+#' @param bpl Receiving at least one blood pressure lowering medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param lld Receiving lipid lowering medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param athromb Receiving antiplatelet or anticoagulant medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"
 #' @param ... Set decimal place for integers. Default is 4. Optional.
 #'
 #' @details  When the parameter \code{dat} is supplied using a dataset, then parameters take variable names as input. For example, when a dataset is supplied, the parameter \code{age} requires the variable name \code{index_age} as input from the dataset.
-#' When the parameter \code{dat} is not supplied and empty, then parameters take actual values or labels as input. For example, when there is no data, the parameter \code{age} requires a single numeric value between 35 and 79.This method calculates the risk score for a single individual.
+#' When the parameter \code{dat} is not supplied, then parameters take actual values or labels as input. For example, when \code{dat} is not supplied, the parameter \code{age} requires a single numeric value between 30 and 79. This method calculates the 5-year risk estimate for a single individual.
 #'
-#'
-#' @return Returns either a single risk score or a numeric vector of risk scores.
+#' @return Returns either a single CVD risk estimate or a numeric vector of CVD risk estimates.
 #'
 #' @seealso \code{\link{NoPriorCVDRisk}} can be used for people without a history of CVD.
 #' @export

@@ -166,7 +166,7 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
   value.score <- Map("*", values, coeffs)
   sum.score   <- Reduce("+", value.score)
   risk.score  <- (1- survival ^ exp(sum.score))
-  browser()
+
   rounded.val <- as.numeric(formatC(round(risk.score, dp),
                                     format = 'f',
                                     digits = dp))

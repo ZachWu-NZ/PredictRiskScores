@@ -11,7 +11,7 @@
 #' @param age   Age - input as numeric value between 35 and 79
 #' @param eth   Ethnicity - input as labels "Chinese", "Indian", "Other Asian", "Fijian Indian", "Maori", "Pacific", "Other", or "Unknown"
 #' @param nzdep NZ deprivation index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived)
-#' @param smoking Smoking status - input as labels "Ex-smoker", "Ex", "Current Smoker", "Current", or "Smoker"
+#' @param smoking Smoking status - input as labels "Ex-smoker", "Ex", "Current Smoker", "Current", "Smoker", "Y", "Yes"
 #' @param diabetes Diabetes status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
 #' @param af Atrrial fibrillation status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
 #' @param sbp Systolic blood pressure - input as numeric value representing actual systolic blood pressure
@@ -82,7 +82,7 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
                   asian    = +(vars$eth %in% c("Chinese", "East Asian", 40:42)))
 
   smoke   <- list(ex_smoke = +(vars$smoker %in% c("Ex-smoker", "Ex", 1:2)),
-                  cur_smoke = +(vars$smoker %in% c("Current Smoker", "Current", "Smoker", 3:5)))
+                  cur_smoke = +(vars$smoker %in% c("Current Smoker", "Current", "Smoker", "Y", "Yes", 3:5)))
 
   # Interaction / Recentering
   if(sex == 0){ # Female

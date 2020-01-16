@@ -18,6 +18,8 @@ PriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf,
 
 \item{nzdep}{NZ deprivation index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived)}
 
+\item{smoking}{Smoking status - input as labels "Y", "Yes", "Smoker"}
+
 \item{diabetes}{Diabetes status - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
 
 \item{af}{Atrrial fibrillation status - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
@@ -43,8 +45,6 @@ PriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf,
 \item{athromb}{On antithrombotic including antiplatelet or anticoagulant treatment - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
 
 \item{...}{Set decimal place for integers. Default is 4. Optional.}
-
-\item{smoking}{Smoking status - input as labels "Ex-smoker", "Ex", "Current Smoker", "Current", or "Smoker"}
 }
 \value{
 Returns either a single risk score or a numeric vector of risk scores.

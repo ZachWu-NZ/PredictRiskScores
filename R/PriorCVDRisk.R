@@ -1,4 +1,51 @@
+#' PREDICT CVD risk Score for People With Prior CVD
+#'
+#' \code{PriorCVDRisk} calculates the 5 year risk of CVD for people with a history of CVD. If a dataset of input values are not supplied, then indivdual values for each coefficent can be specified.
+#' If a dataset of input values are supplied, then a score is produced for each row of data, resulting in a numeric vector of the same row length.
+#' A specific format is required for each variable input value. Encoding may be required. See arguments.
+#'
+#' @usage PriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf,
+#'              days, bmi, sbp, tchdl, hba1c, scr, bpl, lld, athromb,...)
+#'
+#' @param dat   A data.frame or data.table containing input data. Optional. See Details.
+#' @param sex   Sex or gender - input as labels M, Male, F, Female; or encode binary where 1 is male and 0 is female
+#' @param age   Age - input as numeric value between 35 and 79
+#' @param eth   Ethnicity - input as labels "Chinese", "Indian", "Other Asian", "Fijian Indian", "Maori", "Pacific", "Other", or "Unknown"
+#' @param nzdep NZ deprivate index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived)
+#' @param diabetes Diabetes status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param af Atrrial fibrillation status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param hf Heart failure history - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param days Time since last CVD event - input as numeric value representing days
+#' @param bmi Body mass index - input as numeric value representing BMI in KG/m^2
+#' @param sbp Systolic blood pressure - input as numeric value representing actual systolic blood pressure
+#' @param tchdl Total-HDL cholesterol ratio - input as numeric value representing actual lab total:HDL value
+#' @param hba1c HbA1C - input as numeric value representing actual lab HbA1c value
+#' @param scr Serum creatinine - input as numeric value representing actual lab serum creatinine value
+#' @param bpl On blood pressure lowering treatment - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param lld On lipid lowering treatment - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param athromb On antithromboic including antiplatelet or anticoagulant treatment - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param ... Set decimal place for integers. Default is 4. Optional.
+#'
+#' @details  When the parameter \code{dat} is supplied using a dataset, then parameters take variable names as input. For example, when a dataset is supplied, the parameter \code{age} requires the variable name \code{index_age} as input from the dataset.
+#' When the parameter \code{dat} is not supplied and empty, then parameters take actual values or labels as input. For example, when there is no data, the parameter \code{age} requires a single numeric value between 35 and 79.This method calculates the risk score for a single individual.
+#'
+#'
+#' @return Returns either a single risk score or a numeric vector of risk scores.
+#'
+#' @seealso \code{\link{NoPriorCVDRisk}} can be used for people without a history of CVD.
+#' @export
+#' @examples
+#' # As a calculator
+#' PriorCVDRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0, af=0, hf=1, days=65,
+#'              bmi=NA, sbp=118, tchdl=3.3, hba1c=NA, scr=52, bpl=1, lld=1, athromb=1)
+#'
+#' #As Vectoriser (i.e. dataset provided)
+#' PriorCVDRisk(DT, sex=view_ag_sex, age=index_age, eth=view_ag_eth, nzdep=index_en_nzdep_quintiles, smoker=pt_smoking, diabetes=imp_hx_diabetes,
+#'              af=imp_hx_af, hf=imp_hx_heart_failure, days=days_since_event_predict, bmi=pt_en_bmi, sbp=sbp, tchdl=imp_index_tchdl_ratio,
+#'              hba1c=hba1c_index2yr, scr=creatinine_index2yr, bpl=ph_all_bplds_prior_6mths, lld=ph_all_llds_prior_6mths, athromb=antithrombotics, dp = 6)
 
+
+# --- Code ---
 PriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, days, bmi, sbp, tchdl, hba1c, scr, bpl, lld, athromb,...){
 
   vars   <- as.list(match.call()[-1])
@@ -21,13 +68,13 @@ PriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, da
 
   # Inputs Settings
   male    <- +(vars$sex %in% c("M", "Male", 1))
-  smoker  <- +(vars$smoker %in% c("Y", "Smoker", 3:5))
-  diab    <- +(vars$diabetes %in% c("Y", 1))
-  af      <- +(vars$af %in% c("Y", 1))
-  hf      <- +(vars$hf %in% c("Y", 1))
-  bpl     <- +(vars$bpl %in% c("Y", 1))
-  lld     <- +(vars$lld %in% c("Y", 1))
-  athromb <- +(vars$athromb %in% c("Y", 1))
+  smoker  <- +(vars$smoker %in% c("Y", "Yes", "Smoker", 3:5))
+  diab    <- +(vars$diabetes %in% c("Y", "Yes", 1))
+  af      <- +(vars$af %in% c("Y", "Yes", 1))
+  hf      <- +(vars$hf %in% c("Y", "Yes", 1))
+  bpl     <- +(vars$bpl %in% c("Y", "Yes", 1))
+  lld     <- +(vars$lld %in% c("Y", "Yes", 1))
+  athromb <- +(vars$athromb %in% c("Y", "Yes", 1))
 
   nzdep   <- vars$nzdep
   tchdl   <- vars$tchdl
@@ -37,10 +84,10 @@ PriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, da
                   age60_69 = +(vars$age %in% 60:69),
                   age70_79 = +(vars$age >= 70))
 
-  eth     <- list(asian    = +(vars$eth %in% c("Chinese", "East Asian", 42)),
-                  indian   = +(vars$eth %in% c("Indian", 43)),
-                  maori    = +(vars$eth %in% c("Maori", 12)),
-                  pacific  = +(vars$eth %in% c("Pacific", 30:37)))
+  eth     <- list(asian    = +(vars$eth %in% c("Chinese", "East Asian", "Other Asian", "Asian", 42)),
+                  indian   = +(vars$eth %in% c("Indian", "Fijian Indian", 43)),
+                  maori    = +(vars$eth %in% c("Maori", 12, 2)),
+                  pacific  = +(vars$eth %in% c("Pacific", 30:37, 3)))
 
   days    <- list(prior6m    = +(vars$days < 182),
                   prior6_12m = +(vars$days >= 182 & vars$days <=365),
@@ -126,16 +173,3 @@ PriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, da
   return(rounded.val)
 
 }
-
-
-# # Example Usage:
-# As Calculator (i.e. dataset not provided)
-# PriorCVDRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0, af=0, hf=1, days=65, bmi=NA,
-#              sbp=118, tchdl=3.3, hba1c=NA, scr=52, bpl=1, lld=1, athromb=1)
-#
-# As Vectoriser (i.e. dataset provided)
-# PriorCVDRisk(DT, sex=view_ag_sex, age=index_age, eth=view_ag_eth, nzdep=index_en_nzdep_quintiles, smoker=pt_smoking, diabetes=imp_hx_diabetes,
-#              af=imp_hx_af, hf=imp_hx_heart_failure, days=days_since_event_predict, bmi=pt_en_bmi, sbp=sbp, tchdl=imp_index_tchdl_ratio,
-#              hba1c=hba1c_index2yr, scr=creatinine_index2yr, bpl=ph_all_bplds_prior_6mths, lld=ph_all_llds_prior_6mths, athromb=antithrombotics,
-#              dp = 6)
-

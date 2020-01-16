@@ -1,6 +1,6 @@
 #' PREDICT CVD risk Score for People With Prior CVD
 #'
-#' \code{PriorCVDRisk} calculates the 5 year risk of CVD for people with a history of CVD. If a dataset of input values are not supplied, then indivdual values for each coefficent can be specified.
+#' \code{PriorCVDRisk} calculates the 5 year risk of CVD for people with a history of CVD. If a dataset of input values are not supplied, then individual values for each coefficent can be specified.
 #' If a dataset of input values are supplied, then a score is produced for each row of data, resulting in a numeric vector of the same row length.
 #' A specific format is required for each variable input value. Encoding may be required. See arguments.
 #'
@@ -11,7 +11,7 @@
 #' @param sex   Sex or gender - input as labels M, Male, F, Female; or encode binary where 1 is male and 0 is female
 #' @param age   Age - input as numeric value between 35 and 79
 #' @param eth   Ethnicity - input as labels "Chinese", "Indian", "Other Asian", "Fijian Indian", "Maori", "Pacific", "Other", or "Unknown"
-#' @param nzdep NZ deprivate index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived)
+#' @param nzdep NZ deprivation index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived)
 #' @param diabetes Diabetes status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
 #' @param af Atrrial fibrillation status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
 #' @param hf Heart failure history - input as label "Y", "Yes", or encode binary where 1 is "Yes"
@@ -23,7 +23,7 @@
 #' @param scr Serum creatinine - input as numeric value representing actual lab serum creatinine value
 #' @param bpl On blood pressure lowering treatment - input as label "Y", "Yes", or encode binary where 1 is "Yes"
 #' @param lld On lipid lowering treatment - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param athromb On antithromboic including antiplatelet or anticoagulant treatment - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param athromb On antithrombotic including antiplatelet or anticoagulant treatment - input as label "Y", "Yes", or encode binary where 1 is "Yes"
 #' @param ... Set decimal place for integers. Default is 4. Optional.
 #'
 #' @details  When the parameter \code{dat} is supplied using a dataset, then parameters take variable names as input. For example, when a dataset is supplied, the parameter \code{age} requires the variable name \code{index_age} as input from the dataset.

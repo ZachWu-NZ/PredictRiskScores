@@ -12,6 +12,7 @@
 #' @param age   Age - input as numeric value between 35 and 79
 #' @param eth   Ethnicity - input as labels "Chinese", "Indian", "Other Asian", "Fijian Indian", "Maori", "Pacific", "Other", or "Unknown"
 #' @param nzdep NZ deprivation index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived)
+#' @param smoking Smoking status - input as labels "Ex-smoker", "Ex", "Current Smoker", "Current", or "Smoker"
 #' @param diabetes Diabetes status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
 #' @param af Atrrial fibrillation status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
 #' @param hf Heart failure history - input as label "Y", "Yes", or encode binary where 1 is "Yes"

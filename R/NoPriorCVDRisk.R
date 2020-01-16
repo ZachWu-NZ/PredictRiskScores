@@ -1,4 +1,46 @@
-
+#' PREDICT CVD risk Score for People Without Prior CVD
+#'
+#' \code{NoPriorCVDRisk} calculates the 5 year risk of CVD for people without a history of CVD. If a dataset of input values are not supplied, then individual values for each coefficent can be specified.
+#' If a dataset of input values are supplied, then a score is produced for each row of data, resulting in a numeric vector of the same row length.
+#' A specific format is required for each variable input value. Encoding may be required. See arguments.
+#'
+#' @usage NoPriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes, af, familyhx, sbp, tchdl, bpl, lld, athromb,...)
+#'
+#' @param dat   A data.frame or data.table containing input data. Optional. See Details.
+#' @param sex   Sex or gender - input as labels M, Male, F, Female; or encode binary where 1 is male and 0 is female
+#' @param age   Age - input as numeric value between 35 and 79
+#' @param eth   Ethnicity - input as labels "Chinese", "Indian", "Other Asian", "Fijian Indian", "Maori", "Pacific", "Other", or "Unknown"
+#' @param nzdep NZ deprivation index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived)
+#' @param smoking Smoking status - input as labels "Ex-smoker", "Ex", "Current Smoker", "Current", or "Smoker"
+#' @param diabetes Diabetes status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param af Atrrial fibrillation status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param sbp Systolic blood pressure - input as numeric value representing actual systolic blood pressure
+#' @param tchdl Total-HDL cholesterol ratio - input as numeric value representing actual lab total:HDL value
+#' @param bpl On blood pressure lowering treatment - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param lld On lipid lowering treatment - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param athromb On antithrombotic including antiplatelet or anticoagulant treatment - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param ... Set decimal place for integers. Default is 4. Optional.
+#'
+#' @details  When the parameter \code{dat} is supplied using a dataset, then parameters take variable names as input. For example, when a dataset is supplied, the parameter \code{age} requires the variable name \code{index_age} as input from the dataset.
+#' When the parameter \code{dat} is not supplied and empty, then parameters take actual values or labels as input. For example, when there is no data, the parameter \code{age} requires a single numeric value between 35 and 79.This method calculates the risk score for a single individual.
+#'
+#'
+#' @return Returns either a single risk score or a numeric vector of risk scores.
+#'
+#' @seealso \code{\link{PriorCVDRisk}} can be used for people with a history of CVD.
+#' @export
+#' @examples
+#' # As Calculator (i.e. dataset not provided)
+#' NoPriorCVDRisk(sex="F", age=65, eth="Indian", smoker=0, nzdep=5,  diabetes=0, af=0, familyhx=1,
+#'               lld=1, athromb=1, bpl=1, sbp=118, tchdl=3.3)
+#'
+# # As Vectoriser (i.e. dataset provided)
+#' PriorCvdRisk(DT, sex=view_ag_sex, age=index_age, eth=view_ag_eth, nzdep=index_en_nzdep_quintiles, smoker=pt_smoking, diabetes=imp_hx_diabetes,
+#'              af=imp_hx_af, hf=imp_hx_heart_failure, days=days_since_event_predict, bmi=pt_en_bmi, sbp=sbp, tchdl=imp_index_tchdl_ratio,
+#'              hba1c=hba1c_index2yr, scr=creatinine_index2yr, bpl=ph_all_bplds_prior_6mths, lld=ph_all_llds_prior_6mths, athromb=antithrombotics,
+#'              dp = 6)
+#'
+# --- Code ---
 NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, familyhx, sbp, tchdl, bpl, lld, athromb,...){
 
   vars   <- as.list(match.call()[-1])
@@ -39,8 +81,8 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
                   indian   = +(vars$eth %in% c("Indian", 43)),
                   asian    = +(vars$eth %in% c("Chinese", "East Asian", 40:42)))
 
-  smoke   <- list(ex_smoke = +(vars$smoker %in% c("Ex-smoker", "ex", 1:2)),
-                  cur_smoke = +(vars$smoker %in% c("Current Smoker", "Current", 3:5)))
+  smoke   <- list(ex_smoke = +(vars$smoker %in% c("Ex-smoker", "Ex", 1:2)),
+                  cur_smoke = +(vars$smoker %in% c("Current Smoker", "Current", "Smoker", 3:5)))
 
   # Interaction / Recentering
   if(sex == 0){ # Female
@@ -137,15 +179,5 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
 }
 
 
-# # Example Usage:
-# # As Calculator (i.e. dataset not provided)
-# NoPriorCVDRisk(sex="F", age=65, eth="Indian", smoker=0, nzdep=5,  diabetes=0, af=0, familyhx=1,
-#                lld=1, athromb=1, bpl=1, sbp=118, tchdl=3.3)
 
-
-# As Vectoriser (i.e. dataset provided)
-# PriorCvdRisk(DT, sex=view_ag_sex, age=index_age, eth=view_ag_eth, nzdep=index_en_nzdep_quintiles, smoker=pt_smoking, diabetes=imp_hx_diabetes,
-#              af=imp_hx_af, hf=imp_hx_heart_failure, days=days_since_event_predict, bmi=pt_en_bmi, sbp=sbp, tchdl=imp_index_tchdl_ratio,
-#              hba1c=hba1c_index2yr, scr=creatinine_index2yr, bpl=ph_all_bplds_prior_6mths, lld=ph_all_llds_prior_6mths, athromb=antithrombotics,
-#              dp = 6)
 

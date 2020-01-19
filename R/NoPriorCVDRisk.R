@@ -1,31 +1,32 @@
 #' PREDICT CVD risk Score for People Without Prior CVD
 #'
-#' \code{NoPriorCVDRisk} calculates the 5 year risk of CVD for people without a history of CVD. If a dataset of input values are not supplied, then individual values for each coefficent can be specified.
-#' If a dataset of input values are supplied, then a score is produced for each row of data, resulting in a numeric vector of the same row length.
+#' \code{NoPriorCVDRisk} calculates the 5 year risk of cardiovascular disease (CVD) (hospitalisation for acute coronary syndrome, heart failure, stroke or other cerebrovascular disease, peripheral vascular death, cardiovascular death),
+#' for people without a history of atherosclerotic CVD. If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied, then a risk estimate is produced for each row of data, resulting in a numeric vector of the same length.
 #' A specific format is required for each variable input value. Encoding may be required. See arguments.
 #'
 #' @usage NoPriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes, af, familyhx, sbp, tchdl, bpl, lld, athromb,...)
 #'
 #' @param dat   A data.frame or data.table containing input data. Optional. See Details.
 #' @param sex   Sex or gender - input as labels M, Male, F, Female; or encode binary where 1 is male and 0 is female
-#' @param age   Age - input as numeric value between 35 and 79
-#' @param eth   Ethnicity - input as labels "Chinese", "Indian", "Other Asian", "Fijian Indian", "Maori", "Pacific", "Other", or "Unknown"
-#' @param nzdep NZ deprivation index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived)
-#' @param smoking Smoking status - input as labels "Ex-smoker", "Ex", "Current Smoker", "Current", "Smoker", "Y", "Yes"
+#' @param age   Age - input as numeric value between 35 and 74
+#' @param eth   Ethnicity - input as labels (or encode as) "European" (1), "Maori" (2), "Pacific" (3), "Chinese" (42), "Indian" (43), "Fijian Indian" (43), or "Other Asian" (4).
+#' @param nzdep Index of socioeconomic deprivation, specifically the New Zealand Deprivation Index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived).
+#' @param smoker Smoking status - input as labels (or encode as) "Ex smoker" (1), "Ex-smoker" (1), "Ex" (1), "Current Smoker" (2), "Current" (2), "Smoker" (2), "Y" (2), "Yes" (2)
 #' @param diabetes Diabetes status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param af Atrrial fibrillation status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param sbp Systolic blood pressure - input as numeric value representing actual systolic blood pressure
-#' @param tchdl Total-HDL cholesterol ratio - input as numeric value representing actual lab total:HDL value
-#' @param bpl On blood pressure lowering treatment - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param lld On lipid lowering treatment - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param athromb On antithrombotic including antiplatelet or anticoagulant treatment - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param af Atrial fibrillation status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param sbp Systolic blood pressure - input as numeric value representing measured systolic blood pressure in mmHg
+#' @param tchdl Total-HDL cholesterol ratio - input as numeric value representing most recent value of total:HDL cholesterol
+#' @param bpl Receiving at least one blood pressure lowering medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param lld Receiving lipid lowering medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param athromb Receiving antiplatelet or anticoagulant medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"
 #' @param ... Set decimal place for integers. Default is 4. Optional.
 #'
 #' @details  When the parameter \code{dat} is supplied using a dataset, then parameters take variable names as input. For example, when a dataset is supplied, the parameter \code{age} requires the variable name \code{index_age} as input from the dataset.
-#' When the parameter \code{dat} is not supplied and empty, then parameters take actual values or labels as input. For example, when there is no data, the parameter \code{age} requires a single numeric value between 35 and 79.This method calculates the risk score for a single individual.
+#' When the parameter \code{dat} is not supplied, then parameters take actual values or labels as input. For example, when \code{dat} is not supplied, the parameter \code{age} requires a single numeric value between 30 and 79. This method calculates the 5-year risk estimate for a single individual.
+#' The co-efficients for ethnicity apply only to the following labels (codes): "European" (1), "Maori" (2), "Pacific" (3), "Chinese" (42), "Indian" (43), "Fijian Indian" (43), and "Other Asian" (4). Individuals with ethnicity labels (or codes) that fall outside of these categories will not recieve a risk estimate.
+#' To obtain a risk estimate please ensure that ethnicity is labelled (or encoded) as one of the above categories.
 #'
-#'
-#' @return Returns either a single risk score or a numeric vector of risk scores.
+#' @return Returns either a single CVD risk estimate or a numeric vector of CVD risk estimates.
 #'
 #' @seealso \code{\link{PriorCVDRisk}} can be used for people with a history of CVD.
 #' @export
@@ -55,6 +56,11 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
     dat     <- as.data.frame(dat, row.names = NULL)
     vars    <- vars[-1]
     names   <- as.vector(sapply(vars, as.character))
+
+    if(any(!names %in% names(dat))){
+      to.check <- names[!names %in% names(dat)]
+      stop(paste("Check naming or existence of variable(s):", paste(sQuote(to.check), collapse = ", ")))
+    }
     vars[]  <- dat[, names]
   }
 
@@ -73,13 +79,16 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
   sbp     <- vars$sbp
 
   # nb: Each list is ordered to match item order in coeffs list
-  eth     <- list(maori    = +(vars$eth %in% c("Maori", 12)),
-                  pacific  = +(vars$eth %in% c("Pacific", 30:37)),
-                  indian   = +(vars$eth %in% c("Indian", 43)),
-                  asian    = +(vars$eth %in% c("Chinese", "East Asian", 40:42)))
+  vars$eth <- as.character(vars$eth)
+  inval.eth <- which(vars$eth %in% c("Other", "MELAA", "5", "9", NA))
 
-  smoke   <- list(ex_smoke = +(vars$smoker %in% c("Ex-smoker", "Ex", 1:2)),
-                  cur_smoke = +(vars$smoker %in% c("Current Smoker", "Current", "Smoker", "Y", "Yes", 3:5)))
+  eth     <- list(maori    = +(vars$eth %in% c("Maori", "12")),
+                  pacific  = +(vars$eth %in% c("Pacific", as.character(30:37), "3")),
+                  indian   = +(vars$eth %in% c("Indian", "Fijian Indian", "43")),
+                  asian    = +(vars$eth %in% c("Chinese", "East Asian", "Other Asian", "Asian", "42")))
+
+  smoke   <- list(ex_smoke = +(vars$smoker %in% c("Ex smoker", "Ex-smoker", "Ex", 1)),
+                  cur_smoke = +(vars$smoker %in% c("Current Smoker", "Current", "Smoker", "Y", "Yes", 2)))
 
   # Interaction / Recentering
   if(sex == 0){ # Female
@@ -171,6 +180,14 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
                                     format = 'f',
                                     digits = dp))
 
+  if(length(inval.eth)>=1){
+    warning("Ethnicity input contains one or more non-calculated classes. Risk not estimated as co-efficient was not applied. See R documentation using ?PriorCVDRisk",
+            call. = F)
+
+    rounded.val <- replace(rounded.val,
+                           inval.eth,
+                           NA)
+  }
   return(rounded.val)
 
 }

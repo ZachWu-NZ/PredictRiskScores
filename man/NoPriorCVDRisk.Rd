@@ -11,41 +11,43 @@ NoPriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes, af, familyhx, sbp, t
 
 \item{sex}{Sex or gender - input as labels M, Male, F, Female; or encode binary where 1 is male and 0 is female}
 
-\item{age}{Age - input as numeric value between 35 and 79}
+\item{age}{Age - input as numeric value between 35 and 74}
 
-\item{eth}{Ethnicity - input as labels "Chinese", "Indian", "Other Asian", "Fijian Indian", "Maori", "Pacific", "Other", or "Unknown"}
+\item{eth}{Ethnicity - input as labels (or encode as) "European" (1), "Maori" (2), "Pacific" (3), "Chinese" (42), "Indian" (43), "Fijian Indian" (43), or "Other Asian" (4).}
 
-\item{nzdep}{NZ deprivation index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived)}
+\item{nzdep}{Index of socioeconomic deprivation, specifically the New Zealand Deprivation Index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived).}
+
+\item{smoker}{Smoking status - input as labels (or encode as) "Ex smoker" (1), "Ex-smoker" (1), "Ex" (1), "Current Smoker" (2), "Current" (2), "Smoker" (2), "Y" (2), "Yes" (2)}
 
 \item{diabetes}{Diabetes status - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
 
-\item{af}{Atrrial fibrillation status - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
+\item{af}{Atrial fibrillation status - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
 
-\item{sbp}{Systolic blood pressure - input as numeric value representing actual systolic blood pressure}
+\item{sbp}{Systolic blood pressure - input as numeric value representing measured systolic blood pressure in mmHg}
 
-\item{tchdl}{Total-HDL cholesterol ratio - input as numeric value representing actual lab total:HDL value}
+\item{tchdl}{Total-HDL cholesterol ratio - input as numeric value representing most recent value of total:HDL cholesterol}
 
-\item{bpl}{On blood pressure lowering treatment - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
+\item{bpl}{Receiving at least one blood pressure lowering medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
 
-\item{lld}{On lipid lowering treatment - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
+\item{lld}{Receiving lipid lowering medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
 
-\item{athromb}{On antithrombotic including antiplatelet or anticoagulant treatment - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
+\item{athromb}{Receiving antiplatelet or anticoagulant medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
 
 \item{...}{Set decimal place for integers. Default is 4. Optional.}
-
-\item{smoking}{Smoking status - input as labels "Ex-smoker", "Ex", "Current Smoker", "Current", "Smoker", "Y", "Yes"}
 }
 \value{
-Returns either a single risk score or a numeric vector of risk scores.
+Returns either a single CVD risk estimate or a numeric vector of CVD risk estimates.
 }
 \description{
-\code{NoPriorCVDRisk} calculates the 5 year risk of CVD for people without a history of CVD. If a dataset of input values are not supplied, then individual values for each coefficent can be specified.
-If a dataset of input values are supplied, then a score is produced for each row of data, resulting in a numeric vector of the same row length.
+\code{NoPriorCVDRisk} calculates the 5 year risk of cardiovascular disease (CVD) (hospitalisation for acute coronary syndrome, heart failure, stroke or other cerebrovascular disease, peripheral vascular death, cardiovascular death),
+for people without a history of atherosclerotic CVD. If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied, then a risk estimate is produced for each row of data, resulting in a numeric vector of the same length.
 A specific format is required for each variable input value. Encoding may be required. See arguments.
 }
 \details{
 When the parameter \code{dat} is supplied using a dataset, then parameters take variable names as input. For example, when a dataset is supplied, the parameter \code{age} requires the variable name \code{index_age} as input from the dataset.
-When the parameter \code{dat} is not supplied and empty, then parameters take actual values or labels as input. For example, when there is no data, the parameter \code{age} requires a single numeric value between 35 and 79.This method calculates the risk score for a single individual.
+When the parameter \code{dat} is not supplied, then parameters take actual values or labels as input. For example, when \code{dat} is not supplied, the parameter \code{age} requires a single numeric value between 30 and 79. This method calculates the 5-year risk estimate for a single individual.
+The co-efficients for ethnicity apply only to the following labels (codes): "European" (1), "Maori" (2), "Pacific" (3), "Chinese" (42), "Indian" (43), "Fijian Indian" (43), and "Other Asian" (4). Individuals with ethnicity labels (or codes) that fall outside of these categories will not recieve a risk estimate.
+To obtain a risk estimate please ensure that ethnicity is labelled (or encoded) as one of the above categories.
 }
 \examples{
 # As Calculator (i.e. dataset not provided)

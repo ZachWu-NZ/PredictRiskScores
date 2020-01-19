@@ -10,13 +10,13 @@
 #' @param dat   A data.frame or data.table containing input data. Optional. See Details.
 #' @param sex   Sex or gender - input as labels M, Male, F, Female; or encode binary where 1 is male and 0 is female
 #' @param age   Age - input as numeric value between 30 and 79
-#' @param eth   Ethnicity - input as labels (or decode as) "Maori" (2), "Pacific" (3), "Chinese" (42), "Indian" (43), "Fijian Indian" (43), "Other Asian" (4), or "Other" (9)
-#' @param nzdep Index of socioeconomic deprivation, specifically the New Zealand Deprivation Index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived).
+#' @param eth   Ethnicity - input as labels (or encode as) "European" (1), "Maori" (2), "Pacific" (3), "Chinese" (42), "Indian" (43), "Fijian Indian" (43), or "Other Asian" (4)
+#' @param nzdep Index of socioeconomic deprivation, specifically the New Zealand Deprivation Index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived)
 #' @param smoker Current smoker - input as labels "Y", "Yes", "Smoker", or encode binary where 1 is "Yes"
 #' @param diabetes Diabetes status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
 #' @param af Atrial fibrillation status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
 #' @param hf Heart failure - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param othervd History involving angina, peripheral vascular disease, or non-hospitalised cerebrovascular disease - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param othervd History involving angina, peripheral vascular disease, or non-hospitalised cerebrovascular disease not associated with stroke or TIA- input as label "Y", "Yes", or encode binary where 1 is "Yes"
 #' @param days Time since last the most recent CVD event - input as numeric value representing days. If the event was angina or peripheral vascular disease, then enter 1826. If the date of most recent CVD event was not known, then keep as NA.
 #' @param bmi Body mass index - input as numeric value representing BMI in kg/m^2
 #' @param sbp Systolic blood pressure - input as numeric value representing measured systolic blood pressure in mmHg
@@ -30,7 +30,8 @@
 #'
 #' @details  When the parameter \code{dat} is supplied using a dataset, then parameters take variable names as input. For example, when a dataset is supplied, the parameter \code{age} requires the variable name \code{index_age} as input from the dataset.
 #' When the parameter \code{dat} is not supplied, then parameters take actual values or labels as input. For example, when \code{dat} is not supplied, the parameter \code{age} requires a single numeric value between 30 and 79. This method calculates the 5-year risk estimate for a single individual.
-#' The co-efficients for ethnicity apply only to "Maori" (2), "Pacific" (3), "Chinese" (42), "Indian" (43), "Fijian Indian" (43), and "Other Asian" (4). Individuals with ethnicity labels (or codes) that fall outside of these categories will receive a risk score where ethnicity has no effect.
+#' The co-efficients for ethnicity apply only to the following labels (codes): "European" (1), "Maori" (2), "Pacific" (3), "Chinese" (42), "Indian" (43), "Fijian Indian" (43), and "Other Asian" (4). Individuals with ethnicity labels (or codes) that fall outside of these categories will not recieve a risk estimate.
+#' To obtain a risk estimate please ensure that ethnicity is labelled (or encoded) as one of the above categories.
 #'
 #' @return Returns either a single CVD risk estimate or a numeric vector of CVD risk estimates.
 #'
@@ -42,11 +43,8 @@
 #'              bmi=NA, sbp=118, tchdl=3.3, hba1c=NA, scr=52, bpl=1, lld=1, athromb=1)
 #'
 #' #As Vectoriser (i.e. dataset provided)
-#' PriorCVDRisk(DT, sex=view_ag_sex, age=index_age, eth=view_ag_eth, nzdep=index_en_nzdep_quintiles, smoker=pt_smoking, diabetes=imp_hx_diabetes,
-#'              af=imp_hx_af, hf=imp_hx_heart_failure, othervd=hx_other_vascular, days=days_since_event_predict, bmi=pt_en_bmi, sbp=sbp, tchdl=imp_index_tchdl_ratio,
-#'              hba1c=hba1c_index2yr, scr=creatinine_index2yr, bpl=ph_all_bplds_prior_6mths, lld=ph_all_llds_prior_6mths, athromb=antithrombotics, dp = 6)
-
-
+#' PriorCVDRisk(TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker, diabetes=diabetes, af=af, hf=hf, othervd=othervd, days=days,
+#'              bmi=bmi, sbp=sbp, tchdl=tchdl, hba1c=hba1c, scr=scr, bpl=bpl, lld=lld, athromb=athromb)
 # --- Code ---
 PriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, othervd, days, bmi, sbp, tchdl, hba1c, scr, bpl, lld, athromb,...){
 
@@ -65,12 +63,18 @@ PriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, ot
     dat     <- as.data.frame(dat, row.names = NULL)
     vars    <- vars[-1]
     names   <- as.vector(sapply(vars, as.character))
+
+    if(any(!names %in% names(dat))){
+      to.check <- names[!names %in% names(dat)]
+      stop(paste("Check naming or existence of variable(s):", paste(sQuote(to.check), collapse = ", ")))
+    }
+
     vars[]  <- dat[, names]
   }
 
   # Inputs Settings
   male    <- +(vars$sex %in% c("M", "Male", 1))
-  smoker  <- +(vars$smoker %in% c("Y", "Yes", "Smoker", 3:5))
+  smoker  <- +(vars$smoker %in% c("Y", "Yes", "Smoker", 1))
   diab    <- +(vars$diabetes %in% c("Y", "Yes", 1))
   af      <- +(vars$af %in% c("Y", "Yes", 1))
   hf      <- +(vars$hf %in% c("Y", "Yes", 1))
@@ -86,22 +90,25 @@ PriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, ot
                   age60_69 = +(vars$age %in% 60:69),
                   age70_79 = +(vars$age >= 70))
 
-  eth     <- list(asian    = +(vars$eth %in% c("Chinese", "East Asian", "Other Asian", "Asian", 42)),
-                  indian   = +(vars$eth %in% c("Indian", "Fijian Indian", 43)),
-                  maori    = +(vars$eth %in% c("Maori", 12, 2)),
-                  pacific  = +(vars$eth %in% c("Pacific", 30:37, 3)))
+  vars$eth <- as.character(vars$eth)
+  inval.eth <- which(vars$eth %in% c("Other", "MELAA", "5", "9", NA))
 
-  days    <- list(prior6m    = +(vars$days < 182),
-                  prior6_12m = +(vars$days >= 182 & vars$days <=365),
+  eth     <- list(asian    = +(vars$eth %in% c("Chinese", "East Asian", "Other Asian", "Asian", "42")),
+                  indian   = +(vars$eth %in% c("Indian", "Fijian Indian", "43")),
+                  maori    = +(vars$eth %in% c("Maori", "12", "2")),
+                  pacific  = +(vars$eth %in% c("Pacific", as.character(30:37), "3")))
+
+  days    <- list(prior6m    = +(vars$days < 182 & !vars$othervd %in% c("Y", "Yes", 1)),
+                  prior6_12m = +(vars$days >= 182 & vars$days <=365 & !vars$othervd %in% c("Y", "Yes", 1)),
                   prior5plus = +(vars$days >= 1826
                                  | is.na(vars$days)
                                  | vars$othervd %in% c("Y", "Yes", 1)))
 
-  bmi     <- list(bmilt20    = +(vars$bmi < 20),
-                  bmi20_25   = +(vars$bmi %in% 20:24),
-                  bmi30_35   = +(vars$bmi %in% 30:34),
-                  bmi35_40   = +(vars$bmi %in% 35:39),
-                  bmige40    = +(vars$bmi >= 40),
+  bmi     <- list(bmilt20    = +(vars$bmi < 20 & !is.na(vars$bmi)),
+                  bmi20_25   = +(vars$bmi %in% 20:24 & !is.na(vars$bmi)),
+                  bmi30_35   = +(vars$bmi %in% 30:34 & !is.na(vars$bmi)),
+                  bmi35_40   = +(vars$bmi %in% 35:39 & !is.na(vars$bmi)),
+                  bmige40    = +(vars$bmi >= 40 & !is.na(vars$bmi)),
                   bmimiss    = +(vars$bmi == "" | is.na(vars$bmi)))
 
   sbp     <- list(sbplt100   = +(vars$sbp < 100),
@@ -109,12 +116,12 @@ PriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, ot
                   sbp140_160 = +(vars$sbp >= 140 & vars$sbp <= 159),
                   sbpge160   = +(vars$sbp >= 160))
 
-  hba1c   <- list(hba1c40_65 = +(vars$hba1c >= 40 & vars$hba1c <= 64),
-                  hba1cge65  = +(vars$hba1c >= 65),
+  hba1c   <- list(hba1c40_65 = +(vars$hba1c >= 40 & vars$hba1c <= 64 & !is.na(vars$hba1c)),
+                  hba1cge65  = +(vars$hba1c >= 65 & !is.na(vars$hba1c)),
                   hba1cmiss  = +(vars$hba1c == "" | is.na(vars$hba1c)))
 
-  scr     <- list(creat100_149 = +(vars$scr >= 100 & vars$scr <= 149),
-                  creatge150   = +(vars$scr >= 150),
+  scr     <- list(creat100_149 = +(vars$scr >= 100 & vars$scr <= 149 & !is.na(vars$scr)),
+                  creatge150   = +(vars$scr >= 150 & !is.na(vars$scr)),
                   creatmiss    = +(vars$scr == "" | is.na(vars$scr)))
 
   # List input values
@@ -174,9 +181,13 @@ PriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, ot
                                     format = 'f',
                                     digits = dp))
 
-  if(any(vars$eth %in% c("Other", 1, 5, 9))){
-    warning("Ethnicity input contains one or more non-calculated classes. Co-efficient not applied. See R documentation using ?PriorCVDRisk",
+  if(length(inval.eth)>=1){
+    warning("Ethnicity input contains one or more non-calculated classes. Risk not estimated as co-efficient was not applied. See R documentation using ?PriorCVDRisk",
             call. = F)
+
+    rounded.val <- replace(rounded.val,
+                           inval.eth,
+                           NA)
   }
   return(rounded.val)
 

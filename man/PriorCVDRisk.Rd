@@ -14,9 +14,9 @@ PriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, othervd,
 
 \item{age}{Age - input as numeric value between 30 and 79}
 
-\item{eth}{Ethnicity - input as labels "Chinese", "Indian", "Other Asian", "Fijian Indian", "Maori", "Pacific", or "Other"}
+\item{eth}{Ethnicity - input as labels (or encode as) "European" (1), "Maori" (2), "Pacific" (3), "Chinese" (42), "Indian" (43), "Fijian Indian" (43), or "Other Asian" (4)}
 
-\item{nzdep}{Index of socioeconomic deprivation, specifically the New Zealand Deprivation Index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived).}
+\item{nzdep}{Index of socioeconomic deprivation, specifically the New Zealand Deprivation Index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived)}
 
 \item{smoker}{Current smoker - input as labels "Y", "Yes", "Smoker", or encode binary where 1 is "Yes"}
 
@@ -26,7 +26,7 @@ PriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, othervd,
 
 \item{hf}{Heart failure - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
 
-\item{othervd}{History involving angina, peripheral vascular disease, or non-hospitalised cerebrovascular disease - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
+\item{othervd}{History involving angina, peripheral vascular disease, or non-hospitalised cerebrovascular disease not associated with stroke or TIA- input as label "Y", "Yes", or encode binary where 1 is "Yes"}
 
 \item{days}{Time since last the most recent CVD event - input as numeric value representing days. If the event was angina or peripheral vascular disease, then enter 1826. If the date of most recent CVD event was not known, then keep as NA.}
 
@@ -59,6 +59,8 @@ A specific format is required for each variable input value. Encoding may be req
 \details{
 When the parameter \code{dat} is supplied using a dataset, then parameters take variable names as input. For example, when a dataset is supplied, the parameter \code{age} requires the variable name \code{index_age} as input from the dataset.
 When the parameter \code{dat} is not supplied, then parameters take actual values or labels as input. For example, when \code{dat} is not supplied, the parameter \code{age} requires a single numeric value between 30 and 79. This method calculates the 5-year risk estimate for a single individual.
+The co-efficients for ethnicity apply only to the following labels (codes): "European" (1), "Maori" (2), "Pacific" (3), "Chinese" (42), "Indian" (43), "Fijian Indian" (43), and "Other Asian" (4). Individuals with ethnicity labels (or codes) that fall outside of these categories will not recieve a risk estimate.
+To obtain a risk estimate please ensure that ethnicity is labelled (or encoded) as one of the above categories.
 }
 \examples{
 # As a calculator
@@ -66,9 +68,8 @@ PriorCVDRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0, af=0,
              bmi=NA, sbp=118, tchdl=3.3, hba1c=NA, scr=52, bpl=1, lld=1, athromb=1)
 
 #As Vectoriser (i.e. dataset provided)
-PriorCVDRisk(DT, sex=view_ag_sex, age=index_age, eth=view_ag_eth, nzdep=index_en_nzdep_quintiles, smoker=pt_smoking, diabetes=imp_hx_diabetes,
-             af=imp_hx_af, hf=imp_hx_heart_failure, othervd=hx_other_vascular, days=days_since_event_predict, bmi=pt_en_bmi, sbp=sbp, tchdl=imp_index_tchdl_ratio,
-             hba1c=hba1c_index2yr, scr=creatinine_index2yr, bpl=ph_all_bplds_prior_6mths, lld=ph_all_llds_prior_6mths, athromb=antithrombotics, dp = 6)
+PriorCVDRisk(TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker, diabetes=diabetes, af=af, hf=hf, othervd=othervd, days=days,
+             bmi=bmi, sbp=sbp, tchdl=tchdl, hba1c=hba1c, scr=scr, bpl=bpl, lld=lld, athromb=athromb)
 }
 \seealso{
 \code{\link{NoPriorCVDRisk}} can be used for people without a history of CVD.

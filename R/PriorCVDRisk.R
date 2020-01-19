@@ -4,18 +4,19 @@
 #' for people with a history of atherosclerotic CVD. If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied, then a risk estimate is produced for each row of data, resulting in a numeric vector of the same length.
 #' A specific format is required for each variable input value. Encoding may be required. See arguments.
 #'
-#' @usage PriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf,
+#' @usage PriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, othervd,
 #'              days, bmi, sbp, tchdl, hba1c, scr, bpl, lld, athromb,...)
 #'
 #' @param dat   A data.frame or data.table containing input data. Optional. See Details.
 #' @param sex   Sex or gender - input as labels M, Male, F, Female; or encode binary where 1 is male and 0 is female
 #' @param age   Age - input as numeric value between 30 and 79
-#' @param eth   Ethnicity - input as labels "Chinese", "Indian", "Other Asian", "Fijian Indian", "Maori", "Pacific", or "Other"
-#' @param nzdep Index of socioeconomic deprivation, specifically the New Zealand Deprivation Index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived)
-#' @param smoking Current smoker - input as labels "Y", "Yes", "Smoker", or encode binary where 1 is "Yes"
+#' @param eth   Ethnicity - input as labels (or decode as) "Maori" (2), "Pacific" (3), "Chinese" (42), "Indian" (43), "Fijian Indian" (43), "Other Asian" (4), or "Other" (9)
+#' @param nzdep Index of socioeconomic deprivation, specifically the New Zealand Deprivation Index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived).
+#' @param smoker Current smoker - input as labels "Y", "Yes", "Smoker", or encode binary where 1 is "Yes"
 #' @param diabetes Diabetes status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
 #' @param af Atrial fibrillation status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
 #' @param hf Heart failure - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param othervd History involving angina, peripheral vascular disease, or non-hospitalised cerebrovascular disease - input as label "Y", "Yes", or encode binary where 1 is "Yes"
 #' @param days Time since last the most recent CVD event - input as numeric value representing days. If the event was angina or peripheral vascular disease, then enter 1826. If the date of most recent CVD event was not known, then keep as NA.
 #' @param bmi Body mass index - input as numeric value representing BMI in kg/m^2
 #' @param sbp Systolic blood pressure - input as numeric value representing measured systolic blood pressure in mmHg
@@ -29,6 +30,7 @@
 #'
 #' @details  When the parameter \code{dat} is supplied using a dataset, then parameters take variable names as input. For example, when a dataset is supplied, the parameter \code{age} requires the variable name \code{index_age} as input from the dataset.
 #' When the parameter \code{dat} is not supplied, then parameters take actual values or labels as input. For example, when \code{dat} is not supplied, the parameter \code{age} requires a single numeric value between 30 and 79. This method calculates the 5-year risk estimate for a single individual.
+#' The co-efficients for ethnicity apply only to "Maori" (2), "Pacific" (3), "Chinese" (42), "Indian" (43), "Fijian Indian" (43), and "Other Asian" (4). Individuals with ethnicity labels (or codes) that fall outside of these categories will receive a risk score where ethnicity has no effect.
 #'
 #' @return Returns either a single CVD risk estimate or a numeric vector of CVD risk estimates.
 #'
@@ -36,17 +38,17 @@
 #' @export
 #' @examples
 #' # As a calculator
-#' PriorCVDRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0, af=0, hf=1, days=65,
+#' PriorCVDRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0, af=0, hf=1, othervd=1, days=65,
 #'              bmi=NA, sbp=118, tchdl=3.3, hba1c=NA, scr=52, bpl=1, lld=1, athromb=1)
 #'
 #' #As Vectoriser (i.e. dataset provided)
 #' PriorCVDRisk(DT, sex=view_ag_sex, age=index_age, eth=view_ag_eth, nzdep=index_en_nzdep_quintiles, smoker=pt_smoking, diabetes=imp_hx_diabetes,
-#'              af=imp_hx_af, hf=imp_hx_heart_failure, days=days_since_event_predict, bmi=pt_en_bmi, sbp=sbp, tchdl=imp_index_tchdl_ratio,
+#'              af=imp_hx_af, hf=imp_hx_heart_failure, othervd=hx_other_vascular, days=days_since_event_predict, bmi=pt_en_bmi, sbp=sbp, tchdl=imp_index_tchdl_ratio,
 #'              hba1c=hba1c_index2yr, scr=creatinine_index2yr, bpl=ph_all_bplds_prior_6mths, lld=ph_all_llds_prior_6mths, athromb=antithrombotics, dp = 6)
 
 
 # --- Code ---
-PriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, days, bmi, sbp, tchdl, hba1c, scr, bpl, lld, athromb,...){
+PriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, othervd, days, bmi, sbp, tchdl, hba1c, scr, bpl, lld, athromb,...){
 
   vars   <- as.list(match.call()[-1])
 
@@ -91,7 +93,9 @@ PriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, da
 
   days    <- list(prior6m    = +(vars$days < 182),
                   prior6_12m = +(vars$days >= 182 & vars$days <=365),
-                  prior5plus = +(vars$days >= 1826 | is.na(vars$days)))
+                  prior5plus = +(vars$days >= 1826
+                                 | is.na(vars$days)
+                                 | vars$othervd %in% c("Y", "Yes", 1)))
 
   bmi     <- list(bmilt20    = +(vars$bmi < 20),
                   bmi20_25   = +(vars$bmi %in% 20:24),
@@ -170,6 +174,10 @@ PriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, da
                                     format = 'f',
                                     digits = dp))
 
+  if(any(vars$eth %in% c("Other", 1, 5, 9))){
+    warning("Ethnicity input contains one or more non-calculated classes. Co-efficient not applied. See R documentation using ?PriorCVDRisk",
+            call. = F)
+  }
   return(rounded.val)
 
 }

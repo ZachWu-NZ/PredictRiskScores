@@ -4,7 +4,7 @@
 \alias{PriorCVDRisk}
 \title{PREDICT CVD risk Score for People With Prior CVD}
 \usage{
-PriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf,
+PriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, othervd,
              days, bmi, sbp, tchdl, hba1c, scr, bpl, lld, athromb,...)
 }
 \arguments{
@@ -16,13 +16,17 @@ PriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf,
 
 \item{eth}{Ethnicity - input as labels "Chinese", "Indian", "Other Asian", "Fijian Indian", "Maori", "Pacific", or "Other"}
 
-\item{nzdep}{Index of socioeconomic deprivation, specifically the New Zealand Deprivation Index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived)}
+\item{nzdep}{Index of socioeconomic deprivation, specifically the New Zealand Deprivation Index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived).}
+
+\item{smoker}{Current smoker - input as labels "Y", "Yes", "Smoker", or encode binary where 1 is "Yes"}
 
 \item{diabetes}{Diabetes status - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
 
 \item{af}{Atrial fibrillation status - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
 
 \item{hf}{Heart failure - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
+
+\item{othervd}{History involving angina, peripheral vascular disease, or non-hospitalised cerebrovascular disease - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
 
 \item{days}{Time since last the most recent CVD event - input as numeric value representing days. If the event was angina or peripheral vascular disease, then enter 1826. If the date of most recent CVD event was not known, then keep as NA.}
 
@@ -43,8 +47,6 @@ PriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf,
 \item{athromb}{Receiving antiplatelet or anticoagulant medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
 
 \item{...}{Set decimal place for integers. Default is 4. Optional.}
-
-\item{smoking}{Current smoker - input as labels "Y", "Yes", "Smoker", or encode binary where 1 is "Yes"}
 }
 \value{
 Returns either a single CVD risk estimate or a numeric vector of CVD risk estimates.
@@ -60,12 +62,12 @@ When the parameter \code{dat} is not supplied, then parameters take actual value
 }
 \examples{
 # As a calculator
-PriorCVDRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0, af=0, hf=1, days=65,
+PriorCVDRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0, af=0, hf=1, othervd=1, days=65,
              bmi=NA, sbp=118, tchdl=3.3, hba1c=NA, scr=52, bpl=1, lld=1, athromb=1)
 
 #As Vectoriser (i.e. dataset provided)
 PriorCVDRisk(DT, sex=view_ag_sex, age=index_age, eth=view_ag_eth, nzdep=index_en_nzdep_quintiles, smoker=pt_smoking, diabetes=imp_hx_diabetes,
-             af=imp_hx_af, hf=imp_hx_heart_failure, days=days_since_event_predict, bmi=pt_en_bmi, sbp=sbp, tchdl=imp_index_tchdl_ratio,
+             af=imp_hx_af, hf=imp_hx_heart_failure, othervd=hx_other_vascular, days=days_since_event_predict, bmi=pt_en_bmi, sbp=sbp, tchdl=imp_index_tchdl_ratio,
              hba1c=hba1c_index2yr, scr=creatinine_index2yr, bpl=ph_all_bplds_prior_6mths, lld=ph_all_llds_prior_6mths, athromb=antithrombotics, dp = 6)
 }
 \seealso{

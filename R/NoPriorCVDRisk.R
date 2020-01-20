@@ -59,7 +59,7 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
 
     if(any(!names %in% names(dat))){
       to.check <- names[!names %in% names(dat)]
-      stop(paste("Check naming or existence of variable(s):", paste(sQuote(to.check), collapse = ", ")))
+      stop(paste("Check naming or existence of variable(s):", paste(sQuote(to.check), collapse = ", ")), call. = F)
     }
     vars[]  <- dat[, names]
   }
@@ -91,21 +91,18 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
                   cur_smoke = +(vars$smoker %in% c("Current Smoker", "Current", "Smoker", "Y", "Yes", 2)))
 
   # Interaction / Recentering
-  if(sex == 0){ # Female
-
-    cen.age   <- age - 56.13665
-    cen.nzdep <- nzdep - 2.990826
-    cen.sbp   <- sbp - 129.0173
-    cen.tchdl <- tchdl - 3.726268
-
-  } else { # Male
-
-    cen.age   <- age - 51.79953
-    cen.nzdep <- nzdep - 2.972793
-    cen.sbp   <- sbp - 129.1095
-    cen.tchdl <- tchdl - 4.38906
-
-  }
+  cen.age <-  ifelse(sex == 0,
+                     age - 56.13665,
+                     age - 51.79953)
+  cen.nzdep <-  ifelse(sex == 0,
+                       nzdep - 2.990826,
+                       nzdep - 2.972793)
+  cen.sbp <-  ifelse(sex == 0,
+                     sbp - 129.0173,
+                     sbp - 129.1095)
+  cen.tchdl <-  ifelse(sex == 0,
+                       tchdl - 3.726268,
+                       tchdl - 4.38906)
 
   interaction <- list(int_age_diab = ifelse(diab == 0, 0, cen.age),
                       int_age_sbp  = cen.age * cen.sbp,
@@ -162,21 +159,29 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
                      int_age_sbp = -0.0004184,
                      int_sbp_bplt = -0.0053077)
 
-  # Calculations
-  if(sex == 0){  #Female
-    coeffs <- fem.coeff
-    survival <- 0.983169213058
+  f.ind <- which(sex == 0)
+  m.ind <- which(sex == 1)
 
-  } else { #Male
-    coeffs <- male.coeff
-    survival <- 0.974755526232
-  }
+  value.score <- mapply(function(val, f.coeff, m.coeff){
 
-  value.score <- Map("*", values, coeffs)
-  sum.score   <- Reduce("+", value.score)
-  risk.score  <- (1- survival ^ exp(sum.score))
+    effect <- rep(0, length(sex))
+    effect <- replace(effect, f.ind, val[f.ind] * f.coeff)
+    effect <- replace(effect, m.ind, val[m.ind] * m.coeff)
 
-  rounded.val <- as.numeric(formatC(round(risk.score, dp),
+    return(effect)
+  },
+  val = values,
+  f.coeff = fem.coeff,
+  m.coeff = male.coeff,
+  SIMPLIFY = F)
+
+  sum.score <- Reduce("+", value.score)
+
+  estimate <- rep(0, length(sum.score))
+  estimate <- replace(estimate, f.ind, 1 - 0.983169213058 ^ exp(sum.score[f.ind]))
+  estimate <- replace(estimate, m.ind, 1 - 0.974755526232 ^ exp(sum.score[m.ind]))
+
+  rounded.val <- as.numeric(formatC(round(estimate, dp),
                                     format = 'f',
                                     digits = dp))
 
@@ -191,6 +196,8 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
   return(rounded.val)
 
 }
+
+
 
 
 

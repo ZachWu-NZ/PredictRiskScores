@@ -11,7 +11,7 @@ This is an R package featuring functions for generating PREDICT CVD risk scores.
 
 #### Cleaning
 - `PriorCVDRisk` Creates a 5 year CVD risk estimate for people with prior CVD
-- `NoPriorCVDRisk` Creates a 5 year CVD risk estimate for people without prior CVD using publised Lancet equation
+- `NoPriorCVDRisk` Creates a 5 year CVD risk estimate for people without prior CVD using published Lancet equation
 - `NoPriorCVDRisk_BMI` Creates a 5 year CVD risk estimate for people without prior CVD using Ministry of Health BMI equation
 
 ## Installation

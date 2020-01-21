@@ -25,5 +25,5 @@ devtools::install_github("billy-nz/PredictRiskScores")
 library(PredictRiskScores)
 ```
 
-## Maintainer / Deveoper 
+## Maintainer / Developer 
 - Billy Wu // billy.wu@auckland.ac.nz

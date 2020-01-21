@@ -1,0 +1,237 @@
+
+#' PREDICT CVD Type-II Diabetes (2018.1) risk Score for People Without Prior CVD
+#'
+#' \code{PriorDMRisk} calculates the 5 year risk of cardiovascular disease (CVD) (hospitalisation for acute coronary syndrome, heart failure, stroke or other cerebrovascular disease, peripheral vascular death, cardiovascular death),
+#' for people with diabetes. This equation takes into account multiple diabetes-related variables. If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied, then a risk estimate is produced for each row of data, resulting in a numeric vector of the same length.
+#' A specific format is required for each variable input value. Encoding may be required. See arguments.
+#'
+#' @usage PriorDMRisk(dat, sex, age, eth, nzdep, smoker, af, familyhx, sbp, tchdl, bmi,
+#'            years, egfr, acr, hba1c, oral, insulin, bpl, lld, athromb,...)
+#'
+#' @param dat   A data.frame or data.table containing input data. Optional. See Details.
+#' @param sex   Sex or gender - input as labels M, Male, F, Female; or encode binary where 1 is male and 0 is female
+#' @param age   Age - input as numeric value between 30 and 74
+#' @param eth   Ethnicity - input as labels (or encode as) "European" (1), "Maori" (2), "Pacific" (3), "Chinese" (42), "Indian" (43), "Fijian Indian" (43), "Other South Asian" (43), or "Other Asian" (4).
+#' @param nzdep Index of socioeconomic deprivation, specifically the New Zealand Deprivation Index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived).
+#' @param smoker Current smoker - input as labels "Y", "Yes", "Smoker", or encode binary where 1 is "Yes"
+#' @param af Atrial fibrillation status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param familyhx Family history of premature CVD - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param sbp Systolic blood pressure - input as numeric value representing measured systolic blood pressure in mmHg
+#' @param tchdl Total-HDL cholesterol ratio - input as numeric value representing most recent value of total:HDL cholesterol
+#' @param bmi Body mass index - input as numeric value representing BMI in kg/m^2
+#' @param years Years since diagnosis of type 2 diabetes - input as numeric value representing years
+#' @param egfr Calculated or measured estimated glomerular filtration rate - input as numeric value representing most recent value eGFR value in mL/min/1.73m2
+#' @param acr Calculated or Measured albumin to creatinine ratio - input as numeric value representing most recent ACR value in mg/mmol
+#' @param hba1c Haemoglobin A1C - input as numeric value representing most recent value of HbA1c in mmol/mol
+#' @param oral On oral hypoglycaemic medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param insulin On insulin treatment - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param bpl Receiving at least one blood pressure lowering medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param lld Receiving lipid lowering medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param athromb Receiving antiplatelet or anticoagulant medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param ... Set decimal place for integers. Default is 4. Optional.
+#'
+#' @details  When the parameter \code{dat} is supplied using a dataset, then parameters take variable names as input. For example, when a dataset is supplied, the parameter \code{age} requires the variable name \code{index_age} as input from the dataset.
+#' When the parameter \code{dat} is not supplied, then parameters take actual values or labels as input. For example, when \code{dat} is not supplied, the parameter \code{age} requires a single numeric value between 30 and 79. This method calculates the 5-year risk estimate for a single individual.
+#' The co-efficients for ethnicity apply only to the following labels (codes): "European" (1), "Maori" (2), "Pacific" (3), "Chinese" (42), "Indian" (43), "Fijian Indian" (43), and "Other Asian" (4). Individuals with ethnicity labels (or codes) that fall outside of these categories will not recieve a risk estimate.
+#' To obtain a risk estimate please ensure that ethnicity is labelled (or encoded) as one of the above categories.
+#'
+#' @return Returns either a single CVD risk estimate or a numeric vector of CVD risk estimates.
+#'
+#' @seealso \code{\link{NoPriorCVDRisk}} can be used for people with a history of CVD and has been published in The Lancet.
+#' \code{\link{NoPriorCVDRisk_BMI}} can be used for people with a history of CVD and contains coefficients for BMI.
+#' \code{\link{PriorCVDRisk}} can be used for people without a history of CVD and has been published in Heart.
+#' @export
+#' @examples
+#'
+#'
+# --- Code ---
+PriorDMRisk <- function(dat, sex, age, eth, nzdep, smoker, af, familyhx, sbp, tchdl, bmi, years, egfr, acr, hba1c, oral, insulin, bpl, lld, athromb,...){
+
+  vars   <- as.list(match.call()[-1])
+
+  # Decimal Settings
+  if(length(list(...))==0){
+    dp      <- 4
+  }else{
+    dp      <- vars$dp
+    vars$dp <- NULL
+  }
+
+  # Settings
+  param.dat <- deparse(substitute(dat))!=""
+
+  # Dataset provided
+  if(param.dat){
+    dat     <- as.data.frame(dat, row.names = NULL)
+    vars    <- vars[-1]
+    input   <- as.vector(sapply(vars, as.character))
+    params  <- c("sex", "age", "eth", "nzdep", "smoker", "diabetes", "af", "familyhx", "sbp", "tchdl", "bmi", "bpl", "lld", "athromb")
+
+    # Error Checking
+    is.missing <- any(!input %in% names(dat))
+
+    if(is.missing){
+      to.check <- input[!input %in% names(dat)]
+      stop(paste("Check input(s) names:", paste(sQuote(to.check), collapse = ", ")), call. = F)
+    }
+
+    for(i in params){
+      if(eval(substitute(missing(i)))) {
+        stop(paste("Missing parameter(s):", sQuote(i)), call. = F)
+      }
+    }
+
+    vars[]  <- dat[, input]
+  }
+
+  # Inputs Settings
+  sex       <- +(vars$sex %in% c("M", "Male", 1))
+  smoker    <- +(vars$smoker %in% c("Y", "Yes", "Smoker", 1))
+  familyhx  <- +(vars$familyhx %in% c("Y", 1))
+  af        <- +(vars$af %in% c("Y", 1))
+  oral      <- +(vars$oral %in% c("Y", 1))
+  insulin   <- +(vars$insulin %in% c("Y", 1))
+  bpl       <- +(vars$bpl %in% c("Y", 1))
+  lld       <- +(vars$lld %in% c("Y", 1))
+  athromb   <- +(vars$athromb %in% c("Y", 1))
+
+  age     <- vars$age
+  nzdep   <- vars$nzdep
+  sbp     <- vars$sbp
+  tchdl   <- vars$tchdl
+  years   <- vars$years
+  egfr    <- vars$egfr
+  acr     <- vars$acr
+  hba1c   <- vars$hba1c
+
+  # nb: Each list is ordered to match item order in coeffs list
+  vars$eth <- as.character(vars$eth)
+  inval.eth <- which(vars$eth %in% c("Other", "MELAA", "5", "9", NA))
+
+  eth     <- list(maori    = +(vars$eth %in% c("Maori", "12")),
+                  pacific  = +(vars$eth %in% c("Pacific", as.character(30:37), "3")),
+                  indian   = +(vars$eth %in% c("Indian", "Fijian Indian", "43")),
+                  asian    = +(vars$eth %in% c("Chinese", "East Asian", "Other Asian", "Asian", "42")))
+
+  # Interaction / Recentering
+  cen.age   <- ifelse(sex == 0,
+                      age - 53.598009,
+                      age - 53.738152)
+  cen.nzdep <- ifelse(sex == 0,
+                      nzdep - 3.657006,
+                      nzdep - 3.410281)
+  cen.sbp   <- ifelse(sex == 0,
+                      sbp - 131.380365,
+                      sbp - 131.662168)
+  cen.tchdl <- ifelse(sex == 0,
+                      tchdl - 3.970698,
+                      tchdl - 4.330372)
+  cen.bmi   <- ifelse(sex == 0,
+                      bmi - 33.515572,
+                      bmi - 31.338254)
+  cen.years <- ifelse(sex == 0,
+                      years - 5.406364,
+                      years - 5.183025)
+  cen.egfr  <- ifelse(sex == 0,
+                      egfr - 89.558866,
+                      egfr - 88.788314)
+  cen.acr   <- ifelse(sex == 0,
+                      log((acr + 0.0099999997764826 / 1000)) + 4.314302355,
+                      log((acr + 0.0099999997764826 / 1000)) + 4.2751790)
+  cen.hba1c <- ifelse(sex == 0,
+                      hba1c - 63.618622,
+                      hba1c - 63.889441)
+
+  # List input values
+  # nb: Order to match coeffs list
+  values <- c(list(age = cen.age), eth, list(nzdep = cen.nzdep), list(smoker = smoker), list(familyhx = familyhx), list(af = af),
+              list(sbp = cen.sbp), list(tchdl = cen.tchdl), list(bmi = cen.bmi), list(years = cen.years), list(egfr = cen.egfr),
+              list(acr = cen.acr), list(hba1c = cen.hba1c), list(oral = oral), list(insulin = insulin), list(bpl = bpl),
+              list(lld = lld), list(athromb = athromb))
+
+  # Replace Missing
+  values <- lapply(values, function(x)
+    replace(x, is.na(x), 0))
+
+  # Coefficients
+  fem.coeff <- list(age       = 0.0424465,
+                    maori     = 0.0770441,
+                    pacific   = -0.253300,
+                    indian    = 0.138371,
+                    asian     = -0.3611259,
+                    nzdep     = 0.0699105,
+                    smoker    = 0.4391752,
+                    familyhx  = 0.1063846,
+                    af        = 0.7864886,
+                    sbp       = 0.0127053,
+                    tchdl     = 0.1139678,
+                    bmi       = 0.0073966,
+                    years     = 0.0163962,
+                    egfr      = -0.0090784,
+                    acr       = 0.1842885,
+                    hba1c     = 0.0076733,
+                    oral      = 0.1248604,
+                    insulin   = 0.3535548,
+                    bpl       = 0.0988141,
+                    lld       = -0.1595083,
+                    athromb   = 0.0605766)
+
+  male.coeff <- list(age       = 0.0472422,
+                     maori     = -0.0553093,
+                     pacific   = -0.210811,
+                     indian    = 0.1522338,
+                     asian     = -0.3852922,
+                     nzdep     = 0.0413719,
+                     smoker    = 0.3509447,
+                     familyhx  = 0.2093793,
+                     af        = 0.5284553,
+                     sbp       = 0.0054797,
+                     tchdl     = 0.0805627,
+                     bmi       = 0.0117137,
+                     years     = 0.0162351,
+                     egfr      = -0.0025889,
+                     acr       = 0.1815067,
+                     hba1c     = 0.0074805,
+                     oral      = 0.0051476,
+                     insulin   = 0.1846547,
+                     bpl       = 0.1532122,
+                     lld       = -0.0344494,
+                     athromb   = 0.0474684)
+
+  f.ind <- which(sex == 0)
+  m.ind <- which(sex == 1)
+
+  value.score <- mapply(function(val, f.coeff, m.coeff){
+
+    effect <- rep(0, length(sex))
+    effect <- replace(effect, f.ind, val[f.ind] * f.coeff)
+    effect <- replace(effect, m.ind, val[m.ind] * m.coeff)
+
+    return(effect)
+  },
+  val = values,
+  f.coeff = fem.coeff,
+  m.coeff = male.coeff,
+  SIMPLIFY = F)
+
+  sum.score <- Reduce("+", value.score)
+
+  estimate <- rep(0, length(sum.score))
+  estimate <- replace(estimate, f.ind, 1 - 0.9455710 ^ exp(sum.score[f.ind]))
+  estimate <- replace(estimate, m.ind, 1 - 0.9121175 ^ exp(sum.score[m.ind]))
+
+  rounded.val <- as.numeric(formatC(round(estimate, dp),
+                                    format = 'f',
+                                    digits = dp))
+
+  if(length(inval.eth)>=1){
+    warning("Ethnicity input contains one or more non-calculated classes. Risk not estimated as co-efficient was not applied. See R documentation using ?NoPriorCVDRisk_BMI",
+            call. = F)
+
+    rounded.val <- replace(rounded.val,
+                           inval.eth,
+                           NA)
+  }
+  return(rounded.val)
+
+}

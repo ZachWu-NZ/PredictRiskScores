@@ -24,7 +24,7 @@ install.packages("devtools")
 devtools::install_github("billy-nz/PredictRiskScores")
 
 # Load library:
-library("PredictRiskScores")
+library(PredictRiskScores)
 ```
 
 ## Author

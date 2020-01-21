@@ -8,8 +8,6 @@ This is an R package featuring functions for generating PREDICT CVD risk scores.
 -	Package offer functions for primary prevention (people without prior CVD) and secondary prevention (people with prior CVD).
 
 ## Functions
-
-#### Cleaning
 - `PriorCVDRisk` Creates a 5 year CVD risk estimate for people with prior CVD
 - `NoPriorCVDRisk` Creates a 5 year CVD risk estimate for people without prior CVD using published Lancet equation
 - `NoPriorCVDRisk_BMI` Creates a 5 year CVD risk estimate for people without prior CVD using Ministry of Health BMI equation
@@ -27,5 +25,5 @@ devtools::install_github("billy-nz/PredictRiskScores")
 library(PredictRiskScores)
 ```
 
-## Author
+## Maintainer / Deveoper 
 - Billy Wu // billy.wu@auckland.ac.nz

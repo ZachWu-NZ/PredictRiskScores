@@ -35,11 +35,12 @@
 #' @export
 #' @examples
 #' # As Calculator (i.e. dataset not provided)
-#' NoPriorCVDRisk(sex="F", age=65, eth="Indian", smoker=0, nzdep=5,  diabetes=0, af=0, familyhx=1,
-#'               lld=1, athromb=1, bpl=1, sbp=118, tchdl=3.3)
+#' NoPriorCVDRisk_BMI(sex="F", age=65, eth="Indian", smoker=0, nzdep=5,  diabetes=0, af=0, familyhx=1,
+#'                  lld=1, athromb=1, bpl=1, sbp=118, tchdl=3.3, bmi=32)
 #'
-#' NoPriorCVDRisk(dat=DF, sex=sex, age=age, eth=ethnic_labels, smoker=smoking_status, nzdep=nzdep_quintiles,  diabetes=diab_status, af=af, familyhx=fam_hx,
-#'               lld=lipidlowering, athromb=antithrombics, bpl=bplowering, sbp=systolic_bp, tchdl=tchdl_ratio)
+#' NoPriorCVDRisk_BMI(dat=DF, sex=sex, age=age, eth=ethnic_labels, smoker=smoking_status, nzdep=nzdep_quintiles,  diabetes=diab_status, af=af, familyhx=fam_hx,
+#'                  lld=lipidlowering, athromb=antithrombics, bpl=bplowering, sbp=systolic_bp, tchdl=tchdl_ratio, bmi=bmi)
+#'
 #'
 # --- Code ---
 NoPriorCVDRisk_BMI <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, familyhx, sbp, tchdl, bmi, bpl, lld, athromb,...){
@@ -54,29 +55,31 @@ NoPriorCVDRisk_BMI <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, 
     vars$dp <- NULL
   }
 
-  # Vectorise Settings (uses data from a table)
-  if(deparse(substitute(dat))!=""){
+  # Settings
+  param.dat <- deparse(substitute(dat))!=""
+
+  # Dataset provided
+  if(param.dat){
     dat     <- as.data.frame(dat, row.names = NULL)
     vars    <- vars[-1]
-    names   <- as.vector(sapply(vars, as.character))
+    input   <- as.vector(sapply(vars, as.character))
+    params  <- c("sex", "age", "eth", "nzdep", "smoker", "diabetes", "af", "familyhx", "sbp", "tchdl", "bmi", "bpl", "lld", "athromb")
 
-    # Input Naming Error
-    if(any(!names %in% names(dat))){
-      to.check <- names[!names %in% names(dat)]
-      stop(paste("Check naming input(s):", paste(sQuote(to.check), collapse = ", ")), call. = F)
+    # Error Checking
+    is.missing <- any(!input %in% names(dat))
+
+    if(is.missing){
+      to.check <- input[!input %in% names(dat)]
+      stop(paste("Check input(s) names:", paste(sQuote(to.check), collapse = ", ")), call. = F)
     }
-
-    # Missing Args Error
-    params <- c("sex", "age", "eth", "nzdep", "smoker", "diabetes", "af", "familyhx", "sbp", "tchdl", "bmi", "bpl", "lld", "athromb")
 
     for(i in params){
       if(eval(substitute(missing(i)))) {
-        stop(paste(i, "is missing!"))
+        stop(paste("Missing parameter(s):", sQuote(i)), call. = F)
       }
     }
 
-
-    vars[]  <- dat[, names]
+    vars[]  <- dat[, input]
   }
 
   # Inputs Settings
@@ -230,5 +233,3 @@ NoPriorCVDRisk_BMI <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, 
   return(rounded.val)
 
 }
-
-

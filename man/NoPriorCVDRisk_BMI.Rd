@@ -56,11 +56,12 @@ To obtain a risk estimate please ensure that ethnicity is labelled (or encoded) 
 }
 \examples{
 # As Calculator (i.e. dataset not provided)
-NoPriorCVDRisk(sex="F", age=65, eth="Indian", smoker=0, nzdep=5,  diabetes=0, af=0, familyhx=1,
-              lld=1, athromb=1, bpl=1, sbp=118, tchdl=3.3)
+NoPriorCVDRisk_BMI(sex="F", age=65, eth="Indian", smoker=0, nzdep=5,  diabetes=0, af=0, familyhx=1,
+                 lld=1, athromb=1, bpl=1, sbp=118, tchdl=3.3, bmi=32)
 
-NoPriorCVDRisk(dat=DF, sex=sex, age=age, eth=ethnic_labels, smoker=smoking_status, nzdep=nzdep_quintiles,  diabetes=diab_status, af=af, familyhx=fam_hx,
-              lld=lipidlowering, athromb=antithrombics, bpl=bplowering, sbp=systolic_bp, tchdl=tchdl_ratio)
+NoPriorCVDRisk_BMI(dat=DF, sex=sex, age=age, eth=ethnic_labels, smoker=smoking_status, nzdep=nzdep_quintiles,  diabetes=diab_status, af=af, familyhx=fam_hx,
+                 lld=lipidlowering, athromb=antithrombics, bpl=bplowering, sbp=systolic_bp, tchdl=tchdl_ratio, bmi=bmi)
+
 
 }
 \seealso{

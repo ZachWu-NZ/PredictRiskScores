@@ -3,3 +3,4 @@
 export(NoPriorCVDRisk)
 export(NoPriorCVDRisk_BMI)
 export(PriorCVDRisk)
+export(PriorDMRisk)

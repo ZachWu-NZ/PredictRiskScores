@@ -232,9 +232,3 @@ NoPriorCVDRisk_BMI <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, 
 }
 
 
-NoPriorCVDRisk_BMI(TEST, sex=sex, age=age, eth=eth, smoker=smoker, nzdep=nzdep, diabetes=diabetes, af=af, familyhx=familyhx,
-                   lld=lld, athromb=athromb, bpl=bpl, sbp=sbp, tchdl=tchdl, bmi=bmi)
-
-
-
-

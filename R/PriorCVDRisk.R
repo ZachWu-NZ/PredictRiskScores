@@ -221,7 +221,4 @@ PriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, ot
 
 }
 
-PriorCVDRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0, af=0, hf=1,
-             othervd=0, days=65, bmi=NA, sbp=118, tchdl=3.3, hba1c=NA, scr=52, bpl=1, lld=1,
-             athromb=1)
 

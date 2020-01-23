@@ -1,4 +1,4 @@
-#' PREDICT CVD (2018.2) risk Score for People Without Prior CVD
+#' PREDICT CVD (2018.2) Risk Score for People Without Prior CVD
 #'
 #' \code{NoPriorCVDRisk_BMI} calculates the 5 year risk of cardiovascular disease (CVD) (hospitalisation for acute coronary syndrome, heart failure, stroke or other cerebrovascular disease, peripheral vascular death, cardiovascular death),
 #' for people without a history of atherosclerotic CVD. This equation takes into account BMI, If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied, then a risk estimate is produced for each row of data, resulting in a numeric vector of the same length.
@@ -31,7 +31,13 @@
 #'
 #' @return Returns either a single CVD risk estimate or a numeric vector of CVD risk estimates.
 #'
-#' @seealso \code{\link{NoPriorCVDRisk}} can be used for people with a history of CVD and has been published in The Lancet. This equation does not contain BMI.
+#' @seealso
+#' \code{\link{NoPriorCVDRisk}} Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation
+#' \code{\link{NoPriorCVDRisk_BMI}} Creates a 5 year CVD risk estimate for people without prior CVD using the Ministry of Health's HISO equation containing BMI
+#' \code{\link{PriorT2DRisk}} Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation
+#' \code{\link{MajorBleedRisk}} Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation
+#' \code{\link{PriorCVDRisk}} Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation
+#'
 #' @export
 #' @examples
 #' # As Calculator (i.e. dataset not provided)
@@ -55,17 +61,24 @@ NoPriorCVDRisk_BMI <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, 
     vars$dp <- NULL
   }
 
-  # Settings
+  # Param Check
   param.dat <- deparse(substitute(dat))!=""
+
+  params  <- c("sex", "age", "eth", "nzdep", "smoker", "diabetes", "af", "familyhx", "sbp", "tchdl", "bmi", "bpl", "lld", "athromb")
+
+  for(i in params){
+    if(eval(substitute(missing(i)))) {
+      stop(paste("Missing parameter(s):", sQuote(i)), call. = F)
+    }
+  }
 
   # Dataset provided
   if(param.dat){
     dat     <- as.data.frame(dat, row.names = NULL)
     vars    <- vars[-1]
     input   <- as.vector(sapply(vars, as.character))
-    params  <- c("sex", "age", "eth", "nzdep", "smoker", "diabetes", "af", "familyhx", "sbp", "tchdl", "bmi", "bpl", "lld", "athromb")
 
-    # Error Checking
+    # Missing Check
     is.missing <- any(!input %in% names(dat))
 
     if(is.missing){
@@ -73,14 +86,9 @@ NoPriorCVDRisk_BMI <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, 
       stop(paste("Check input(s) names:", paste(sQuote(to.check), collapse = ", ")), call. = F)
     }
 
-    for(i in params){
-      if(eval(substitute(missing(i)))) {
-        stop(paste("Missing parameter(s):", sQuote(i)), call. = F)
-      }
-    }
-
     vars[]  <- dat[, input]
   }
+
 
   # Inputs Settings
   sex       <- +(vars$sex %in% c("M", "Male", 1))
@@ -96,14 +104,20 @@ NoPriorCVDRisk_BMI <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, 
   age     <- vars$age
   sbp     <- vars$sbp
 
-  # nb: Each list is ordered to match item order in coeffs list
-  vars$eth <- as.character(vars$eth)
-  inval.eth <- which(vars$eth %in% c("Other", "MELAA", "5", "9", NA))
+  vars$eth  <- tolower(as.character(vars$eth))
 
-  eth     <- list(maori    = +(vars$eth %in% c("Maori", "12")),
-                  pacific  = +(vars$eth %in% c("Pacific", as.character(30:37), "3")),
-                  indian   = +(vars$eth %in% c("Indian", "Fijian Indian", "43")),
-                  asian    = +(vars$eth %in% c("Chinese", "East Asian", "Other Asian", "Asian", "42")))
+  # Invalid inputs
+  inval.eth <- which(vars$eth %in% c("other", "melaa", "5", "9", NA))
+  inval.age <- which(vars$age < 18 | vars$age >80 | is.na(vars$age))
+
+  vars$age <- replace(vars$age, which(vars$age < 30), 30)
+  vars$age <- replace(vars$age, which(vars$age > 74), 74)
+  vars$age <- replace(vars$age, inval.age, 0)
+
+  eth     <- list(maori    = +(vars$eth %in% c("maori", "nzmaori", "21", "2")),
+                  pacific  = +(vars$eth %in% c("pacific", as.character(30:37), "3")),
+                  indian   = +(vars$eth %in% c("indian", "fijian indian", "other south asian", "43")),
+                  asian    = +(vars$eth %in% c("chinese", "east asian", "other asian", "asian", "42")))
 
   smoke   <- list(ex_smoke = +(vars$smoker %in% c("Ex smoker", "Ex-smoker", "Ex", 1)),
                   cur_smoke = +(vars$smoker %in% c("Current Smoker", "Current", "Smoker", "Y", "Yes", 2)))

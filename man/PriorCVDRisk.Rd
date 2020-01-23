@@ -72,5 +72,9 @@ PriorCVDRisk(TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker, diabet
              bmi=bmi, sbp=sbp, tchdl=tchdl, hba1c=hba1c, scr=scr, bpl=bpl, lld=lld, athromb=athromb)
 }
 \seealso{
-\code{\link{NoPriorCVDRisk}} can be used for people without a history of CVD.
+\code{\link{NoPriorCVDRisk}} Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation
+\code{\link{NoPriorCVDRisk_BMI}} Creates a 5 year CVD risk estimate for people without prior CVD using the Ministry of Health's HISO equation containing BMI
+\code{\link{PriorT2DRisk}} Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation
+\code{\link{MajorBleedRisk}} Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation
+\code{\link{PriorCVDRisk}} Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation
 }

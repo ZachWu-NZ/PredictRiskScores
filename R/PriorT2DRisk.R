@@ -1,11 +1,11 @@
 
-#' PREDICT CVD Type-II Diabetes (2018.1) risk Score for People Without Prior CVD
+#' PREDICT CVD Type-II Diabetes (2018.1) Risk Score for People Without Prior CVD
 #'
-#' \code{PriorDMRisk} calculates the 5 year risk of cardiovascular disease (CVD) (hospitalisation for acute coronary syndrome, heart failure, stroke or other cerebrovascular disease, peripheral vascular death, cardiovascular death),
+#' \code{PriorT2DRisk} calculates the 5 year risk of cardiovascular disease (CVD) (hospitalisation for acute coronary syndrome, heart failure, stroke or other cerebrovascular disease, peripheral vascular death, cardiovascular death),
 #' for people with diabetes. This equation takes into account multiple diabetes-related variables. If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied, then a risk estimate is produced for each row of data, resulting in a numeric vector of the same length.
 #' A specific format is required for each variable input value. Encoding may be required. See arguments.
 #'
-#' @usage PriorDMRisk(dat, sex, age, eth, nzdep, smoker, af, familyhx, sbp, tchdl, bmi,
+#' @usage PriorT2DRisk(dat, sex, age, eth, nzdep, smoker, af, familyhx, sbp, tchdl, bmi,
 #'            years, egfr, acr, hba1c, oral, insulin, bpl, lld, athromb,...)
 #'
 #' @param dat   A data.frame or data.table containing input data. Optional. See Details.
@@ -37,15 +37,19 @@
 #'
 #' @return Returns either a single CVD risk estimate or a numeric vector of CVD risk estimates.
 #'
-#' @seealso \code{\link{NoPriorCVDRisk}} can be used for people with a history of CVD and has been published in The Lancet.
-#' \code{\link{NoPriorCVDRisk_BMI}} can be used for people with a history of CVD and contains coefficients for BMI.
-#' \code{\link{PriorCVDRisk}} can be used for people without a history of CVD and has been published in Heart.
+#' @seealso
+#' \code{\link{NoPriorCVDRisk}} Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation
+#' \code{\link{NoPriorCVDRisk_BMI}} Creates a 5 year CVD risk estimate for people without prior CVD using the Ministry of Health's HISO equation containing BMI
+#' \code{\link{PriorT2DRisk}} Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation
+#' \code{\link{MajorBleedRisk}} Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation
+#' \code{\link{PriorCVDRisk}} Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation
+#'
 #' @export
 #' @examples
 #'
 #'
 # --- Code ---
-PriorDMRisk <- function(dat, sex, age, eth, nzdep, smoker, af, familyhx, sbp, tchdl, bmi, years, egfr, acr, hba1c, oral, insulin, bpl, lld, athromb,...){
+PriorT2DRisk <- function(dat, sex, age, eth, nzdep, smoker, af, familyhx, sbp, tchdl, bmi, years, egfr, acr, hba1c, oral, insulin, bpl, lld, athromb,...){
 
   vars   <- as.list(match.call()[-1])
 
@@ -57,28 +61,30 @@ PriorDMRisk <- function(dat, sex, age, eth, nzdep, smoker, af, familyhx, sbp, tc
     vars$dp <- NULL
   }
 
-  # Settings
+  # Param Check
   param.dat <- deparse(substitute(dat))!=""
+
+  params  <- c("sex", "age", "eth", "nzdep", "smoker", "af", "familyhx", "sbp", "tchdl", "bmi", "years", "egfr", "acr", "hba1c",
+               "oral", "insulin", "bpl", "lld", "athromb")
+
+  for(i in params){
+    if(eval(substitute(missing(i)))) {
+      stop(paste("Missing parameter(s):", sQuote(i)), call. = F)
+    }
+  }
 
   # Dataset provided
   if(param.dat){
     dat     <- as.data.frame(dat, row.names = NULL)
     vars    <- vars[-1]
     input   <- as.vector(sapply(vars, as.character))
-    params  <- c("sex", "age", "eth", "nzdep", "smoker", "diabetes", "af", "familyhx", "sbp", "tchdl", "bmi", "bpl", "lld", "athromb")
 
-    # Error Checking
+    # Missing Check
     is.missing <- any(!input %in% names(dat))
 
     if(is.missing){
       to.check <- input[!input %in% names(dat)]
       stop(paste("Check input(s) names:", paste(sQuote(to.check), collapse = ", ")), call. = F)
-    }
-
-    for(i in params){
-      if(eval(substitute(missing(i)))) {
-        stop(paste("Missing parameter(s):", sQuote(i)), call. = F)
-      }
     }
 
     vars[]  <- dat[, input]
@@ -99,19 +105,27 @@ PriorDMRisk <- function(dat, sex, age, eth, nzdep, smoker, af, familyhx, sbp, tc
   nzdep   <- vars$nzdep
   sbp     <- vars$sbp
   tchdl   <- vars$tchdl
+  bmi     <- vars$bmi
   years   <- vars$years
   egfr    <- vars$egfr
   acr     <- vars$acr
   hba1c   <- vars$hba1c
 
-  # nb: Each list is ordered to match item order in coeffs list
-  vars$eth <- as.character(vars$eth)
-  inval.eth <- which(vars$eth %in% c("Other", "MELAA", "5", "9", NA))
+  vars$eth  <- tolower(as.character(vars$eth))
 
-  eth     <- list(maori    = +(vars$eth %in% c("Maori", "12")),
+  # Invalid inputs
+  inval.eth <- which(vars$eth %in% c("other", "melaa", "5", "9", NA))
+  inval.age <- which(vars$age < 18 | vars$age >80 | is.na(vars$age))
+
+  vars$age <- replace(vars$age, which(vars$age < 30), 30)
+  vars$age <- replace(vars$age, which(vars$age > 74), 74)
+  vars$age <- replace(vars$age, inval.age, 0)
+
+  # nb: Each list is ordered to match item order in coeffs list
+  eth     <- list(maori    = +(vars$eth %in% c("maori", "nzmaori", "21", "2")),
                   pacific  = +(vars$eth %in% c("Pacific", as.character(30:37), "3")),
-                  indian   = +(vars$eth %in% c("Indian", "Fijian Indian", "43")),
-                  asian    = +(vars$eth %in% c("Chinese", "East Asian", "Other Asian", "Asian", "42")))
+                  indian   = +(vars$eth %in% c("indian", "fijian indian", "other south asian", "43")),
+                  asian    = +(vars$eth %in% c("chinese", "east asian", "other asian", "asian", "42")))
 
   # Interaction / Recentering
   cen.age   <- ifelse(sex == 0,
@@ -224,14 +238,27 @@ PriorDMRisk <- function(dat, sex, age, eth, nzdep, smoker, af, familyhx, sbp, tc
                                     format = 'f',
                                     digits = dp))
 
-  if(length(inval.eth)>=1){
-    warning("Ethnicity input contains one or more non-calculated classes. Risk not estimated as co-efficient was not applied. See R documentation using ?NoPriorCVDRisk_BMI",
+  if(length(inval.eth) >= 1){
+    warning("Ethnicity input contains one or more non-calculated classes. Risk not estimated. See R documentation using ?PriorT2DRisk",
             call. = F)
 
     rounded.val <- replace(rounded.val,
                            inval.eth,
                            NA)
   }
+
+  if(length(inval.age) >= 1){
+    warning("Age input contains one or more un-calculatable values. Risk not estimated. See R documentation using ?PriorT2DRisk",
+            call. = F)
+
+    rounded.val <- replace(rounded.val,
+                           inval.age,
+                           NA)
+  }
+
   return(rounded.val)
 
 }
+
+
+

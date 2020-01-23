@@ -1,4 +1,4 @@
-#' PREDICT CVD risk Score for People Without Prior CVD
+#' PREDICT CVD (2017) Risk Score for People Without Prior CVD
 #'
 #' \code{NoPriorCVDRisk} calculates the 5 year risk of cardiovascular disease (CVD) (hospitalisation for acute coronary syndrome, heart failure, stroke or other cerebrovascular disease, peripheral vascular death, cardiovascular death),
 #' for people without a history of atherosclerotic CVD. If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied, then a risk estimate is produced for each row of data, resulting in a numeric vector of the same length.
@@ -11,7 +11,7 @@
 #' @param age   Age - input as numeric value between 35 and 74
 #' @param eth   Ethnicity - input as labels (or encode as) "European" (1), "Maori" (2), "Pacific" (3), "Chinese" (42), "Indian" (43), "Fijian Indian" (43), or "Other Asian" (4).
 #' @param nzdep Index of socioeconomic deprivation, specifically the New Zealand Deprivation Index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived).
-#' @param smoker Smoking status - input as labels (or encode as) "Ex smoker" (1), "Ex-smoker" (1), "Ex" (1), "Current Smoker" (2), "Current" (2), "Smoker" (2), "Y" (2), "Yes" (2)
+#' @param smoker Smoking status - input as labels (or encode as) "Ex smoker" (2), "Ex-smoker" (2), "Ex" (2), "Current Smoker" (1), "Current" (1), "Smoker" (1), "Y" (1), "Yes" (1)
 #' @param diabetes Diabetes status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
 #' @param af Atrial fibrillation status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
 #' @param familyhx Family history of premature CVD - input as label "Y", "Yes", or encode binary where 1 is "Yes"
@@ -29,7 +29,13 @@
 #'
 #' @return Returns either a single CVD risk estimate or a numeric vector of CVD risk estimates.
 #'
-#' @seealso \code{\link{PriorCVDRisk}} can be used for people with a history of CVD.
+#' @seealso
+#' \code{\link{NoPriorCVDRisk}} Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation
+#' \code{\link{NoPriorCVDRisk_BMI}} Creates a 5 year CVD risk estimate for people without prior CVD using the Ministry of Health's HISO equation containing BMI
+#' \code{\link{PriorT2DRisk}} Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation
+#' \code{\link{MajorBleedRisk}} Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation
+#' \code{\link{PriorCVDRisk}} Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation
+#'
 #' @export
 #' @examples
 #' # As Calculator (i.e. dataset not provided)
@@ -52,28 +58,32 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
     vars$dp <- NULL
   }
 
-  # Vectorise Settings (uses data from a table)
-  if(deparse(substitute(dat))!=""){
+  # Param Check
+  param.dat <- deparse(substitute(dat))!=""
+
+  params <- c("sex", "age", "eth", "nzdep", "smoker", "diabetes", "af", "familyhx", "sbp", "tchdl", "bpl", "lld", "athromb")
+
+  for(i in params){
+    if(eval(substitute(missing(i)))) {
+      stop(paste("Missing parameter(s):", sQuote(i)), call. = F)
+    }
+  }
+
+  # Dataset provided
+  if(param.dat){
     dat     <- as.data.frame(dat, row.names = NULL)
     vars    <- vars[-1]
-    names   <- as.vector(sapply(vars, as.character))
+    input   <- as.vector(sapply(vars, as.character))
 
-    # Input Naming Error
-    if(any(!names %in% names(dat))){
-      to.check <- names[!names %in% names(dat)]
-      stop(paste("Check naming or existence of variable(s):", paste(sQuote(to.check), collapse = ", ")), call. = F)
+    # Missing Check
+    is.missing <- any(!input %in% names(dat))
+
+    if(is.missing){
+      to.check <- input[!input %in% names(dat)]
+      stop(paste("Check input(s) names:", paste(sQuote(to.check), collapse = ", ")), call. = F)
     }
 
-    # Missing Args Error
-    params <- c("sex", "age", "eth", "nzdep", "smoker", "diabetes", "af", "familyhx", "sbp", "tchdl", "bpl", "lld", "athromb")
-
-    for(i in params){
-      if(eval(substitute(missing(i)))) {
-        stop(paste(i, "is missing!"))
-      }
-    }
-
-    vars[]  <- dat[, names]
+    vars[]  <- dat[, input]
   }
 
   # Inputs Settings
@@ -90,17 +100,23 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
   age     <- vars$age
   sbp     <- vars$sbp
 
-  # nb: Each list is ordered to match item order in coeffs list
-  vars$eth <- as.character(vars$eth)
-  inval.eth <- which(vars$eth %in% c("Other", "MELAA", "5", "9", NA))
+  vars$eth  <- tolower(as.character(vars$eth))
 
-  eth     <- list(maori    = +(vars$eth %in% c("Maori", "12")),
-                  pacific  = +(vars$eth %in% c("Pacific", as.character(30:37), "3")),
-                  indian   = +(vars$eth %in% c("Indian", "Fijian Indian", "43")),
-                  asian    = +(vars$eth %in% c("Chinese", "East Asian", "Other Asian", "Asian", "42")))
+  # Invalid inputs
+  inval.eth <- which(vars$eth %in% c("other", "melaa", "5", "9", NA))
+  inval.age <- which(vars$age < 18 | vars$age >80 | is.na(vars$age))
 
-  smoke   <- list(ex_smoke = +(vars$smoker %in% c("Ex smoker", "Ex-smoker", "Ex", 1)),
-                  cur_smoke = +(vars$smoker %in% c("Current Smoker", "Current", "Smoker", "Y", "Yes", 2)))
+  vars$age <- replace(vars$age, which(vars$age < 30), 30)
+  vars$age <- replace(vars$age, which(vars$age > 74), 74)
+  vars$age <- replace(vars$age, inval.age, 0)
+
+  eth     <- list(maori    = +(vars$eth %in% c("maori", "nzmaori", "21", 2)),
+                  pacific  = +(vars$eth %in% c("pacific", as.character(30:37), "3")),
+                  indian   = +(vars$eth %in% c("indian", "fijian indian", "other south asian", "43")),
+                  asian    = +(vars$eth %in% c("chinese", "east asian", "other asian", "asian", "42")))
+
+  smoke   <- list(ex_smoke = +(vars$smoker %in% c("Ex smoker", "Ex-smoker", "Ex", 2)),
+                  cur_smoke = +(vars$smoker %in% c("Current Smoker", "Current", "Smoker", "Y", "Yes", 1)))
 
   # Interaction / Recentering
   cen.age <-  ifelse(sex == 0,

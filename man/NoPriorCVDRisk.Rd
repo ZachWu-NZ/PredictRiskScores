@@ -2,7 +2,7 @@
 % Please edit documentation in R/NoPriorCVDRisk.R
 \name{NoPriorCVDRisk}
 \alias{NoPriorCVDRisk}
-\title{PREDICT CVD risk Score for People Without Prior CVD}
+\title{PREDICT CVD (2017) Risk Score for People Without Prior CVD}
 \usage{
 NoPriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes, af, familyhx, sbp, tchdl, bpl, lld, athromb,...)
 }
@@ -17,7 +17,7 @@ NoPriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes, af, familyhx, sbp, t
 
 \item{nzdep}{Index of socioeconomic deprivation, specifically the New Zealand Deprivation Index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived).}
 
-\item{smoker}{Smoking status - input as labels (or encode as) "Ex smoker" (1), "Ex-smoker" (1), "Ex" (1), "Current Smoker" (2), "Current" (2), "Smoker" (2), "Y" (2), "Yes" (2)}
+\item{smoker}{Smoking status - input as labels (or encode as) "Ex smoker" (2), "Ex-smoker" (2), "Ex" (2), "Current Smoker" (1), "Current" (1), "Smoker" (1), "Y" (1), "Yes" (1)}
 
 \item{diabetes}{Diabetes status - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
 
@@ -61,5 +61,9 @@ NoPriorCVDRisk(dat=DF, sex=sex, age=age, eth=ethnic_labels, smoker=smoking_statu
 
 }
 \seealso{
-\code{\link{PriorCVDRisk}} can be used for people with a history of CVD.
+\code{\link{NoPriorCVDRisk}} Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation
+\code{\link{NoPriorCVDRisk_BMI}} Creates a 5 year CVD risk estimate for people without prior CVD using the Ministry of Health's HISO equation containing BMI
+\code{\link{PriorT2DRisk}} Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation
+\code{\link{MajorBleedRisk}} Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation
+\code{\link{PriorCVDRisk}} Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation
 }

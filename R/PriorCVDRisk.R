@@ -35,7 +35,13 @@
 #'
 #' @return Returns either a single CVD risk estimate or a numeric vector of CVD risk estimates.
 #'
-#' @seealso \code{\link{NoPriorCVDRisk}} can be used for people without a history of CVD.
+#' @seealso
+#' \code{\link{NoPriorCVDRisk}} Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation
+#' \code{\link{NoPriorCVDRisk_BMI}} Creates a 5 year CVD risk estimate for people without prior CVD using the Ministry of Health's HISO equation containing BMI
+#' \code{\link{PriorT2DRisk}} Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation
+#' \code{\link{MajorBleedRisk}} Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation
+#' \code{\link{PriorCVDRisk}} Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation
+#'
 #' @export
 #' @examples
 #' # As a calculator
@@ -58,18 +64,33 @@ PriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, ot
     vars$dp <- NULL
   }
 
-  # Vectorise Settings (uses data from a table)
-  if(deparse(substitute(dat))!=""){
+  # Param Check
+  param.dat <- deparse(substitute(dat))!=""
+
+  params  <- c("sex", "age", "eth", "nzdep", "smoker", "diabetes", "af", "hf", "othervd", "days", "bmi", "sbp", "tchdl", "hba1c",
+               "scr", "bpl", "lld", "athromb")
+
+  for(i in params){
+    if(eval(substitute(missing(i)))) {
+      stop(paste("Missing parameter(s):", sQuote(i)), call. = F)
+    }
+  }
+
+  # Dataset provided
+  if(param.dat){
     dat     <- as.data.frame(dat, row.names = NULL)
     vars    <- vars[-1]
-    names   <- as.vector(sapply(vars, as.character))
+    input   <- as.vector(sapply(vars, as.character))
 
-    if(any(!names %in% names(dat))){
-      to.check <- names[!names %in% names(dat)]
-      stop(paste("Check naming or existence of variable(s):", paste(sQuote(to.check), collapse = ", ")))
+    # Missing Check
+    is.missing <- any(!input %in% names(dat))
+
+    if(is.missing){
+      to.check <- input[!input %in% names(dat)]
+      stop(paste("Check input(s) names:", paste(sQuote(to.check), collapse = ", ")), call. = F)
     }
 
-    vars[]  <- dat[, names]
+    vars[]  <- dat[, input]
   }
 
   # Inputs Settings
@@ -85,18 +106,25 @@ PriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, ot
   nzdep   <- vars$nzdep
   tchdl   <- vars$tchdl
 
+  vars$eth  <- tolower(as.character(vars$eth))
+
+  # Invalid inputs
+  inval.eth <- which(vars$eth %in% c("other", "melaa", "5", "9", NA))
+  inval.age <- which(vars$age < 18 | vars$age >80 | is.na(vars$age))
+
+  vars$age <- replace(vars$age, which(vars$age < 30), 30)
+  vars$age <- replace(vars$age, which(vars$age > 79), 79)
+  vars$age <- replace(vars$age, inval.age, 0)
+
   # nb: Each list is ordered to match item order in coeffs list
   age     <- list(age50_59 = +(vars$age %in% 50:59),
                   age60_69 = +(vars$age %in% 60:69),
                   age70_79 = +(vars$age >= 70))
 
-  vars$eth <- as.character(vars$eth)
-  inval.eth <- which(vars$eth %in% c("Other", "MELAA", "5", "9", NA))
-
-  eth     <- list(asian    = +(vars$eth %in% c("Chinese", "East Asian", "Other Asian", "Asian", "42")),
-                  indian   = +(vars$eth %in% c("Indian", "Fijian Indian", "43")),
-                  maori    = +(vars$eth %in% c("Maori", "12", "2")),
-                  pacific  = +(vars$eth %in% c("Pacific", as.character(30:37), "3")))
+  eth     <- list(asian    = +(vars$eth %in% c("chinese", "east asian", "other asian", "asian", "42")),
+                  indian   = +(vars$eth %in% c("indian", "fijian indian", "other south asian", "43")),
+                  maori    = +(vars$eth %in% c("maori", "nzmaori", "21", "2")),
+                  pacific  = +(vars$eth %in% c("pacific", as.character(30:37), "3")))
 
   days    <- list(prior6m    = +(vars$days < 182 & !vars$othervd %in% c("Y", "Yes", 1)),
                   prior6_12m = +(vars$days >= 182 & vars$days <=365 & !vars$othervd %in% c("Y", "Yes", 1)),
@@ -192,3 +220,8 @@ PriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, ot
   return(rounded.val)
 
 }
+
+PriorCVDRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0, af=0, hf=1,
+             othervd=0, days=65, bmi=NA, sbp=118, tchdl=3.3, hba1c=NA, scr=52, bpl=1, lld=1,
+             athromb=1)
+

@@ -2,7 +2,7 @@
 % Please edit documentation in R/PriorCVDRisk.R
 \name{PriorCVDRisk}
 \alias{PriorCVDRisk}
-\title{PREDICT CVD risk Score for People With Prior CVD}
+\title{PREDICT CVD (2016) Risk Score for People With Prior CVD}
 \usage{
 PriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, othervd,
              days, bmi, sbp, tchdl, hba1c, scr, bpl, lld, athromb,...)
@@ -63,13 +63,14 @@ The co-efficients for ethnicity apply only to the following labels (codes): "Eur
 To obtain a risk estimate please ensure that ethnicity is labelled (or encoded) as one of the above categories.
 }
 \examples{
-# As a calculator
+# As a calculator (dataset not provide)
 PriorCVDRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0, af=0, hf=1, othervd=1, days=65,
              bmi=NA, sbp=118, tchdl=3.3, hba1c=NA, scr=52, bpl=1, lld=1, athromb=1)
 
-#As Vectoriser (i.e. dataset provided)
+# As Vectoriser (dataset provided)
 PriorCVDRisk(TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker, diabetes=diabetes, af=af, hf=hf, othervd=othervd, days=days,
              bmi=bmi, sbp=sbp, tchdl=tchdl, hba1c=hba1c, scr=scr, bpl=bpl, lld=lld, athromb=athromb)
+
 }
 \seealso{
 \code{\link{NoPriorCVDRisk}} Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation
@@ -77,4 +78,5 @@ PriorCVDRisk(TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker, diabet
 \code{\link{PriorT2DRisk}} Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation
 \code{\link{MajorBleedRisk}} Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation
 \code{\link{PriorCVDRisk}} Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation
+\code{\link{PolicyCVDRisk}} Creates a 5 year CVD policy risk estimate for people in the general population using the publish IJE equation
 }

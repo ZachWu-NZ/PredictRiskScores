@@ -65,7 +65,13 @@ The co-efficients for ethnicity apply only to the following labels (codes): "Eur
 To obtain a risk estimate please ensure that ethnicity is labelled (or encoded) as one of the above categories.
 }
 \examples{
+# As vectoriser (Dataset Provided)
+PriorT2DRisk(dat=DF, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker, af=af, familyhx=familyhx, sbp=sbp, tchdl=tchdl,
+          bmi=bmi, years=years, egfr=egfr, acr=acr, hba1c=hba1c, oral=oral, insulin=insulin, bpl=bpl, lld=lld, athromb=athromb)
 
+# As calculator (Dataset not Provided)
+PriorT2DRisk(sex=1, age=50, eth=2, nzdep=3, smoker=1, af=0, familyhx=1, sbp=123, tchdl=5, bmi=NA,
+           years=5, egfr=80, acr=25, hba1c=40, oral=1, insulin=0, bpl=0, lld=0, athromb=1)
 
 }
 \seealso{
@@ -74,4 +80,5 @@ To obtain a risk estimate please ensure that ethnicity is labelled (or encoded) 
 \code{\link{PriorT2DRisk}} Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation
 \code{\link{MajorBleedRisk}} Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation
 \code{\link{PriorCVDRisk}} Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation
+\code{\link{PolicyCVDRisk}} Creates a 5 year CVD policy risk estimate for people in the general population using the publish IJE equation
 }

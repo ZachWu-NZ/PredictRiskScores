@@ -35,13 +35,15 @@
 #' \code{\link{PriorT2DRisk}} Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation
 #' \code{\link{MajorBleedRisk}} Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation
 #' \code{\link{PriorCVDRisk}} Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation
+#' \code{\link{PolicyCVDRisk}} Creates a 5 year CVD policy risk estimate for people in the general population using the publish IJE equation
 #'
 #' @export
 #' @examples
-#' # As Calculator (i.e. dataset not provided)
+#' # As Calculator (dataset not provided)
 #' NoPriorCVDRisk(sex="F", age=65, eth="Indian", smoker=0, nzdep=5,  diabetes=0, af=0, familyhx=1,
 #'               lld=1, athromb=1, bpl=1, sbp=118, tchdl=3.3)
 #'
+#' # As vectoriser (dataset provided)
 #' NoPriorCVDRisk(dat=DF, sex=sex, age=age, eth=ethnic_labels, smoker=smoking_status, nzdep=nzdep_quintiles,  diabetes=diab_status, af=af, familyhx=fam_hx,
 #'               lld=lipidlowering, athromb=antithrombics, bpl=bplowering, sbp=systolic_bp, tchdl=tchdl_ratio)
 #'
@@ -110,7 +112,7 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
   vars$age <- replace(vars$age, which(vars$age > 74), 74)
   vars$age <- replace(vars$age, inval.age, 0)
 
-  eth     <- list(maori    = +(vars$eth %in% c("maori", "nzmaori", "21", 2)),
+  eth     <- list(maori    = +(vars$eth %in% c("maori", "nzmaori", "21", "2")),
                   pacific  = +(vars$eth %in% c("pacific", as.character(30:37), "3")),
                   indian   = +(vars$eth %in% c("indian", "fijian indian", "other south asian", "43")),
                   asian    = +(vars$eth %in% c("chinese", "east asian", "other asian", "asian", "42")))
@@ -213,14 +215,24 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
                                     format = 'f',
                                     digits = dp))
 
-  if(length(inval.eth)>=1){
-    warning("Ethnicity input contains one or more non-calculated classes. Risk not estimated as co-efficient was not applied. See R documentation using ?NoPriorCVDRisk",
+  if(length(inval.eth) >= 1){
+    warning("Ethnicity input contains one or more non-calculated classes. See R documentation using ?MajorBleedRisk",
             call. = F)
 
     rounded.val <- replace(rounded.val,
                            inval.eth,
                            NA)
   }
+
+  if(length(inval.age) >= 1){
+    warning("Age input contains one or more non-calculatable values. See R documentation using ?MajorBleedRisk",
+            call. = F)
+
+    rounded.val <- replace(rounded.val,
+                           inval.age,
+                           NA)
+  }
+
   return(rounded.val)
 
 }

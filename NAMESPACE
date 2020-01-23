@@ -3,5 +3,6 @@
 export(MajorBleedRisk)
 export(NoPriorCVDRisk)
 export(NoPriorCVDRisk_BMI)
+export(PolicyCVDRisk)
 export(PriorCVDRisk)
 export(PriorT2DRisk)

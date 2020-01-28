@@ -6,7 +6,7 @@ This is an R package featuring functions for generating PREDICT CVD risk scores.
 -	Functions can be used as a calculator by inputting individual values to calculate the risk score for an single person
 - If a dataset or table of inputs is provided, then functions can return a vector of risk estimates
 -	Package offer functions for primary prevention (people without prior CVD) and secondary prevention (people with prior CVD)
-- All parameters can be encoded as numeric input (e.g. Male = 1, Indian = 3, etc.)
+- All parameters can be encoded as numeric input (e.g. Male = 1, Pacific = 3, etc.)
 
 ## Functions
 1. `NoPriorCVDRisk` 

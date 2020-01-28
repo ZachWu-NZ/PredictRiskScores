@@ -47,20 +47,31 @@ To load the package:
 ```
 library(PredictRiskScores)
 ```
+## Example 
 
 Usage with dataset:
 ```
-FUN(dat = DF, sex = sex_var, age = age_var, argument = variable_name, ...)
+NoPriorCVDRisk(dat=DF, sex=sex, age=age, eth=ethnicity, smoker=smoking_status, nzdep=nzdep_quint, 
+               diabetes=diab_status, af=hx_af, familyhx=fam_hx, lld=lld_drugs, athromb=antithrombics, 
+               bpl=bplt, sbp=systolic_bp, tchdl=tchdl_ratio)
 ```
 
 Usage as a calculator:
 ```
-FUN(sex = "F", age = 60, argument = value, ...)
+PostACSRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0,
+            af=0, hf=1, acsdays=65, acstype="NSTEMI", bmi=NA, sbp=118,
+            tchdl=3.3, hba1c=NA, scr=52, bpl=1, lld=1, athromb=1)
 ```
 
 Help:
 ```
-?FUN
+?NoPriorCVDRisk
+?NoPriorCVDRisk_BMI
+?PriorT2DRisk
+?MajorBleedRisk
+?PriorCVDRisk
+?PolicyCVDRisk
+?PostACSRisk
 ```
 
 ## Maintainer / Developer 

@@ -69,5 +69,4 @@ Help:
 ## See Also
 I built a web-based risk calculator using the bleeding risk equation developed by Selak et al (2019) and the general CVD risk equation developed by Pylypchuk et al (2018), that provides clinicians with an individualised estimate of the CVD benefit and bleeding harms of aspirin for their patients without established CVD. See [Full Article](https://annals.org/aim/fullarticle/2751452/personalized-prediction-cardiovascular-benefits-bleeding-harms-from-aspirin-primary-prevention).
 
-[Link to the risk calculator here](https://aspirinbenefitharmcalculator.shinyapps.io/calculator/)
-
+<a href="https://aspirinbenefitharmcalculator.shinyapps.io/calculator/" target="_blank">Link to the risk calculator here</a>

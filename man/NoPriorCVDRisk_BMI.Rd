@@ -4,8 +4,8 @@
 \alias{NoPriorCVDRisk_BMI}
 \title{PREDICT CVD (2018.2) Risk Score for People Without Prior CVD}
 \usage{
-NoPriorCVDRisk_BMI(dat, sex, age, eth, nzdep, smoker, diabetes, af, familyhx, sbp, tchdl,
-                   bpl, lld, athromb,...)
+NoPriorCVDRisk_BMI(dat, sex, age, eth, nzdep, smoker, diabetes,
+                   af, familyhx, sbp, tchdl, bpl, lld, athromb,...)
 }
 \arguments{
 \item{dat}{A data.frame or data.table containing input data. Optional. See Details.}
@@ -56,19 +56,33 @@ To obtain a risk estimate please ensure that ethnicity is labelled (or encoded) 
 }
 \examples{
 # As calculator (dataset not provided)
-NoPriorCVDRisk_BMI(sex="F", age=65, eth="Indian", smoker=0, nzdep=5,  diabetes=0, af=0, familyhx=1,
-                 lld=1, athromb=1, bpl=1, sbp=118, tchdl=3.3, bmi=32)
+NoPriorCVDRisk_BMI(sex="F", age=65, eth="Indian", smoker=0, nzdep=5,  diabetes=0,
+                  af=0, familyhx=1, lld=1, athromb=1, bpl=1, sbp=118, tchdl=3.3, bmi=32)
 
 # As vectoriser (dataset provided)
-NoPriorCVDRisk_BMI(dat=DF, sex=sex, age=age, eth=ethnic_labels, smoker=smoking_status, nzdep=nzdep_quintiles,  diabetes=diab_status, af=af, familyhx=fam_hx,
-                 lld=lipidlowering, athromb=antithrombics, bpl=bplowering, sbp=systolic_bp, tchdl=tchdl_ratio, bmi=bmi)
+NoPriorCVDRisk_BMI(dat=DF, sex=sex, age=age, eth=ethnic_labels, smoker=smoking_status, nzdep=nzdep_quintiles,
+                  diabetes=diab_status, af=af, familyhx=fam_hx, lld=lipidlowering, athromb=antithrombics,
+                  bpl=bplowering, sbp=systolic_bp, tchdl=tchdl_ratio, bmi=bmi)
 
 }
+\references{
+New Zealand Ministry of Health: HISO 10071:2019 Cardiovascular Disease Risk Assessment Data Standard
+
+HISO Document: \link{https://www.health.govt.nz/publication/hiso-100712019-cardiovascular-disease-risk-assessment-data-standard}
+}
 \seealso{
-\code{\link{NoPriorCVDRisk}} Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation
-\code{\link{NoPriorCVDRisk_BMI}} Creates a 5 year CVD risk estimate for people without prior CVD using the Ministry of Health's HISO equation containing BMI
-\code{\link{PriorT2DRisk}} Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation
-\code{\link{MajorBleedRisk}} Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation
-\code{\link{PriorCVDRisk}} Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation
-\code{\link{PolicyCVDRisk}} Creates a 5 year CVD policy risk estimate for people in the general population using the publish IJE equation
+\code{\link{NoPriorCVDRisk}} Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation.
+
+\code{\link{PriorT2DRisk}} Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation.
+
+\code{\link{MajorBleedRisk}} Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation.
+
+\code{\link{PriorCVDRisk}} Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation.
+
+\code{\link{PolicyCVDRisk}} Creates a 5 year CVD policy risk estimate for people in the general population using the publish IJE equation.
+
+\code{\link{PostACSRisk}} Creates a 5 year CVD risk estimate for people after an ACS event using the published Heart equation.
+}
+\author{
+Billy Wu (R developer) and Romana Pylypchuk (Principle Investigator)
 }

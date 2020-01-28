@@ -11,16 +11,24 @@ This is an R package featuring functions for generating PREDICT CVD risk scores.
 ## Functions
 1. `NoPriorCVDRisk` 
     + Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation
+    ([Full Article](https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(18)30664-0/fulltext))
 2. `NoPriorCVDRisk_BMI` 
     + Creates a 5 year CVD risk estimate for people without prior CVD using the Ministry of Health's HISO equation containing BMI 
+    ([HISO Standard](https://www.health.govt.nz/publication/hiso-100712019-cardiovascular-disease-risk-assessment-data-standard))
 3. `PriorT2DRisk` 
     + Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation
+    ([HISO Standard](https://www.health.govt.nz/publication/hiso-100712019-cardiovascular-disease-risk-assessment-data-standard))
 4. `MajorBleedRisk` 
     + Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation
+    ([Full Article](https://www.annals.org/aim/fullarticle/doi/10.7326/M18-2808))
 5. `PriorCVDRisk` 
-    + Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation
+    + Creates a 5 year CVD risk estimate for people with prior CVD using the updated Heart equation (unpublished)
 6. `PolicyCVDRisk` 
-    + Creates a 5 year CVD policy risk estimate for people in the general population using the publish IJE equation
+    + Creates a 5 year CVD policy risk estimate for people in the general population using the published IJE equation
+    ([Full Article](https://academic.oup.com/ije/article/47/5/1571/5053287))
+7. `PostACSRisk` 
+    + Creates a 5 year CVD risk estimate for people after an ACS event using the published Heart equation
+    ([Full Article](https://heart.bmj.com/content/early/2019/12/10/heartjnl-2019-315809.full))
 
 ## Installation
 The R package "devtools" is required to enable things from GitHub to be installed directly into your R environment.

@@ -27,12 +27,25 @@
 #' @return Returns either a single CVD risk estimate or a numeric vector of CVD risk estimates.
 #'
 #' @seealso
-#' \code{\link{NoPriorCVDRisk}} Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation
-#' \code{\link{NoPriorCVDRisk_BMI}} Creates a 5 year CVD risk estimate for people without prior CVD using the Ministry of Health's HISO equation containing BMI
-#' \code{\link{PriorT2DRisk}} Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation
-#' \code{\link{MajorBleedRisk}} Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation
-#' \code{\link{PriorCVDRisk}} Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation
-#' \code{\link{PolicyCVDRisk}} Creates a 5 year CVD policy risk estimate for people in the general population using the publish IJE equation
+#' \code{\link{NoPriorCVDRisk}} Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation.
+#'
+#' \code{\link{NoPriorCVDRisk_BMI}} Creates a 5 year CVD risk estimate for people without prior CVD using the Ministry of Health's HISO equation containing BMI.
+#'
+#' \code{\link{PriorT2DRisk}} Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation.
+#'
+#' \code{\link{MajorBleedRisk}} Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation.
+#'
+#' \code{\link{PriorCVDRisk}} Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation.
+#'
+#' \code{\link{PostACSRisk}} Creates a 5 year CVD risk estimate for people after an ACS event using the published Heart equation.
+#'
+#' @author
+#' Billy Wu (R developer) and Suneela Mehta (Principle Investigator)
+#'
+#' @references
+#' Mehta, S., Jackson, R., Pylypchuk, R., Poppe, K., Wells, S., & Kerr, A. J. (2018). Development and validation of alternative cardiovascular risk prediction equations for population health planning: a routine health data linkage study of 1.7 million New Zealanders. International journal of epidemiology, 47 (5), 1571-1584.
+#'
+#' Full Article: \link{https://academic.oup.com/ije/article/47/5/1571/5053287}
 #'
 #' @export
 #' @examples
@@ -40,7 +53,9 @@
 #' PolicyCVDRisk(sex="F", age=65, eth="Maori", nzdep=5, diabetes=0, af=0, bpl=1, lld=1, athromb=1, dp = 6)
 #'
 #' # As Vectoriser (dataset provided)
-#' PolicyCVDRisk(dat=TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, diabetes=diabetes, af=af, bpl=bpl, lld=lld, athromb=athromb)
+#' PolicyCVDRisk(dat=TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, diabetes=diabetes, af=af, bpl=bpl, lld=lld,
+#'               athromb=athromb)
+#'
 # --- Code ---
 PolicyCVDRisk <- function(dat, sex, age, eth, nzdep, diabetes, af, bpl, lld, athromb,...){
 

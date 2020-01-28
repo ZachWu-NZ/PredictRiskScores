@@ -1,11 +1,12 @@
-#' PREDICT CVD (2016) Risk Score for People With Prior CVD
+#' PREDICT CVD (2019) Risk Score for People With Prior CVD
 #'
 #' \code{PriorCVDRisk} calculates the 5 year risk of cardiovascular disease (CVD) (hospitalisation for acute coronary syndrome, heart failure, stroke or other cerebrovascular disease, peripheral vascular death, cardiovascular death),
 #' for people with a history of atherosclerotic CVD. If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied, then a risk estimate is produced for each row of data, resulting in a numeric vector of the same length.
 #' A specific format is required for each variable input value. Encoding may be required. See arguments.
 #'
-#' @usage PriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, othervd,
-#'              days, bmi, sbp, tchdl, hba1c, scr, bpl, lld, athromb,...)
+#' @usage PriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
+#'              af, hf, othervd, days, bmi, sbp, tchdl,
+#'              hba1c, scr, bpl, lld, athromb,...)
 #'
 #' @param dat   A data.frame or data.table containing input data. Optional. See Details.
 #' @param sex   Sex or gender - input as labels M, Male, F, Female; or encode binary where 1 is male and 0 is female
@@ -36,22 +37,32 @@
 #' @return Returns either a single CVD risk estimate or a numeric vector of CVD risk estimates.
 #'
 #' @seealso
-#' \code{\link{NoPriorCVDRisk}} Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation
-#' \code{\link{NoPriorCVDRisk_BMI}} Creates a 5 year CVD risk estimate for people without prior CVD using the Ministry of Health's HISO equation containing BMI
-#' \code{\link{PriorT2DRisk}} Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation
-#' \code{\link{MajorBleedRisk}} Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation
-#' \code{\link{PriorCVDRisk}} Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation
-#' \code{\link{PolicyCVDRisk}} Creates a 5 year CVD policy risk estimate for people in the general population using the publish IJE equation
+#' \code{\link{NoPriorCVDRisk}} Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation.
+#'
+#' \code{\link{NoPriorCVDRisk_BMI}} Creates a 5 year CVD risk estimate for people without prior CVD using the Ministry of Health's HISO equation containing BMI.
+#'
+#' \code{\link{PriorT2DRisk}} Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation.
+#'
+#' \code{\link{MajorBleedRisk}} Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation.
+#'
+#' \code{\link{PolicyCVDRisk}} Creates a 5 year CVD policy risk estimate for people in the general population using the publish IJE equation.
+#'
+#' \code{\link{PostACSRisk}} Creates a 5 year CVD risk estimate for people after an ACS event using the published Heart equation.
+#'
+#' @author
+#' Billy Wu (R developer) and Katrina Poppe (Principle Investigator)
 #'
 #' @export
 #' @examples
 #' # As a calculator (dataset not provide)
-#' PriorCVDRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0, af=0, hf=1, othervd=1, days=65,
-#'              bmi=NA, sbp=118, tchdl=3.3, hba1c=NA, scr=52, bpl=1, lld=1, athromb=1)
+#' PriorCVDRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0,
+#'              af=0, hf=1, othervd=1, days=65, bmi=NA, sbp=118, tchdl=3.3,
+#'              hba1c=NA, scr=52, bpl=1, lld=1, athromb=1)
 #'
 #' # As Vectoriser (dataset provided)
-#' PriorCVDRisk(TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker, diabetes=diabetes, af=af, hf=hf, othervd=othervd, days=days,
-#'              bmi=bmi, sbp=sbp, tchdl=tchdl, hba1c=hba1c, scr=scr, bpl=bpl, lld=lld, athromb=athromb)
+#' PriorCVDRisk(TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker, diabetes=diabetes,
+#'              af=af, hf=hf, othervd=othervd, days=days, bmi=bmi, sbp=sbp, tchdl=tchdl,
+#'              hba1c=hba1c, scr=scr, bpl=bpl, lld=lld, athromb=athromb)
 #'
 # --- Code ---
 PriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, othervd, days, bmi, sbp, tchdl, hba1c, scr, bpl, lld, athromb,...){

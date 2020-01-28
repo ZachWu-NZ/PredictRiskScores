@@ -4,8 +4,9 @@
 #' \code{MajorBleedRisk} calculates the 5 year risk of major bleeding (gastrointestinal, intracranial, and other bleeds), for people without prior cardiovascular disease. This equation takes into account multiple diabetes-related variables. If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied, then a risk estimate is produced for each row of data, resulting in a numeric vector of the same length.
 #' A specific format is required for each variable input value. Encoding may be required. See arguments.
 #'
-#' @usage MajorBleedRisk(dat, sex, age, eth, smoke, nzdep, af, familyhx, diabetes, sbp, tchdl, lld, bpl, cancer,
-#'            gibleed, puddiag, alcohol, liver, puddrug, nsaid, steroids, ssri,...)
+#' @usage MajorBleedRisk(dat, sex, age, eth, smoke, nzdep, af, familyhx, diabetes,
+#'                sbp, tchdl, lld, bpl, cancer, gibleed, puddiag, alcohol,
+#'                liver, puddrug, nsaid, steroids, ssri,...)
 #'
 #' @param dat   A data.frame or data.table containing input data. Optional. See Details.
 #' @param sex   Sex or gender - input as labels M, Male, F, Female; or encode binary where 1 is male and 0 is female
@@ -38,12 +39,29 @@
 #' @return Returns either a single bleeding risk estimate or a numeric vector of bleeding risk estimates.
 #'
 #' @seealso
-#' \code{\link{NoPriorCVDRisk}} Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation
-#' \code{\link{NoPriorCVDRisk_BMI}} Creates a 5 year CVD risk estimate for people without prior CVD using the Ministry of Health's HISO equation containing BMI
-#' \code{\link{PriorT2DRisk}} Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation
-#' \code{\link{MajorBleedRisk}} Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation
-#' \code{\link{PriorCVDRisk}} Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation
-#' \code{\link{PolicyCVDRisk}} Creates a 5 year CVD policy risk estimate for people in the general population using the publish IJE equation
+#' \code{\link{NoPriorCVDRisk}} Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation.
+#'
+#' \code{\link{NoPriorCVDRisk_BMI}} Creates a 5 year CVD risk estimate for people without prior CVD using the Ministry of Health's HISO equation containing BMI.
+#'
+#' \code{\link{PriorT2DRisk}} Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation.
+#'
+#' \code{\link{PriorCVDRisk}} Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation.
+#'
+#' \code{\link{PolicyCVDRisk}} Creates a 5 year CVD policy risk estimate for people in the general population using the publish IJE equation.
+#'
+#' \code{\link{PostACSRisk}} Creates a 5 year CVD risk estimate for people after an ACS event using the published Heart equation.
+#'
+#' @author
+#' Billy Wu (R developer) and Vanessa Selak (Principle Investigator)
+#'
+#' @references
+#' Selak V, Jackson R, Poppe K, et al. Predicting Bleeding Risk to Guide Aspirin Use for the Primary Prevention of Cardiovascular Disease: A Cohort Study. Ann Intern Med. 2019;170:357–368. doi: https://doi.org/10.7326/M18-2808
+#'
+#' Full Article: \link{https://www.annals.org/aim/fullarticle/doi/10.7326/M18-2808}
+#'
+#' Using the bleeding risk equation developed by Selak et al (2019), I developed a web-based risk calculator that provides clinicians with an individualised estimate of the CVD benefit and bleeding harms of aspirin for their patients without established CVD.
+#'
+#' For the calculator: \link{https://aspirinbenefitharmcalculator.shinyapps.io/calculator/}
 #'
 #' @export
 #' @examples

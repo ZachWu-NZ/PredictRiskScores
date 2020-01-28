@@ -5,8 +5,9 @@
 #' for people with diabetes. This equation takes into account multiple diabetes-related variables. If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied, then a risk estimate is produced for each row of data, resulting in a numeric vector of the same length.
 #' A specific format is required for each variable input value. Encoding may be required. See arguments.
 #'
-#' @usage PriorT2DRisk(dat, sex, age, eth, nzdep, smoker, af, familyhx, sbp, tchdl, bmi,
-#'            years, egfr, acr, hba1c, oral, insulin, bpl, lld, athromb,...)
+#' @usage PriorT2DRisk(dat, sex, age, eth, nzdep, smoker, af, familyhx,
+#'              sbp, tchdl, bmi, years, egfr, acr, hba1c, oral, insulin,
+#'              bpl, lld, athromb,...)
 #'
 #' @param dat   A data.frame or data.table containing input data. Optional. See Details.
 #' @param sex   Sex or gender - input as labels M, Male, F, Female; or encode binary where 1 is male and 0 is female
@@ -38,22 +39,37 @@
 #' @return Returns either a single CVD risk estimate or a numeric vector of CVD risk estimates.
 #'
 #' @seealso
-#' \code{\link{NoPriorCVDRisk}} Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation
-#' \code{\link{NoPriorCVDRisk_BMI}} Creates a 5 year CVD risk estimate for people without prior CVD using the Ministry of Health's HISO equation containing BMI
-#' \code{\link{PriorT2DRisk}} Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation
-#' \code{\link{MajorBleedRisk}} Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation
-#' \code{\link{PriorCVDRisk}} Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation
-#' \code{\link{PolicyCVDRisk}} Creates a 5 year CVD policy risk estimate for people in the general population using the publish IJE equation
+#' \code{\link{NoPriorCVDRisk}} Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation.
+#'
+#' \code{\link{NoPriorCVDRisk_BMI}} Creates a 5 year CVD risk estimate for people without prior CVD using the Ministry of Health's HISO equation containing BMI.
+#'
+#' \code{\link{MajorBleedRisk}} Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation.
+#'
+#' \code{\link{PriorCVDRisk}} Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation.
+#'
+#' \code{\link{PolicyCVDRisk}} Creates a 5 year CVD policy risk estimate for people in the general population using the publish IJE equation.
+#'
+#' \code{\link{PostACSRisk}} Creates a 5 year CVD risk estimate for people after an ACS event using the published Heart equation.
+#'
+#' @author
+#' Billy Wu (R developer) and Romana Pylypchuk (Principle Investigator)
+#'
+#' @references
+#' New Zealand Ministry of Health: HISO 10071:2019 Cardiovascular Disease Risk Assessment Data Standard
+#'
+#' HISO Document: \link{https://www.health.govt.nz/publication/hiso-100712019-cardiovascular-disease-risk-assessment-data-standard}
 #'
 #' @export
 #' @examples
-#' # As vectoriser (Dataset Provided)
-#' PriorT2DRisk(dat=DF, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker, af=af, familyhx=familyhx, sbp=sbp, tchdl=tchdl,
-#'           bmi=bmi, years=years, egfr=egfr, acr=acr, hba1c=hba1c, oral=oral, insulin=insulin, bpl=bpl, lld=lld, athromb=athromb)
+#' #' # As calculator (Dataset not Provided)
+#' PriorT2DRisk(sex=1, age=50, eth=2, nzdep=3, smoker=1, af=0, familyhx=1, sbp=123, tchdl=5,
+#'              bmi=NA, years=5, egfr=80, acr=25, hba1c=40, oral=1, insulin=0, bpl=0, lld=0,
+#'              athromb=1)
 #'
-#' # As calculator (Dataset not Provided)
-#' PriorT2DRisk(sex=1, age=50, eth=2, nzdep=3, smoker=1, af=0, familyhx=1, sbp=123, tchdl=5, bmi=NA,
-#'            years=5, egfr=80, acr=25, hba1c=40, oral=1, insulin=0, bpl=0, lld=0, athromb=1)
+#' # As vectoriser (Dataset Provided)
+#' PriorT2DRisk(dat=DF, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker, af=af, familyhx=familyhx,
+#'              sbp=sbp, tchdl=tchdl, bmi=bmi, years=years, egfr=egfr, acr=acr, hba1c=hba1c, oral=oral,
+#'              insulin=insulin, bpl=bpl, lld=lld, athromb=athromb)
 #'
 # --- Code ---
 PriorT2DRisk <- function(dat, sex, age, eth, nzdep, smoker, af, familyhx, sbp, tchdl, bmi, years, egfr, acr, hba1c, oral, insulin, bpl, lld, athromb,...){

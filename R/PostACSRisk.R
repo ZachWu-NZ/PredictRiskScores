@@ -233,7 +233,7 @@ PostACSRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, acs
                                     digits = dp))
 
   if(length(inval.eth) >= 1){
-    warning("Ethnicity input contains one or more non-calculated classes. See R documentation using ?MajorBleedRisk",
+    warning("Ethnicity input contains one or more non-calculated classes. See R documentation using ?PostACSRisk",
             call. = F)
 
     rounded.val <- replace(rounded.val,
@@ -242,7 +242,7 @@ PostACSRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, acs
   }
 
   if(length(inval.age) >= 1){
-    warning("Age input contains one or more non-calculatable values. See R documentation using ?MajorBleedRisk",
+    warning("Age input contains one or more non-calculatable values. See R documentation using ?PostACSRisk",
             call. = F)
 
     rounded.val <- replace(rounded.val,

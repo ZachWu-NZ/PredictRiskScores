@@ -10,8 +10,8 @@
 #'
 #' @param dat   A data.frame or data.table containing input data. Optional. See Details.
 #' @param sex   Sex or gender - input as labels M, Male, F, Female; or encode binary where 1 is male and 0 is female
-#' @param age   Age - input as numeric value between 30 and 79
-#' @param eth   Ethnicity - input as labels (or encode as) "European" (1), "Maori" (2), "Pacific" (3), "Chinese" (42), "Indian" (43), "Fijian Indian" (43), or "Other Asian" (4)
+#' @param age   Age - input as numeric value between 30 and 79. See age details if outside of this range.
+#' @param eth   Ethnicity - input as label or encoded value. See ethnicity details for all possible inputs.
 #' @param nzdep Index of socioeconomic deprivation, specifically the New Zealand Deprivation Index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived)
 #' @param smoker Current smoker - input as labels "Y", "Yes", "Smoker", or encode binary where 1 is "Yes"
 #' @param diabetes Diabetes status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
@@ -31,10 +31,25 @@
 #'
 #' @details  When the parameter \code{dat} is supplied using a dataset, then parameters take variable names as input. For example, when a dataset is supplied, the parameter \code{age} requires the variable name \code{index_age} as input from the dataset.
 #' When the parameter \code{dat} is not supplied, then parameters take actual values or labels as input. For example, when \code{dat} is not supplied, the parameter \code{age} requires a single numeric value between 30 and 79. This method calculates the 5-year risk estimate for a single individual.
-#' The co-efficients for ethnicity apply only to the following labels (codes): "European" (1), "Maori" (2), "Pacific" (3), "Chinese" (42), "Indian" (43), "Fijian Indian" (43), and "Other Asian" (4). Individuals with ethnicity labels (or codes) that fall outside of these categories will not recieve a risk estimate.
-#' To obtain a risk estimate please ensure that ethnicity is labelled (or encoded) as one of the above categories.
 #'
-#' @return Returns either a single CVD risk estimate or a numeric vector of CVD risk estimates.
+#' @section Age:
+#' The primary prevention risk prediction equations were developed from a cohort of people aged 30 to 74 years who were eligible for CVD risk prediction according to the 2003 CVD risk assessment and management guidelines and subsequent updates (New Zealand Guidelines Group 2003).
+#' People aged 18-29 years and 80 years and older, the equation will only provide a very approximate estimate. However, a risk calculation may be potentially useful to guide clinical decision making.
+#' As such, the equation will calculate ages 18-29 as 30; and ages 80-110 as 80.
+#'
+#' @section Ethnicity:
+#' The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and Asian. Individuals with ethnicity labels (or codes) that fall outside of these categories will not recieve a risk estimate.
+#' To obtain a risk estimate, ensure that the ethnicity parameter is either labelled (not case-sensitive) or encoded as one of the following:
+#' \itemize{
+#' \item NZ European, European, NZEO, Euro, E, 1, 10, 11, 12
+#' \item Maori, NZMaori, NZ Maori, M, 2, 21
+#' \item Pacific, Pacific Islander, PI, P, 3, 30, 31, 32, 33, 34, 35, 36, 37
+#' \item Indian, Fijian Indian, South Asian, IN, I, 43
+#' \item Asian, Other Asian, SE Asian, East Asian, Chinese, ASN, A, 4, 40, 41, 42, 44
+#' }
+#'
+#' @section Value:
+#' Returns either a single CVD risk estimate or a numeric vector of CVD risk estimates.
 #'
 #' @seealso
 #' \code{\link{NoPriorCVDRisk}} Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation.
@@ -56,9 +71,9 @@
 #' @references
 #' Poppe KK, Doughty RN, Wells S, et al. Development and validation of a cardiovascular risk score for patients in the community after acute coronary syndromeHeart Published Online First: 10 December 2019. doi: 10.1136/heartjnl-2019-315809
 #'
-#' Full Article: \link{https://heart.bmj.com/content/early/2019/12/10/heartjnl-2019-315809.full}
+#' Full Article: \url{https://heart.bmj.com/content/early/2019/12/10/heartjnl-2019-315809.full}
 #'
-#' Toll Free: \link{https://heart.bmj.com/content/heartjnl/early/2019/12/10/heartjnl-2019-315809.full.pdf?ijkey=B9NMccWMr793Ixj&keytype=ref}
+#' Toll Free: \url{https://heart.bmj.com/content/heartjnl/early/2019/12/10/heartjnl-2019-315809.full.pdf?ijkey=B9NMccWMr793Ixj&keytype=ref}
 #'
 #' @examples
 #' # As a calculator (dataset not provide)
@@ -125,26 +140,34 @@ PostACSRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, acs
 
   nzdep   <- vars$nzdep
   tchdl   <- vars$tchdl
+  age     <- vars$age
 
-  vars$eth  <- tolower(as.character(vars$eth))
+  eth     <- tolower(as.character(vars$eth))
+
+  nzeo   <- tolower(c("NZ European", "European", "NZEO", "Euro", "E", "1", "10", "11", "12"))
+  maori  <- tolower(c("Maori", "NZMaori", "NZ Maori", "M", "2", "21"))
+  pi     <- tolower(c("Pacific", "Pacific Islander", "PI", "P", "3", "30", "31", "32", "33", "34", "35", "36", "37"))
+  asian  <- tolower(c("Asian", "Other Asian", "SE Asian", "East Asian", "Chinese", "ASN", "A", "4", "40", "41", "42"))
+  indian <- tolower(c("Indian", "Fijian Indian", "South Asian", "IN", "I", "43"))
 
   # Invalid inputs
-  inval.eth <- which(vars$eth %in% c("other", "melaa", "5", "9", NA))
-  inval.age <- which(vars$age < 18 | vars$age >80 | is.na(vars$age))
+  inval.eth <- which(!eth %in% c(nzeo, maori, pi, asian, indian))
+  inval.age <- which(age < 18 | age > 110 | is.na(age))
 
-  vars$age <- replace(vars$age, which(vars$age < 30), 30)
-  vars$age <- replace(vars$age, which(vars$age > 79), 79)
-  vars$age <- replace(vars$age, inval.age, 0)
+  age <- replace(age, which(age < 30), 30)
+  age <- replace(age, which(age > 79), 80)
+  age <- replace(age, inval.age, 0)
 
   # nb: Each list is ordered to match item order in coeffs list
-  age     <- list(age50_59 = +(vars$age %in% 50:59),
-                  age60_69 = +(vars$age %in% 60:69),
-                  age70_79 = +(vars$age >= 70))
+  eth     <- list(asian    = +(eth %in% asian),
+                  indian   = +(eth %in% indian),
+                  maori    = +(eth %in% maori),
+                  pacific  = +(eth %in% pi))
 
-  eth     <- list(asian    = +(vars$eth %in% c("chinese", "east asian", "other asian", "asian", "42")),
-                  indian   = +(vars$eth %in% c("indian", "fijian indian", "other south asian", "43")),
-                  maori    = +(vars$eth %in% c("maori", "nzmaori", "21", "2")),
-                  pacific  = +(vars$eth %in% c("pacific", as.character(30:37), "3")))
+  # nb: Each list is ordered to match item order in coeffs list
+  age     <- list(age50_59 = +(age %in% 50:59),
+                  age60_69 = +(age %in% 60:69),
+                  age70_79 = +(age >= 70))
 
   acsdays   <- list(prior6m    = +(vars$acsdays < 182),
                     prior6_12m = +(vars$acsdays >= 182 & vars$acsdays <=365),

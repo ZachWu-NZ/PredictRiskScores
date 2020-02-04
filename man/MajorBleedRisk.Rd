@@ -13,9 +13,9 @@ MajorBleedRisk(dat, sex, age, eth, smoke, nzdep, af, familyhx, diabetes,
 
 \item{sex}{Sex or gender - input as labels M, Male, F, Female; or encode binary where 1 is male and 0 is female}
 
-\item{age}{Age - input as numeric value between 30 and 74}
+\item{age}{Age - input as numeric value between 30 and 74. See age details if outside of this range.}
 
-\item{eth}{Ethnicity - input as labels (or encode as) "European" (1), "Maori" (2), "Pacific" (3), "Chinese" (42), "Indian" (43), "Fijian Indian" (43), "Other South Asian" (43), or "Other Asian" (4).}
+\item{eth}{Ethnicity - input as label or encoded value. See ethnicity details for all possible inputs.}
 
 \item{nzdep}{Index of socioeconomic deprivation, specifically the New Zealand Deprivation Index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived).}
 
@@ -53,9 +53,6 @@ MajorBleedRisk(dat, sex, age, eth, smoke, nzdep, af, familyhx, diabetes,
 
 \item{Smoking}{status - input as labels (or encode as) "Ex smoker" (2), "Ex-smoker" (2), "Ex" (2), "Current Smoker" (1), "Current" (1), "Smoker" (1), "Y" (1), "Yes" (1)}
 }
-\value{
-Returns either a single bleeding risk estimate or a numeric vector of bleeding risk estimates.
-}
 \description{
 \code{MajorBleedRisk} calculates the 5 year risk of major bleeding (gastrointestinal, intracranial, and other bleeds), for people without prior cardiovascular disease. This equation takes into account multiple diabetes-related variables. If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied, then a risk estimate is produced for each row of data, resulting in a numeric vector of the same length.
 A specific format is required for each variable input value. Encoding may be required. See arguments.
@@ -63,9 +60,34 @@ A specific format is required for each variable input value. Encoding may be req
 \details{
 When the parameter \code{dat} is supplied using a dataset, then parameters take variable names as input. For example, when a dataset is supplied, the parameter \code{age} requires the variable name \code{index_age} as input from the dataset.
 When the parameter \code{dat} is not supplied, then parameters take actual values or labels as input. For example, when \code{dat} is not supplied, the parameter \code{age} requires a single numeric value between 30 and 79. This method calculates the 5-year risk estimate for a single individual.
-The co-efficients for ethnicity apply only to the following labels (codes): "European" (1), "Maori" (2), "Pacific" (3), "Chinese" (42), "Indian" (43), "Fijian Indian" (43), and "Other Asian" (4). Individuals with ethnicity labels (or codes) that fall outside of these categories will not recieve a risk estimate.
-To obtain a risk estimate please ensure that ethnicity is labelled (or encoded) as one of the above categories.
 }
+\section{Age}{
+
+The primary prevention risk prediction equations were developed from a cohort of people aged 30 to 74 years who were eligible for CVD risk prediction according to the 2003 CVD risk assessment and management guidelines and subsequent updates (New Zealand Guidelines Group 2003).
+People aged 18-29 years and 80 years and older, the equation will only provide a very approximate estimate. However, a risk calculation may be potentially useful to guide clinical decision making.
+As such, the equation will calculate ages 18-29 as 30; and ages 80-110 as 80.
+People aged 75-79 years are also outside of the range for which the algorithms were developed. However, assessment of the equations performance (calibration) shows that they perform reasonably well.
+Therefore, the equation will calculate ages 75-79 as per input.
+}
+
+\section{Ethnicity}{
+
+The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and Asian. Individuals with ethnicity labels (or codes) that fall outside of these categories will not recieve a risk estimate.
+To obtain a risk estimate, ensure that the ethnicity parameter is either labelled (not case-sensitive) or encoded as one of the following:
+\itemize{
+\item NZ European, European, NZEO, Euro, E, 1, 10, 11, 12
+\item Maori, NZMaori, NZ Maori, M, 2, 21
+\item Pacific, Pacific Islander, PI, P, 3, 30, 31, 32, 33, 34, 35, 36, 37
+\item Indian, Fijian Indian, South Asian, IN, I, 43
+\item Asian, Other Asian, SE Asian, East Asian, Chinese, ASN, A, 4, 40, 41, 42, 44
+}
+}
+
+\section{Value}{
+
+Returns either a single bleeding risk estimate or a numeric vector of bleeding risk estimates.
+}
+
 \examples{
 # As calculator (dataset not provided)
 MajorBleedRisk(sex=0, age=55, eth=21, smoker=1, nzdep=5, af=0, familyhx=1, diabetes=1, sbp=130, tchdl=5, lld=1,
@@ -80,11 +102,11 @@ MajorBleedRisk(dat=DT, sex=sex, age=index_age, eth=eth_vars, smoker=smoking_stat
 \references{
 Selak V, Jackson R, Poppe K, et al. Predicting Bleeding Risk to Guide Aspirin Use for the Primary Prevention of Cardiovascular Disease: A Cohort Study. Ann Intern Med. 2019;170:357–368. doi: https://doi.org/10.7326/M18-2808
 
-Full Article: \link{https://www.annals.org/aim/fullarticle/doi/10.7326/M18-2808}
+Full Article: \url{https://www.annals.org/aim/fullarticle/doi/10.7326/M18-2808}
 
 Using the bleeding risk equation developed by Selak et al (2019), I developed a web-based risk calculator that provides clinicians with an individualised estimate of the CVD benefit and bleeding harms of aspirin for their patients without established CVD.
 
-For the calculator: \link{https://aspirinbenefitharmcalculator.shinyapps.io/calculator/}
+For the calculator: \url{https://aspirinbenefitharmcalculator.shinyapps.io/calculator/}
 }
 \seealso{
 \code{\link{NoPriorCVDRisk}} Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation.

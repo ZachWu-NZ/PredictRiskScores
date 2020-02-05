@@ -22,9 +22,11 @@
 #' When the parameter \code{dat} is not supplied, then parameters take actual values or labels as input. For example, when \code{dat} is not supplied, the parameter \code{age} requires a single numeric value between 30 and 79. This method calculates the 5-year risk estimate for a single individual.
 #'
 #' @section Age:
-#' The primary prevention risk prediction equations were developed from a cohort of people aged 20 to 79 years who were eligible for CVD risk prediction according to the 2003 CVD risk assessment and management guidelines and subsequent updates (New Zealand Guidelines Group 2003).
-#' People aged 15-19 years, and 80 years and older, the equation will only provide a very approximate estimate. However, a risk calculation may be potentially useful to guide clinical decision making.
-#' As such, the equation will calculate ages 15-19 as 20; and ages 80-110 as 80.
+#' The primary prevention risk prediction equations were developed from a cohort of people aged 30 to 74 years who were eligible for CVD risk prediction according to the 2003 CVD risk assessment and management guidelines and subsequent updates (New Zealand Guidelines Group 2003).
+#' People aged 18-29 years and 80 years and older, the equation will only provide a very approximate estimate. However, a risk calculation may be potentially useful to guide clinical decision making.
+#' As such, the equation will calculate ages 18-29 as 30; and ages 80-110 as 80.
+#' People aged 75-79 years are also outside of the range for which the algorithms were developed. However, assessment of the equations performance (calibration) shows that they perform reasonably well.
+#' Therefore, the equation will calculate ages 75-79 as per input.
 #'
 #' @section Ethnicity:
 #' The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and Other Individuals with ethnicity labels (or codes) that fall outside of these categories will not recieve a risk estimate.
@@ -133,9 +135,9 @@ PolicyCVDRisk <- function(dat, sex, age, eth, nzdep, diabetes, af, bpl, lld, ath
 
   # Invalid inputs
   inval.eth <- which(!eth %in% c(nzeo, maori, pi, indian, other))
-  inval.age <- which(age < 15 | age > 110 | is.na(age))
+  inval.age <- which(age < 18 | age > 110 | is.na(age))
 
-  age <- replace(age, which(age < 20), 20)
+  age <- replace(age, which(age < 30), 30)
   age <- replace(age, which(age > 79), 80)
   age <- replace(age, inval.age, 0)
 

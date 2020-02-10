@@ -2,7 +2,7 @@
 % Please edit documentation in R/PostACSRisk.R
 \name{PostACSRisk}
 \alias{PostACSRisk}
-\title{PREDICT CVD (2018) Risk Score for People After an ACS Event}
+\title{PREDICT CVD (2019) Risk Score for People After an ACS Event}
 \usage{
 PostACSRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
            af, hf, acsdays, acstype, bmi, sbp, tchdl, hba1c,
@@ -27,9 +27,9 @@ PostACSRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
 
 \item{hf}{Heart failure - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
 
-\item{acsdays}{Time since last the most recent ACS event - input as numeric value representing days. If the event was angina or peripheral vascular disease, then enter 1826. If the date of most recent CVD event was not known, then keep as NA.}
+\item{acsdays}{Time since the most recent prior ACS event - input as numeric value representing days.}
 
-\item{acstype}{Prior ACS was NSTEMI or STEMI - input as labels (or encode as) NSTEMI (1), NONSTEMI (1) or STEMI(2)}
+\item{acstype}{Type of prior ACS. The referent group is unstable angina - input as labels (or encode as) NSTEMI (1), NONSTEMI (1) or STEMI(2)}
 
 \item{bmi}{Body mass index - input as numeric value representing BMI in kg/m^2}
 
@@ -37,7 +37,7 @@ PostACSRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
 
 \item{tchdl}{Total-HDL cholesterol ratio - input as numeric value representing most recent value of total:HDL cholesterol}
 
-\item{hba1c}{HbA1C - input as numeric value representing most recent value of HbA1c in mmol/mol}
+\item{hba1c}{HbA1c - input as numeric value representing most recent value of HbA1c in mmol/mol}
 
 \item{scr}{Serum creatinine - input as numeric value representing most recent value of serum creatinine in micromol/L}
 
@@ -50,9 +50,11 @@ PostACSRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
 \item{...}{Set decimal place for integers. Default is 4. Optional.}
 }
 \description{
-\code{PostACSRisk} calculates the 5 year risk of cardiovascular disease (CVD) (hospitalisation for acute coronary syndrome, heart failure, stroke or other cerebrovascular disease, peripheral vascular death, cardiovascular death),
-for people with a history of atherosclerotic CVD. If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied, then a risk estimate is produced for each row of data, resulting in a numeric vector of the same length.
-A specific format is required for each variable input value. Encoding may be required. See arguments.
+\code{PostACSRisk} calculates the 5 year absolute risk of cardiovascular disease (CVD) for people who have experienced an acute coronary syndrome (ACS) event.
+It is not intended to be used in the acute phase. The outcome of future CVD is defined as hospitalisation for acute coronary syndrome, heart failure, stroke or
+other cerebrovascular disease, peripheral vascular disease, or cardiovascular death. If a dataset of input values are not supplied, then individual values for
+each coefficient can be specified. If a dataset of input values are supplied, then a risk estimate is produced for each row of data, resulting in a numeric vector
+of the same length. A specific format is required for each input value. Encoding may be required. See arguments.
 }
 \details{
 When the parameter \code{dat} is supplied using a dataset, then parameters take variable names as input. For example, when a dataset is supplied, the parameter \code{age} requires the variable name \code{index_age} as input from the dataset.
@@ -60,15 +62,16 @@ When the parameter \code{dat} is not supplied, then parameters take actual value
 }
 \section{Age}{
 
-The primary prevention risk prediction equations were developed from a cohort of people aged 30 to 74 years who were eligible for CVD risk prediction according to the 2003 CVD risk assessment and management guidelines and subsequent updates (New Zealand Guidelines Group 2003).
-People aged 18-29 years and 80 years and older, the equation will only provide a very approximate estimate. However, a risk calculation may be potentially useful to guide clinical decision making.
-As such, the equation will calculate ages 18-29 as 30; and ages 80-110 as 80.
+The risk prediction equations were developed from a cohort of people aged 30 to 79 years. People aged 18-29 years or 80 years and older, are outside the range used
+to derive the equation and so risk will be even more of an approximation. To be consistent with equations for primary prevention in this suite of scores, the function
+will calculate ages 18-29 as 30; and ages 80-110 as 80.
 }
 
 \section{Ethnicity}{
 
-The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and Asian. Individuals with ethnicity labels (or codes) that fall outside of these categories will not recieve a risk estimate.
-To obtain a risk estimate, ensure that the ethnicity parameter is either labelled (not case-sensitive) or encoded as one of the following:
+The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and (non-Indian) Asian Asian. Individuals with ethnicity
+labels (or codes) that fall outside of these categories will not recieve a risk estimate. To obtain a risk estimate, ensure that the ethnicity parameter is
+either labelled or encoded as one of the following:
 \itemize{
 \item NZ European, European, NZEO, Euro, E, 1, 10, 11, 12
 \item Maori, NZMaori, NZ Maori, M, 2, 21
@@ -116,5 +119,5 @@ Toll Free: \url{https://heart.bmj.com/content/heartjnl/early/2019/12/10/heartjnl
 \code{\link{PolicyCVDRisk}} Creates a 5 year CVD policy risk estimate for people in the general population using the publish IJE equation.
 }
 \author{
-Billy Wu (R developer) and Katrina Poppe (Principle Investigator)
+Billy Wu (R developer) and Katrina Poppe (Principal Investigator)
 }

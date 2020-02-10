@@ -1,10 +1,12 @@
-#' VARIANZ CVD (2018) Policy Risk Score for General Population
+#' VARIANZ CVD (2018) Policy-level Risk Score for People Without CVD
 #'
-#' \code{PolicyCVDRisk} calculates the 5 year risk of cardiovascular disease (CVD) (hospitalisation for acute coronary syndrome, heart failure, stroke or other cerebrovascular disease, peripheral vascular death, cardiovascular death),
-#' for anyone in the general population. If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied, then a risk estimate is produced for each row of data, resulting in a numeric vector of the same length.
-#' A specific format is required for each variable input value. Encoding may be required. See arguments.
+#' \code{NoPriorCVDRisk_Policy} calculates the 5 year absolute risk of cardiovascular disease (CVD) for people without a history of atherosclerotic CVD that is intended
+#' for use at policy or population level. The outcome of future CVD is defined as hospitalisation for acute coronary syndrome, heart failure, stroke or other
+#' cerebrovascular disease, peripheral vascular disease, or cardiovascular death. If a dataset of input values are not supplied, then individual values for each
+#' coefficient can be specified. If a dataset of input values are supplied, then a risk estimate is produced for each row of data, resulting in a numeric vector of the
+#' same length. A specific format is required for each input value. Encoding may be required. See arguments.
 #'
-#' @usage PolicyCVDRisk(dat, sex, age, eth, nzdep, diabetes, af, bpl, lld, athromb,...)
+#' @usage NoPriorCVDRisk_Policy(dat, sex, age, eth, nzdep, diabetes, af, bpl, lld, athromb,...)
 #'
 #' @param dat   A data.frame or data.table containing input data. Optional. See Details.
 #' @param sex   Sex or gender - input as labels M, Male, F, Female; or encode binary where 1 is male and 0 is female
@@ -30,7 +32,7 @@
 #'
 #' @section Ethnicity:
 #' The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and Other Individuals with ethnicity labels (or codes) that fall outside of these categories will not recieve a risk estimate.
-#' To obtain a risk estimate, ensure that the ethnicity parameter is either labelled (not case-sensitive) or encoded as one of the following:
+#' To obtain a risk estimate, ensure that the ethnicity parameter is either labelled or encoded as one of the following:
 #' \itemize{
 #' \item NZ European, European, NZEO, Euro, E, 1, 10, 11, 12
 #' \item Maori, NZMaori, NZ Maori, M, 2, 21
@@ -57,7 +59,7 @@
 #' \code{\link{PostACSRisk}} Creates a 5 year CVD risk estimate for people after an ACS event using the published Heart equation.
 #'
 #' @author
-#' Billy Wu (R developer) and Suneela Mehta (Principle Investigator)
+#' Billy Wu (R developer) and Suneela Mehta (Principal Investigator)
 #'
 #' @references
 #' Mehta, S., Jackson, R., Pylypchuk, R., Poppe, K., Wells, S., & Kerr, A. J. (2018). Development and validation of alternative cardiovascular risk prediction equations for population health planning: a routine health data linkage study of 1.7 million New Zealanders. International journal of epidemiology, 47 (5), 1571-1584.
@@ -67,14 +69,14 @@
 #' @export
 #' @examples
 #' # As a calculator (dataset not provide)
-#' PolicyCVDRisk(sex="F", age=65, eth="Maori", nzdep=5, diabetes=0, af=0, bpl=1, lld=1, athromb=1, dp = 6)
+#' NoPriorCVDRisk_Policy(sex="F", age=65, eth="Maori", nzdep=5, diabetes=0, af=0, bpl=1, lld=1, athromb=1, dp = 6)
 #'
 #' # As Vectoriser (dataset provided)
-#' PolicyCVDRisk(dat=TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, diabetes=diabetes, af=af, bpl=bpl, lld=lld,
-#'               athromb=athromb)
+#' NoPriorCVDRisk_Policy(dat=TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, diabetes=diabetes, af=af, bpl=bpl, lld=lld,
+#'                       athromb=athromb)
 #'
 # --- Code ---
-PolicyCVDRisk <- function(dat, sex, age, eth, nzdep, diabetes, af, bpl, lld, athromb,...){
+NoPriorCVDRisk_Policy <- function(dat, sex, age, eth, nzdep, diabetes, af, bpl, lld, athromb,...){
 
   vars   <- as.list(match.call()[-1])
 
@@ -235,7 +237,7 @@ PolicyCVDRisk <- function(dat, sex, age, eth, nzdep, diabetes, af, bpl, lld, ath
                                     digits = dp))
 
   if(length(inval.eth) >= 1){
-    warning("Ethnicity input contains one or more non-calculated classes. See R documentation using ?PolicyCVDRisk",
+    warning("Ethnicity input contains one or more non-calculated classes. See R documentation using ?NoPriorCVDRisk_Policy",
             call. = F)
 
     rounded.val <- replace(rounded.val,
@@ -244,7 +246,7 @@ PolicyCVDRisk <- function(dat, sex, age, eth, nzdep, diabetes, af, bpl, lld, ath
   }
 
   if(length(inval.age) >= 1){
-    warning("Age input contains one or more non-calculatable values. See R documentation using ?PolicyCVDRisk",
+    warning("Age input contains one or more non-calculatable values. See R documentation using ?NoPriorCVDRisk_Policy",
             call. = F)
 
     rounded.val <- replace(rounded.val,

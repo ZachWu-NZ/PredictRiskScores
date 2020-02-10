@@ -1,14 +1,14 @@
-#' PREDICT CVD (2019) Risk Score for People After an ACS Event
+#' PREDICT CVD (2019) Risk Score for People With CVD
 #'
-#' \code{PostACSRisk} calculates the 5 year absolute risk of cardiovascular disease (CVD) for people who have experienced an acute coronary syndrome (ACS) event.
-#' It is not intended to be used in the acute phase. The outcome of future CVD is defined as hospitalisation for acute coronary syndrome, heart failure, stroke or
-#' other cerebrovascular disease, peripheral vascular disease, or cardiovascular death. If a dataset of input values are not supplied, then individual values for
-#' each coefficient can be specified. If a dataset of input values are supplied, then a risk estimate is produced for each row of data, resulting in a numeric vector
-#' of the same length. A specific format is required for each input value. Encoding may be required. See arguments.
+#' \code{PostCVDRisk} calculates the 5 year absolute risk of cardiovascular disease (CVD) for people with a history of atherosclerotic CVD. The outcome of future CVD
+#' is defined as hospitalisation for acute coronary syndrome, heart failure, stroke or other cerebrovascular disease, peripheral vascular disease, or cardiovascular
+#' death. If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied,
+#' then a risk estimate is produced for each row of data, resulting in a numeric vector of the same length. A specific format is required for each input value.
+#' Encoding may be required. See arguments.
 #'
-#' @usage PostACSRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
-#'            af, hf, acsdays, acstype, bmi, sbp, tchdl, hba1c,
-#'            scr, bpl, lld, athromb,...)
+#' @usage PostCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
+#'              af, hf, othervd, days, bmi, sbp, tchdl,
+#'              hba1c, scr, bpl, lld, athromb,...)
 #'
 #' @param dat   A data.frame or data.table containing input data. Optional. See Details.
 #' @param sex   Sex or gender - input as labels M, Male, F, Female; or encode binary where 1 is male and 0 is female
@@ -19,8 +19,8 @@
 #' @param diabetes Diabetes status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
 #' @param af Atrial fibrillation status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
 #' @param hf Heart failure - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param acsdays Time since the most recent prior ACS event - input as numeric value representing days.
-#' @param acstype Type of prior ACS. The referent group is unstable angina - input as labels (or encode as) NSTEMI (1), NONSTEMI (1) or STEMI(2)
+#' @param othervd History involving angina, peripheral vascular disease, or non-hospitalised cerebrovascular disease not associated with stroke or TIA- input as label "Y", "Yes", or encode binary where 1 is "Yes"
+#' @param days Time since last the most recent CVD event - input as numeric value representing days. If the event was angina or peripheral vascular disease, then enter 1826. If the date of most recent CVD event was not known, then keep as NA.
 #' @param bmi Body mass index - input as numeric value representing BMI in kg/m^2
 #' @param sbp Systolic blood pressure - input as numeric value representing measured systolic blood pressure in mmHg
 #' @param tchdl Total-HDL cholesterol ratio - input as numeric value representing most recent value of total:HDL cholesterol
@@ -36,8 +36,8 @@
 #'
 #' @section Age:
 #' The risk prediction equations were developed from a cohort of people aged 30 to 79 years. People aged 18-29 years or 80 years and older, are outside the range used
-#' to derive the equation and so risk will be even more of an approximation. To be consistent with equations for primary prevention in this suite of scores, the function
-#' will calculate ages 18-29 as 30; and ages 80-110 as 80.
+#' to derive the equation and so risk will be even more of an approximation. To be consistent with equations for primary prevention in this suite of scores, the
+#' function will calculate ages 18-29 as 30; and ages 80-110 as 80.
 #'
 #' @section Ethnicity:
 #' The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and (non-Indian) Asian Asian. Individuals with ethnicity
@@ -63,34 +63,27 @@
 #'
 #' \code{\link{MajorBleedRisk}} Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation.
 #'
-#' \code{\link{PriorCVDRisk}} Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation.
-#'
 #' \code{\link{PolicyCVDRisk}} Creates a 5 year CVD policy risk estimate for people in the general population using the publish IJE equation.
+#'
+#' \code{\link{PostACSRisk}} Creates a 5 year CVD risk estimate for people after an ACS event using the published Heart equation.
 #'
 #' @author
 #' Billy Wu (R developer) and Katrina Poppe (Principal Investigator)
 #'
 #' @export
-#' @references
-#' Poppe KK, Doughty RN, Wells S, et al. Development and validation of a cardiovascular risk score for patients in the community after acute coronary syndromeHeart Published Online First: 10 December 2019. doi: 10.1136/heartjnl-2019-315809
-#'
-#' Full Article: \url{https://heart.bmj.com/content/early/2019/12/10/heartjnl-2019-315809.full}
-#'
-#' Toll Free: \url{https://heart.bmj.com/content/heartjnl/early/2019/12/10/heartjnl-2019-315809.full.pdf?ijkey=B9NMccWMr793Ixj&keytype=ref}
-#'
 #' @examples
 #' # As a calculator (dataset not provide)
-#' PostACSRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0,
-#'             af=0, hf=1, acsdays=65, acstype="NSTEMI", bmi=NA, sbp=118,
-#'             tchdl=3.3, hba1c=NA, scr=52, bpl=1, lld=1, athromb=1)
+#' PostCVDRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0,
+#'             af=0, hf=1, othervd=1, days=65, bmi=NA, sbp=118, tchdl=3.3,
+#'             hba1c=NA, scr=52, bpl=1, lld=1, athromb=1)
 #'
 #' # As Vectoriser (dataset provided)
-#' PostACSRisk(TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker, diabetes=diabetes, af=af, hf=hf, acsdays=days, acstype=acs_type,
-#'              bmi=bmi, sbp=sbp, tchdl=tchdl, hba1c=hba1c, scr=scr, bpl=bpl, lld=lld, athromb=athromb)
-#'
+#' PostCVDRisk(TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker, diabetes=diabetes,
+#'             af=af, hf=hf, othervd=othervd, days=days, bmi=bmi, sbp=sbp, tchdl=tchdl,
+#'             hba1c=hba1c, scr=scr, bpl=bpl, lld=lld, athromb=athromb)
 #'
 # --- Code ---
-PostACSRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, acsdays, acstype, bmi, sbp, tchdl, hba1c, scr, bpl, lld, athromb,...){
+PostCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, othervd, days, bmi, sbp, tchdl, hba1c, scr, bpl, lld, athromb,...){
 
   vars   <- as.list(match.call()[-1])
 
@@ -105,7 +98,7 @@ PostACSRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, acs
   # Param Check
   param.dat <- deparse(substitute(dat))!=""
 
-  params  <- c("sex", "age", "eth", "nzdep", "smoker", "diabetes", "af", "hf", "acsdays", "acstype", "bmi", "sbp", "tchdl", "hba1c",
+  params  <- c("sex", "age", "eth", "nzdep", "smoker", "diabetes", "af", "hf", "othervd", "days", "bmi", "sbp", "tchdl", "hba1c",
                "scr", "bpl", "lld", "athromb")
 
   for(i in params){
@@ -172,12 +165,11 @@ PostACSRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, acs
                   age60_69 = +(age %in% 60:69),
                   age70_79 = +(age >= 70))
 
-  acsdays   <- list(prior6m    = +(vars$acsdays < 182),
-                    prior6_12m = +(vars$acsdays >= 182 & vars$acsdays <=365),
-                    prior5plus = +(vars$acsdays >= 1826 | is.na(vars$acsdays)))
-
-  acstype   <- list(nstemi  = +(tolower(vars$acstype) %in% c("nstemi", "nonstemi", "1")),
-                    stemi   = +(tolower(vars$acstype) %in% c("stemi", "2")))
+  days    <- list(prior6m    = +(vars$days < 182 & !vars$othervd %in% c("Y", "Yes", 1)),
+                  prior6_12m = +(vars$days >= 182 & vars$days <=365 & !vars$othervd %in% c("Y", "Yes", 1)),
+                  prior5plus = +(vars$days >= 1826
+                                 | is.na(vars$days)
+                                 | vars$othervd %in% c("Y", "Yes", 1)))
 
   bmi     <- list(bmilt20    = +(vars$bmi < 20 & !is.na(vars$bmi)),
                   bmi20_25   = +(vars$bmi %in% 20:24 & !is.na(vars$bmi)),
@@ -202,7 +194,7 @@ PostACSRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, acs
   # List input values
   # nb: Order to match coeffs list
   values <- c(list(male = male), age, eth, list(nzdep = nzdep), list(smoker = smoker), list(diab = diab), list(af = af),
-              list(hf = hf), acsdays, acstype, bmi, sbp, list(tchdl = tchdl), hba1c, scr, list(bpl = bpl), list(lld = lld), list(athromb = athromb))
+              list(hf = hf), days, bmi, sbp, list(tchdl = tchdl), hba1c, scr, list(bpl = bpl), list(lld = lld), list(athromb = athromb))
 
   # Replace Missing
   values <- lapply(values, function(x)
@@ -210,56 +202,54 @@ PostACSRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, acs
 
   # Coefficients
   coeffs <- list(
-    male          = 0.070108294,
-    age50_59      = 0.101907023,
-    age60_69      = 0.385735211,
-    age70_79      = 0.665588277,
-    asian         = -0.310811716,
-    indian        = 0.032579054,
-    maori         = 0.090076398,
-    pacific       = -0.026195857,
-    nzdep         = 0.091394060,
-    smoking       = 0.253474601,
-    diab          = 0.278017733,
-    af            = 0.285378352,
-    hf            = 0.687503944,
-    prior6m       = 0.284562205,
-    prior6_12m    = 0.194750339,
-    prior5plus    = -0.128308825,
-    nstemi        = -0.035132993,
-    stemi         = -0.169336414,
-    bmilt20       = -0.050627926,
-    bmi20_25      = 0.011668190,
-    bmi30_35      = -0.021161519,
-    bmi35_40      = -0.035571412,
-    bmige40       = -0.012558351,
-    bmimiss       = 0.012687985,
-    sbplt100      = 0.102472311,
-    sbp120_140    = -0.064080362,
-    sbp140_160    = -0.006568964,
-    sbpge160      = 0.136227657,
-    tchdl         = 0.064230206,
-    hba1c40_65    = 0.099219955,
-    hba1cge65     = 0.356544954,
-    hba1cmiss     = 0.110588511,
-    creat100_149  = 0.197880356,
-    creatge150    = 0.531777765,
-    creatmiss     = 0.020199113,
-    bplower       = 0.170906191,
-    lipidlower    = -0.029601692,
-    bloodthin     = 0.005888522)
+    male          = 0.12709649,
+    age50_59      = 0.11911726,
+    age60_69      = 0.32584479,
+    age70_79      = 0.66209567,
+    asian         = -0.48244964,
+    indian        = -0.04958878,
+    maori         = 0.06960149,
+    pacific       = -0.11983047,
+    nzdep         = 0.07911408,
+    smoking       = 0.32932143,
+    diab          = 0.32930449,
+    af            = 0.31077128,
+    hf            = 0.70812844,
+    prior6m       = 0.25661482,
+    prior6_12m    = 0.15330903,
+    prior5plus    = -0.16037698,
+    bmilt20       = 0.24927585,
+    bmi20_25      = 0.09235640,
+    bmi30_35      = -0.03678802,
+    bmi35_40      = -0.05129306,
+    bmige40       = 0.02084241,
+    bmimiss       = 0.15562621,
+    sbplt100      = 0.21730647,
+    sbp120_140    = -0.06084129,
+    sbp140_160    = -0.00782290,
+    sbpge160      = 0.14029661,
+    tchdl         = 0.05748838,
+    hba1c40_65    = 0.07836127,
+    hba1cge65     = 0.36896633,
+    hba1cmiss     = 0.10173991,
+    creat100_149  = 0.21288911,
+    creatge150    = 0.72616978,
+    creatmiss     = -0.07458630,
+    bplower       = 0.28903431,
+    lipidlower    = -0.03115700,
+    bloodthin     = 0.15887662)
 
   # Calculations
   value.score <- Map("*", values, coeffs)
   sum.score   <- Reduce("+", value.score)
-  risk.score  <- (1 - 0.7431991 ^ exp(sum.score - 1.48214))
+  risk.score  <- (1 - 0.7562605 ^ exp(sum.score - 1.628611))
 
   rounded.val <- as.numeric(formatC(round(risk.score, dp),
                                     format = 'f',
                                     digits = dp))
 
   if(length(inval.eth) >= 1){
-    warning("Ethnicity input contains one or more non-calculated classes. See R documentation using ?PostACSRisk",
+    warning("Ethnicity input contains one or more non-calculated classes. See R documentation using ?PostCVDRisk",
             call. = F)
 
     rounded.val <- replace(rounded.val,
@@ -268,7 +258,7 @@ PostACSRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, acs
   }
 
   if(length(inval.age) >= 1){
-    warning("Age input contains one or more non-calculatable values. See R documentation using ?PostACSRisk",
+    warning("Age input contains one or more non-calculatable values. See R documentation using ?PostCVDRisk",
             call. = F)
 
     rounded.val <- replace(rounded.val,
@@ -279,3 +269,5 @@ PostACSRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, acs
   return(rounded.val)
 
 }
+
+

@@ -41,9 +41,11 @@ NoPriorCVDRisk_BMI(dat, sex, age, eth, nzdep, smoker, diabetes,
 \item{...}{Set decimal place for integers. Default is 4. Optional.}
 }
 \description{
-\code{NoPriorCVDRisk_BMI} calculates the 5 year risk of cardiovascular disease (CVD) (hospitalisation for acute coronary syndrome, heart failure, stroke or other cerebrovascular disease, peripheral vascular death, cardiovascular death),
-for people without a history of atherosclerotic CVD. This equation takes into account BMI, If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied, then a risk estimate is produced for each row of data, resulting in a numeric vector of the same length.
-A specific format is required for each variable input value. Encoding may be required. See arguments.
+\code{NoPriorCVDRisk_BMI} calculates the 5 year absolute risk of cardiovascular disease (CVD) for people without a history of atherosclerotic CVD. The outcome of future
+CVD is defined as hospitalisation for acute coronary syndrome, heart failure, stroke or other cerebrovascular disease, peripheral vascular disease, or cardiovascular
+death. If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied, then a
+risk estimate is produced for each row of data, resulting in a numeric vector of the same length. A specific format is required for each input value. Encoding may be
+required. See arguments.
 }
 \details{
 When the parameter \code{dat} is supplied using a dataset, then parameters take variable names as input. For example, when a dataset is supplied, the parameter \code{age} requires the variable name \code{index_age} as input from the dataset.
@@ -51,11 +53,12 @@ When the parameter \code{dat} is not supplied, then parameters take actual value
 }
 \section{Age}{
 
-The primary prevention risk prediction equations were developed from a cohort of people aged 30 to 74 years who were eligible for CVD risk prediction according to the 2003 CVD risk assessment and management guidelines and subsequent updates (New Zealand Guidelines Group 2003).
-People aged 18-29 years and 80 years and older, the equation will only provide a very approximate estimate. However, a risk calculation may be potentially useful to guide clinical decision making.
-As such, the equation will calculate ages 18-29 as 30; and ages 80-110 as 80.
-People aged 75-79 years are also outside of the range for which the algorithms were developed. However, assessment of the equations performance (calibration) shows that they perform reasonably well.
-Therefore, the equation will calculate ages 75-79 as per input.
+The primary prevention risk prediction equations were developed from a cohort of people aged 30 to 74 years who were eligible for CVD risk prediction according to
+the 2003 CVD risk assessment and management guidelines and subsequent updates (New Zealand Guidelines Group 2003). For people aged 18-29 years or 80 years and older,
+the equation will only provide a very approximate estimate. However, a risk calculation may be potentially useful to guide clinical decision making. As such, the
+equation will calculate ages 18-29 as 30; and ages 80-110 as 80. People aged 75-79 years are also outside of the range for which the algorithms were developed.
+However, assessment of the equations’ performance (calibration) shows that they perform reasonably well. Therefore, the equation will calculate ages 75-79 as
+per input.
 }
 
 \section{Ethnicity}{
@@ -90,7 +93,7 @@ NoPriorCVDRisk_BMI(dat=DF, sex=sex, age=age, eth=ethnic_labels, smoker=smoking_s
 \references{
 New Zealand Ministry of Health: HISO 10071:2019 Cardiovascular Disease Risk Assessment Data Standard
 
-HISO Document: \url{https://www.health.govt.nz/publication/hiso-100712019-cardiovascular-disease-risk-assessment-data-standard}
+\href{https://www.health.govt.nz/publication/hiso-100712019-cardiovascular-disease-risk-assessment-data-standard}{HISO Document}
 }
 \seealso{
 \code{\link{NoPriorCVDRisk}} Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation.

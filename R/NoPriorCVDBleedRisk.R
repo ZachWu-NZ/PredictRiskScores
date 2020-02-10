@@ -1,18 +1,20 @@
 
 #' PREDICT Major Bleed (2018) Risk Score for People Without Prior CVD
 #'
-#' \code{MajorBleedRisk} calculates the 5 year risk of major bleeding (gastrointestinal, intracranial, and other bleeds), for people without prior cardiovascular disease. This equation takes into account multiple diabetes-related variables. If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied, then a risk estimate is produced for each row of data, resulting in a numeric vector of the same length.
-#' A specific format is required for each variable input value. Encoding may be required. See arguments.
+#' \code{NoPriorCVDBleedRisk} calculates the 5 year risk of major bleeding (gastrointestinal, intracranial, and other bleeds), for people without cardiovascular disease.
+#' If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied, then a risk
+#' estimate is produced for each row of data, resulting in a numeric vector of the same length. A specific format is required for each input value. Encoding may be
+#' required. See arguments.
 #'
-#' @usage MajorBleedRisk(dat, sex, age, eth, smoke, nzdep, af, familyhx, diabetes,
-#'                sbp, tchdl, lld, bpl, cancer, gibleed, puddiag, alcohol,
-#'                liver, puddrug, nsaid, steroids, ssri,...)
+#' @usage NoPriorCVDBleedRisk(dat, sex, age, eth, smoker, nzdep, af, familyhx, diabetes,
+#'                        sbp, tchdl, lld, bpl, cancer, gibleed, puddiag, alcohol,
+#'                        liver, puddrug, nsaid, steroids, ssri,...)
 #'
 #' @param dat   A data.frame or data.table containing input data. Optional. See Details.
 #' @param sex   Sex or gender - input as labels M, Male, F, Female; or encode binary where 1 is male and 0 is female
 #' @param age   Age - input as numeric value between 30 and 74. See age details if outside of this range.
 #' @param eth   Ethnicity - input as label or encoded value. See ethnicity details for all possible inputs.
-#' @param Smoking status - input as labels (or encode as) "Ex smoker" (2), "Ex-smoker" (2), "Ex" (2), "Current Smoker" (1), "Current" (1), "Smoker" (1), "Y" (1), "Yes" (1)
+#' @param smoker Smoking status - input as labels (or encode as) "Ex smoker" (2), "Ex-smoker" (2), "Ex" (2), "Current Smoker" (1), "Current" (1), "Smoker" (1), "Y" (1), "Yes" (1)
 #' @param nzdep Index of socioeconomic deprivation, specifically the New Zealand Deprivation Index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived).
 #' @param familyhx Family history of premature CVD - input as label "Y", "Yes", or encode binary where 1 is "Yes"
 #' @param diabetes Diabetes status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
@@ -35,11 +37,9 @@
 #' When the parameter \code{dat} is not supplied, then parameters take actual values or labels as input. For example, when \code{dat} is not supplied, the parameter \code{age} requires a single numeric value between 30 and 79. This method calculates the 5-year risk estimate for a single individual.
 #'
 #' @section Age:
-#' The primary prevention risk prediction equations were developed from a cohort of people aged 30 to 74 years who were eligible for CVD risk prediction according to the 2003 CVD risk assessment and management guidelines and subsequent updates (New Zealand Guidelines Group 2003).
-#' People aged 18-29 years and 80 years and older, the equation will only provide a very approximate estimate. However, a risk calculation may be potentially useful to guide clinical decision making.
-#' As such, the equation will calculate ages 18-29 as 30; and ages 80-110 as 80.
-#' People aged 75-79 years are also outside of the range for which the algorithms were developed. However, assessment of the equations performance (calibration) shows that they perform reasonably well.
-#' Therefore, the equation will calculate ages 75-79 as per input.
+#' The risk prediction equations were developed from a cohort of people aged 30 to 79 years. People aged 18-29 years or 80 years and older, are outside the range used
+#' to derive the equation and so risk will be even more of an approximation. To be consistent with equations for primary prevention in this suite of scores, the
+#' function will calculate ages 18-29 as 30; and ages 80-110 as 80.
 #'
 #' @section Ethnicity:
 #' The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and Asian. Individuals with ethnicity labels (or codes) that fall outside of these categories will not recieve a risk estimate.
@@ -69,7 +69,7 @@
 #' \code{\link{PostACSRisk}} Creates a 5 year CVD risk estimate for people after an ACS event using the published Heart equation.
 #'
 #' @author
-#' Billy Wu (R developer) and Vanessa Selak (Principle Investigator)
+#' Billy Wu (R developer) and Vanessa Selak (Principal Investigator)
 #'
 #' @references
 #' Selak V, Jackson R, Poppe K, et al. Predicting Bleeding Risk to Guide Aspirin Use for the Primary Prevention of Cardiovascular Disease: A Cohort Study. Ann Intern Med. 2019;170:357–368. doi: https://doi.org/10.7326/M18-2808
@@ -83,13 +83,13 @@
 #' @export
 #' @examples
 #' # As calculator (dataset not provided)
-#' MajorBleedRisk(sex=0, age=55, eth=21, smoker=1, nzdep=5, af=0, familyhx=1, diabetes=1, sbp=130, tchdl=5, lld=1,
-#'             bpl=1, cancer=1, gibleed=1,puddiag=1, alcohol=0, liver=0, puddrug=0, nsaid=1, steroids=1, ssri=0)
+#' NoPriorCVDBleedRisk(sex=0, age=55, eth=21, smoker=1, nzdep=5, af=0, familyhx=1, diabetes=1, sbp=130, tchdl=5, lld=1,
+#'                     bpl=1, cancer=1, gibleed=1,puddiag=1, alcohol=0, liver=0, puddrug=0, nsaid=1, steroids=1, ssri=0)
 #'
 #' # As vectoriser (dataset provided)
-#' MajorBleedRisk(dat=DT, sex=sex, age=index_age, eth=eth_vars, smoker=smoking_status, nzdep=nzdep, af=af, familyhx=family_hx, diabetes=dm,
-#'             sbp=index_sbp, tchdl=tchdl, lld=lld, bpl=bpl, cancer=hx_cancer, gibleed=hx_gibleed, puddiag=hx_hud, alcohol=alc, liver=hx_liver,
-#'             puddrug=pudmx, nsaid=nsaid, steroids=steroidmx, ssri=ssri)
+#' NoPriorCVDBleedRisk(dat=DT, sex=sex, age=index_age, eth=eth_vars, smoker=smoking_status, nzdep=nzdep, af=af, familyhx=family_hx, diabetes=dm,
+#'                     sbp=index_sbp, tchdl=tchdl, lld=lld, bpl=bpl, cancer=hx_cancer, gibleed=hx_gibleed, puddiag=hx_hud, alcohol=alc, liver=hx_liver,
+#'                     puddrug=pudmx, nsaid=nsaid, steroids=steroidmx, ssri=ssri)
 #'
 # --- Code ---
 MajorBleedRisk <- function(dat, sex, age, eth, smoker, nzdep, af, familyhx, diabetes, sbp, tchdl, lld, bpl, cancer, gibleed, puddiag, alcohol, liver, puddrug, nsaid, steroids, ssri,...){

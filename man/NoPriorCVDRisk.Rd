@@ -2,7 +2,7 @@
 % Please edit documentation in R/NoPriorCVDRisk.R
 \name{NoPriorCVDRisk}
 \alias{NoPriorCVDRisk}
-\title{PREDICT CVD (2017) Risk Score for People Without Prior CVD}
+\title{PREDICT CVD (2017) Risk Score for People Without CVD}
 \usage{
 NoPriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
                af, familyhx, sbp, tchdl, bpl, lld, athromb,...)
@@ -39,27 +39,33 @@ NoPriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
 \item{...}{Set decimal place for integers. Default is 4. Optional.}
 }
 \description{
-\code{NoPriorCVDRisk} calculates the 5 year risk of cardiovascular disease (CVD) (hospitalisation for acute coronary syndrome, heart failure, stroke or other cerebrovascular disease, peripheral vascular death, cardiovascular death),
-for people without a history of atherosclerotic CVD. If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied, then a risk estimate is produced for each row of data, resulting in a numeric vector of the same length.
-A specific format is required for each variable input value. Encoding may be required. See arguments.
+\code{NoPriorCVDRisk} calculates the 5 year absolute risk of cardiovascular disease (CVD) for people without a history of atherosclerotic CVD. The outcome of future
+CVD is defined as hospitalisation for acute coronary syndrome, heart failure, stroke or other cerebrovascular disease, peripheral vascular disease, or cardiovascular
+death. If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied, then a
+risk estimate is produced for each row of data, resulting in a numeric vector of the same length. A specific format is required for each input value. Encoding may be
+required. See arguments.
 }
 \details{
-When the parameter \code{dat} is supplied using a dataset, then parameters take variable names as input. For example, when a dataset is supplied, the parameter \code{age} requires the variable name \code{index_age} as input from the dataset.
-When the parameter \code{dat} is not supplied, then parameters take actual values or labels as input. For example, when \code{dat} is not supplied, the parameter \code{age} requires a single numeric value between 30 and 79. This method calculates the 5-year risk estimate for a single individual.
+The primary prevention risk prediction equations were developed from a cohort of people aged 30 to 74 years who were eligible for CVD risk prediction according to
+the 2003 CVD risk assessment and management guidelines and subsequent updates (New Zealand Guidelines Group 2003).
+
+When the parameter \code{dat} is supplied using a dataset, then parameters take variable names as input. For example, when a dataset is supplied,
+the parameter \code{age} requires the variable name \code{index_age} as input from the dataset. When the parameter \code{dat} is not supplied, then parameters
+take actual values or labels as input. For example, when \code{dat} is not supplied, the parameter \code{age} requires a single numeric value between 30 and 79.
+This method calculates the 5-year risk estimate for a single individual.
 }
 \section{Age}{
 
-The primary prevention risk prediction equations were developed from a cohort of people aged 30 to 74 years who were eligible for CVD risk prediction according to the 2003 CVD risk assessment and management guidelines and subsequent updates (New Zealand Guidelines Group 2003).
-People aged 18-29 years and 80 years and older, the equation will only provide a very approximate estimate. However, a risk calculation may be potentially useful to guide clinical decision making.
-As such, the equation will calculate ages 18-29 as 30; and ages 80-110 as 80.
-People aged 75-79 years are also outside of the range for which the algorithms were developed. However, assessment of the equations performance (calibration) shows that they perform reasonably well.
-Therefore, the equation will calculate ages 75-79 as per input.
+People aged 75-79 years are outside of the range for which the algorithms were developed, although assessment of equation performance (calibration) shows
+that they perform reasonably well. For people aged 18-29 years or 80 years and older, the equation will only provide a very approximate estimate. The equation will
+calculate ages 18-29 as 30; and ages 80-110 as 80. All other age inputs are invalid and will return \code{NA}
 }
 
 \section{Ethnicity}{
 
-The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and Asian. Individuals with ethnicity labels (or codes) that fall outside of these categories will not recieve a risk estimate.
-To obtain a risk estimate, ensure that the ethnicity parameter is either labelled (not case-sensitive) or encoded as one of the following:
+The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and (non-Indian) Asian. Individuals with ethnicity labels
+(or codes) that fall outside of these categories will not receive a risk estimate. To obtain a risk estimate, ensure that the ethnicity parameter is either
+labelled or encoded as one of the following:
 \itemize{
 \item NZ European, European, NZEO, Euro, E, 1, 10, 11, 12
 \item Maori, NZMaori, NZ Maori, M, 2, 21
@@ -87,7 +93,7 @@ NoPriorCVDRisk(dat=DF, sex=sex, age=age, eth=ethnicity, smoker=smoking_status, n
 \references{
 Pylypchuk R, Wells S, Kerr A, Poppe K, Riddell T, Harwood M, et al. Cardiovascular disease risk prediction equations in 400 000 primary care patients in New Zealand: a derivation and validation study. Lancet 2018;391:1897-907.
 
-Full Article: \url{https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(18)30664-0/fulltext}
+\href{https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(18)30664-0/fulltext}{Full Article}
 }
 \seealso{
 \code{\link{NoPriorCVDRisk_BMI}} Creates a 5 year CVD risk estimate for people without prior CVD using the Ministry of Health's HISO equation containing BMI.
@@ -103,5 +109,5 @@ Full Article: \url{https://www.thelancet.com/journals/lancet/article/PIIS0140-67
 \code{\link{PostACSRisk}} Creates a 5 year CVD risk estimate for people after an ACS event using the published Heart equation.
 }
 \author{
-Billy Wu (R developer) and Romana Pylypchuk (Principle Investigator)
+Billy Wu (R developer) and Romana Pylypchuk (Principal Investigator)
 }

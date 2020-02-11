@@ -33,17 +33,24 @@
 #' @param ssri Receiving at least one selective serotonine reuptake inhibitor - input as label "Y", "Yes", or encode binary where 1 is "Yes"
 #' @param ... Set decimal place for integers. Default is 4. Optional.
 #'
-#' @details  When the parameter \code{dat} is supplied using a dataset, then parameters take variable names as input. For example, when a dataset is supplied, the parameter \code{age} requires the variable name \code{index_age} as input from the dataset.
-#' When the parameter \code{dat} is not supplied, then parameters take actual values or labels as input. For example, when \code{dat} is not supplied, the parameter \code{age} requires a single numeric value between 30 and 79. This method calculates the 5-year risk estimate for a single individual.
+#' @details
+#' The primary prevention risk prediction equations were developed from a cohort of people aged 30 to 74 years who were eligible for CVD risk prediction according to
+#' the 2003 CVD risk assessment and management guidelines and subsequent updates (New Zealand Guidelines Group 2003).
+#'
+#' When the parameter \code{dat} is supplied using a dataset, then parameters take variable names as input. For example, when a dataset is supplied,
+#' the parameter \code{age} requires the variable name \code{index_age} as input from the dataset. When the parameter \code{dat} is not supplied, then parameters
+#' take actual values or labels as input. For example, when \code{dat} is not supplied, the parameter \code{age} requires a single numeric value between 30 and 79.
+#' This method calculates the 5-year risk estimate for a single individual.
 #'
 #' @section Age:
-#' The risk prediction equations were developed from a cohort of people aged 30 to 79 years. People aged 18-29 years or 80 years and older, are outside the range used
-#' to derive the equation and so risk will be even more of an approximation. To be consistent with equations for primary prevention in this suite of scores, the
-#' function will calculate ages 18-29 as 30; and ages 80-110 as 80.
+#' People aged 75-79 years are outside of the range for which the algorithms were developed, although assessment of equation performance (calibration) shows
+#' that they perform reasonably well. For people aged 18-29 years or 80 years and older, the equation will only provide a very approximate estimate. The equation will
+#' calculate ages 18-29 as 30; and ages 80-110 as 80. All other age inputs are invalid and will return \code{NA}.
 #'
 #' @section Ethnicity:
-#' The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and Asian. Individuals with ethnicity labels (or codes) that fall outside of these categories will not recieve a risk estimate.
-#' To obtain a risk estimate, ensure that the ethnicity parameter is either labelled (not case-sensitive) or encoded as one of the following:
+#' The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and (non-Indian) Asian. Individuals with ethnicity labels
+#' (or codes) that fall outside of these categories will not receive a risk estimate. To obtain a risk estimate, ensure that the ethnicity parameter is either
+#' labelled or encoded as one of the following:
 #' \itemize{
 #' \item NZ European, European, NZEO, Euro, E, 1, 10, 11, 12
 #' \item Maori, NZMaori, NZ Maori, M, 2, 21

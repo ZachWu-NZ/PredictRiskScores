@@ -37,7 +37,7 @@
 #' @section Age:
 #' People aged 75-79 years are outside of the range for which the algorithms were developed, although assessment of equation performance (calibration) shows
 #' that they perform reasonably well. For people aged 18-29 years or 80 years and older, the equation will only provide a very approximate estimate. The equation will
-#' calculate ages 18-29 as 30; and ages 80-110 as 80. All other age inputs are invalid and will return \code{NA}
+#' calculate ages 18-29 as 30; and ages 80-110 as 80. All other age inputs are invalid and will return \code{NA}.
 #'
 #' @section Ethnicity:
 #' The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and (non-Indian) Asian. Individuals with ethnicity labels

@@ -1,74 +1,71 @@
 #' PREDICT CVD (2017) Risk Score for People Without CVD
 #'
-#' \code{NoPriorCVDRisk} calculates the 5 year absolute risk of cardiovascular disease (CVD) for people without a history of atherosclerotic CVD. The outcome of future
-#' CVD is defined as hospitalisation for acute coronary syndrome, heart failure, stroke or other cerebrovascular disease, peripheral vascular disease, or cardiovascular
-#' death. If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied, then a
-#' risk estimate is produced for each row of data, resulting in a numeric vector of the same length. A specific format is required for each input value. Encoding may be
-#' required. See arguments.
+#' \code{NoPriorCVDRisk} calculates the 5 year absolute risk of cardiovascular disease (CVD) for people without a history of atherosclerotic CVD.
+#' In this version, BMI is not included as a predictor. The outcome of future CVD is defined as hospitalisation for acute coronary syndrome, heart failure,
+#' stroke or other cerebrovascular disease, peripheral vascular disease, or cardiovascular death.
 #'
 #' @usage NoPriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
-#'                af, familyhx, sbp, tchdl, bpl, lld, athromb,...)
+#'                af, familyhx, sbp, tchdl, bpl, lld, athrombi,...)
 #'
-#' @param dat   A data.frame or data.table containing input data. Optional. See Details.
-#' @param sex   Sex or gender - input as labels M, Male, F, Female; or encode binary where 1 is male and 0 is female
-#' @param age   Age - input as numeric value between 30 and 74. See age details if outside of this range.
-#' @param eth   Ethnicity - input as label or encoded value. See ethnicity details for all possible inputs.
-#' @param nzdep Index of socioeconomic deprivation, specifically the New Zealand Deprivation Index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived).
-#' @param smoker Smoking status - input as labels (or encode as) "Ex smoker" (2), "Ex-smoker" (2), "Ex" (2), "Current Smoker" (1), "Current" (1), "Smoker" (1), "Y" (1), "Yes" (1)
-#' @param diabetes Diabetes status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param af Atrial fibrillation status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param familyhx Family history of premature CVD - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param sbp Systolic blood pressure - input as numeric value representing measured systolic blood pressure in mmHg
-#' @param tchdl Total-HDL cholesterol ratio - input as numeric value representing most recent value of total:HDL cholesterol
-#' @param bpl Receiving at least one blood pressure lowering medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param lld Receiving lipid lowering medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param athromb Receiving antiplatelet or anticoagulant medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param ... Set decimal place for integers. Default is 4. Optional.
+#' @inheritParams NoPriorCVDRisk_BMI
 #'
-#' @details
-#' The primary prevention risk prediction equations were developed from a cohort of people aged 30 to 74 years who were eligible for CVD risk prediction according to
-#' the 2003 CVD risk assessment and management guidelines and subsequent updates (New Zealand Guidelines Group 2003).
+#' @details  When the parameter \code{dat} is supplied using a dataset, a risk estimate is produced for each row of data, resulting in a numeric vector of the same length.
+#' Each parameter is assigned the corresponding variable name from the dataset. If the parameter \code{dat} is not supplied, then each parameter is assigned an individual's
+#' actual value. \cr
 #'
-#' When the parameter \code{dat} is supplied using a dataset, then parameters take variable names as input. For example, when a dataset is supplied,
-#' the parameter \code{age} requires the variable name \code{index_age} as input from the dataset. When the parameter \code{dat} is not supplied, then parameters
-#' take actual values or labels as input. For example, when \code{dat} is not supplied, the parameter \code{age} requires a single numeric value between 30 and 79.
-#' This method calculates the 5-year risk estimate for a single individual.
+#' The risk prediction equations were developed from a cohort of people aged 30 to 79 years. People aged 18-29 years or 80 years and older, are outside the range used
+#' to derive the equation, and therefore risk will be even more of an approximation. To be consistent with equations for primary prevention in this suite of scores, the function
+#' will calculate ages 18-29 as 30; and ages 80-110 as 80. All other age inputs are invalid and will return \code{NA}. \cr
 #'
-#' @section Age:
-#' People aged 75-79 years are outside of the range for which the algorithms were developed, although assessment of equation performance (calibration) shows
-#' that they perform reasonably well. For people aged 18-29 years or 80 years and older, the equation will only provide a very approximate estimate. The equation will
-#' calculate ages 18-29 as 30; and ages 80-110 as 80. All other age inputs are invalid and will return \code{NA}.
+#' The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and (non-Indian) Asian. To obtain a risk estimate, ensure that the
+#' ethnicity input is either labelled or encoded using one of the values listed below (see values). All other inputs are invalid and will return \code{NA}. \cr
 #'
-#' @section Ethnicity:
-#' The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and (non-Indian) Asian. Individuals with ethnicity labels
-#' (or codes) that fall outside of these categories will not receive a risk estimate. To obtain a risk estimate, ensure that the ethnicity parameter is either
-#' labelled or encoded as one of the following:
-#' \itemize{
-#' \item NZ European, European, NZEO, Euro, E, 1, 10, 11, 12
-#' \item Maori, NZMaori, NZ Maori, M, 2, 21
-#' \item Pacific, Pacific Islander, PI, P, 3, 30, 31, 32, 33, 34, 35, 36, 37
-#' \item Indian, Fijian Indian, South Asian, IN, I, 43
-#' \item Asian, Other Asian, SE Asian, East Asian, Chinese, ASN, A, 4, 40, 41, 42, 44
-#' }
+#' @return
+#' \code{NoPriorCVDRisk} returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
+#' Input values for each parameter must conform to the following convention:
 #'
-#' @section Value:
-#' Returns either a single CVD risk estimate or a numeric vector of CVD risk estimates.
+#' \item{sex}{label or encode as one of the following:
+#'            \itemize{
+#'              \item M, Male, 1
+#'              \item F, Female, 0
+#'              }}
+#' \item{age}{numeric value for years of age between 20 and 110}
+#' \item{eth}{label or encode as one of the following:
+#'            \itemize{
+#'              \item NZ European, European, NZEO, Euro, E, 1, 10, 11, or 12
+#'              \item Maori, NZMaori, NZ Maori, M, 2, or 21
+#'              \item Pacific, Pacific Islander, PI, P, 3, 30, 31, 32, 33, 34, 35, 36, or 37
+#'              \item Indian, Fijian Indian, South Asian, IN, I, or 43
+#'              \item Asian, Other Asian, SE Asian, East Asian, Chinese, ASN, A, 4, 40, 41, 42, or 44
+#'              }}
+#' \item{nzdep}{numeric value between 1 and 5}
+#' \item{smoker}{label or encode as one of the following:
+#'            \itemize{
+#'              \item X, Ex, Ex-smoker, 2
+#'              \item Y, Yes, Smoker, 1, T, TRUE
+#'              \item N, No, Non-smoker, 0, F, FALSE
+#'              }}
+#' \item{diabetes\cr af familyhx bpl lld\cr athrombi}{label or encode as one of the following:
+#'            \itemize{
+#'              \item Y, Yes, 1, T, TRUE
+#'              \item N, No, 0, F, FALSE
+#'              }}
+#' \item{sbp tchdl}{numeric value of measured result. Note:
+#'            \itemize{
+#'              \item SBP and total:HDL values must be avaliable
+#'              }}
 #'
 #' @seealso
-#' \code{\link{NoPriorCVDRisk_BMI}} Creates a 5 year CVD risk estimate for people without prior CVD using the Ministry of Health's HISO equation containing BMI.
-#'
-#' \code{\link{PriorT2DRisk}} Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation.
-#'
-#' \code{\link{MajorBleedRisk}} Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation.
-#'
-#' \code{\link{PriorCVDRisk}} Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation.
-#'
-#' \code{\link{PolicyCVDRisk}} Creates a 5 year CVD policy risk estimate for people in the general population using the publish IJE equation.
-#'
-#' \code{\link{PostACSRisk}} Creates a 5 year CVD risk estimate for people after an ACS event using the published Heart equation.
+#' \code{\link{NoPriorCVDRisk}} \cr
+#' \code{\link{NoPriorCVDRisk_BMI}} \cr
+#' \code{\link{NoPriorCVDRisk_Policy}} \cr
+#' \code{\link{NoPriorCVDRiskBleedRisk}} \cr
+#' \code{\link{NoPriorT2DRisk}} \cr
+#' \code{\link{PostCVDRisk}} \cr
+#' \code{\link{PostACSRisk}} \cr
 #'
 #' @author
-#' Billy Wu (R developer) and Romana Pylypchuk (Principal Investigator)
+#' Billy Wu (R Developer) and Romana Pylypchuk (Principal Investigator)
 #'
 #' @export
 #' @references
@@ -80,14 +77,14 @@
 #' @examples
 #' # As Calculator (dataset not provided)
 #' NoPriorCVDRisk(sex="F", age=65, eth="Indian", smoker=0, nzdep=5,  diabetes=0,
-#'                af=0, familyhx=1, lld=1, athromb=1, bpl=1, sbp=118, tchdl=3.3)
+#'                af=0, familyhx=1, lld=1, athrombi=1, bpl=1, sbp=118, tchdl=3.3)
 #'
 #' # As vectoriser (dataset provided)
 #' NoPriorCVDRisk(dat=DF, sex=sex, age=age, eth=ethnicity, smoker=smoking_status, nzdep=nzdep_quint, diabetes=diab_status,
-#'                af=af, familyhx=fam_hx, lld=lld_drugs, athromb=antithrombics, bpl=bplt, sbp=systolic_bp, tchdl=tchdl_ratio)
+#'                af=af, familyhx=fam_hx, lld=lld_drugs, athrombi=antithrombics, bpl=bplt, sbp=systolic_bp, tchdl=tchdl_ratio)
 #'
 # --- Code ---
-NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, familyhx, sbp, tchdl, bpl, lld, athromb,...){
+NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, familyhx, sbp, tchdl, bpl, lld, athrombi,...){
 
   vars   <- as.list(match.call()[-1])
 
@@ -102,7 +99,7 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
   # Param Check
   param.dat <- deparse(substitute(dat))!=""
 
-  params <- c("sex", "age", "eth", "nzdep", "smoker", "diabetes", "af", "familyhx", "sbp", "tchdl", "bpl", "lld", "athromb")
+  params <- c("sex", "age", "eth", "nzdep", "smoker", "diabetes", "af", "familyhx", "sbp", "tchdl", "bpl", "lld", "athrombi")
 
   for(i in params){
     if(eval(substitute(missing(i)))) {
@@ -134,7 +131,7 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
   familyhx  <- +(vars$familyhx %in% c("Y", 1))
   bpl       <- +(vars$bpl %in% c("Y", 1))
   lld       <- +(vars$lld %in% c("Y", 1))
-  athromb   <- +(vars$athromb %in% c("Y", 1))
+  athrombi  <- +(vars$athrombi %in% c("Y", 1))
 
   tchdl   <- vars$tchdl
   nzdep   <- vars$nzdep
@@ -187,7 +184,7 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
   # List input values
   # nb: Order to match coeffs list
   values <- c(list(age = cen.age), eth, smoke, list(nzdep = cen.nzdep), list(diab = diab), list(af = af), list(familyhx = familyhx),
-              list(lld = lld), list(athromb = athromb), list(bpl = bpl), list(sbp = cen.sbp), list(tchdl = cen.tchdl),
+              list(lld = lld), list(athrombi = athrombi), list(bpl = bpl), list(sbp = cen.sbp), list(tchdl = cen.tchdl),
               interaction)
 
   # Replace Missing
@@ -207,7 +204,7 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
                     af       = 0.8927126,
                     familyhx = 0.0445534,
                     lld = -0.0593798,
-                    athromb = 0.1172496,
+                    athrombi = 0.1172496,
                     bpl = 0.339925,
                     sbp = 0.0136606,
                     tchdl = 0.1226753,
@@ -227,7 +224,7 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
                      af       = 0.5880131,
                      familyhx = 0.1326587,
                      lld = -0.0537314,
-                     athromb = 0.0934141,
+                     athrombi = 0.0934141,
                      bpl = 0.2947634,
                      sbp = 0.0163778,
                      tchdl = 0.1283758,

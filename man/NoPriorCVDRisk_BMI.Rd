@@ -5,88 +5,102 @@
 \title{PREDICT CVD (2018.2) Risk Score for People Without Prior CVD}
 \usage{
 NoPriorCVDRisk_BMI(dat, sex, age, eth, nzdep, smoker, diabetes,
-                   af, familyhx, sbp, tchdl, bpl, lld, athromb,...)
+                   af, familyhx, sbp, tchdl, bpl, lld, athrombi,...)
 }
 \arguments{
-\item{dat}{A data.frame or data.table containing input data. Optional. See Details.}
+\item{dat}{an optional data.frame or data.table containing input data (see details)}
 
-\item{sex}{Sex or gender - input as labels M, Male, F, Female; or encode binary where 1 is male and 0 is female}
+\item{sex}{binary sex or gender}
 
-\item{age}{Age - input as numeric value between 30 and 74. See age details if outside of this range.}
+\item{age}{age in years at time of risk assessment (see details)}
 
-\item{eth}{Ethnicity - input as label or encoded value. See ethnicity details for all possible inputs.}
+\item{eth}{ethnicity (see details)}
 
-\item{nzdep}{Index of socioeconomic deprivation, specifically the New Zealand Deprivation Index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived).}
+\item{nzdep}{socio-economic deprivation (see details)}
 
-\item{smoker}{Smoking status - input as labels (or encode as) "Ex smoker" (1), "Ex-smoker" (1), "Ex" (1), "Current Smoker" (2), "Current" (2), "Smoker" (2), "Y" (2), "Yes" (2)}
+\item{smoker}{smoking status}
 
-\item{diabetes}{Diabetes status - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
+\item{diabetes}{diabetes status}
 
-\item{af}{Atrial fibrillation status - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
+\item{af}{atrial fibrillation status}
 
-\item{familyhx}{Family history of premature CVD - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
+\item{familyhx}{family history of premature CVD}
 
-\item{sbp}{Systolic blood pressure - input as numeric value representing measured systolic blood pressure in mmHg}
+\item{sbp}{measured systolic blood pressure in mmHg}
 
-\item{tchdl}{Total-HDL cholesterol ratio - input as numeric value representing most recent value of total:HDL cholesterol}
+\item{tchdl}{most recent value of total:HDL cholesterol}
 
-\item{bmi}{Body mass index - input as numeric value representing BMI in kg/m^2}
+\item{bmi}{body mass index in kg/m^2}
 
-\item{bpl}{Receiving at least one blood pressure lowering medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
+\item{bpl}{receiving at least one blood pressure lowering medication}
 
-\item{lld}{Receiving lipid lowering medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
+\item{lld}{receiving lipid lowering medication}
 
-\item{athromb}{Receiving antiplatelet or anticoagulant medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"}
+\item{athrombi}{receiving antiplatelet or anticoagulant medication}
 
-\item{...}{Set decimal place for integers. Default is 4. Optional.}
+\item{...}{an optional number of decimal places}
+}
+\value{
+\code{NoPriorCVDRisk_BMI} returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
+Input values for each parameter must conform to the following convention:
+
+\item{sex}{label or encode as one of the following:
+\itemize{
+\item M, Male, 1
+\item F, Female, 0
+}}
+\item{age}{numeric value for years of age between 20 and 110}
+\item{eth}{label or encode as one of the following:
+\itemize{
+\item NZ European, European, NZEO, Euro, E, 1, 10, 11, or 12
+\item Maori, NZMaori, NZ Maori, M, 2, or 21
+\item Pacific, Pacific Islander, PI, P, 3, 30, 31, 32, 33, 34, 35, 36, or 37
+\item Indian, Fijian Indian, South Asian, IN, I, or 43
+\item Asian, Other Asian, SE Asian, East Asian, Chinese, ASN, A, 4, 40, 41, 42, or 44
+}}
+\item{nzdep}{numeric value between 1 and 5}
+\item{smoker}{label or encode as one of the following:
+\itemize{
+\item X, Ex, Ex-smoker, 2
+\item Y, Yes, Smoker, 1, T, TRUE
+\item N, No, Non-smoker, 0, F, FALSE
+}}
+\item{diabetes\cr af familyhx bpl lld\cr athrombi}{label or encode as one of the following:
+\itemize{
+\item Y, Yes, 1, T, TRUE
+\item N, No, 0, F, FALSE
+}}
+\item{bmi sbp\cr tchdl}{numeric value of measured result. Note:
+\itemize{
+\item SBP and total:HDL values must be avaliable
+\item If BMI is unknown, then keep as \code{NA}
+}}
 }
 \description{
-\code{NoPriorCVDRisk_BMI} calculates the 5 year absolute risk of cardiovascular disease (CVD) for people without a history of atherosclerotic CVD. The outcome of future
-CVD is defined as hospitalisation for acute coronary syndrome, heart failure, stroke or other cerebrovascular disease, peripheral vascular disease, or cardiovascular
-death. If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied, then a
-risk estimate is produced for each row of data, resulting in a numeric vector of the same length. A specific format is required for each input value. Encoding may be
-required. See arguments.
+\code{NoPriorCVDRisk_BMI} calculates the 5 year absolute risk of cardiovascular disease (CVD) for people without a history of atherosclerotic CVD.
+In this version, BMI is used as a predictor. The outcome of future CVD is defined as hospitalisation for acute coronary syndrome, heart failure,
+stroke or other cerebrovascular disease, peripheral vascular disease, or cardiovascular death.
 }
 \details{
-When the parameter \code{dat} is supplied using a dataset, then parameters take variable names as input. For example, when a dataset is supplied, the parameter \code{age} requires the variable name \code{index_age} as input from the dataset.
-When the parameter \code{dat} is not supplied, then parameters take actual values or labels as input. For example, when \code{dat} is not supplied, the parameter \code{age} requires a single numeric value between 30 and 79. This method calculates the 5-year risk estimate for a single individual.
+When the parameter \code{dat} is supplied using a dataset, a risk estimate is produced for each row of data, resulting in a numeric vector of the same length.
+Each parameter is assigned the corresponding variable name from the dataset. If the parameter \code{dat} is not supplied, then each parameter is assigned an individual's
+actual value. \cr
+
+The risk prediction equations were developed from a cohort of people aged 30 to 79 years. People aged 18-29 years or 80 years and older, are outside the range used
+to derive the equation, and therefore risk will be even more of an approximation. To be consistent with equations for primary prevention in this suite of scores, the function
+will calculate ages 18-29 as 30; and ages 80-110 as 80. All other age inputs are invalid and will return \code{NA}. \cr
+
+The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and (non-Indian) Asian. To obtain a risk estimate, ensure that the
+ethnicity input is either labelled or encoded using one of the values listed below (see values). All other inputs are invalid and will return \code{NA}. \cr
 }
-\section{Age}{
-
-The primary prevention risk prediction equations were developed from a cohort of people aged 30 to 74 years who were eligible for CVD risk prediction according to
-the 2003 CVD risk assessment and management guidelines and subsequent updates (New Zealand Guidelines Group 2003). For people aged 18-29 years or 80 years and older,
-the equation will only provide a very approximate estimate. However, a risk calculation may be potentially useful to guide clinical decision making. As such, the
-equation will calculate ages 18-29 as 30; and ages 80-110 as 80. People aged 75-79 years are also outside of the range for which the algorithms were developed.
-However, assessment of the equations’ performance (calibration) shows that they perform reasonably well. Therefore, the equation will calculate ages 75-79 as
-per input.
-}
-
-\section{Ethnicity}{
-
-The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and Asian. Individuals with ethnicity labels (or codes) that fall outside of these categories will not recieve a risk estimate.
-To obtain a risk estimate, ensure that the ethnicity parameter is either labelled (not case-sensitive) or encoded as one of the following:
-\itemize{
-\item NZ European, European, NZEO, Euro, E, 1, 10, 11, 12
-\item Maori, NZMaori, NZ Maori, M, 2, 21
-\item Pacific, Pacific Islander, PI, P, 3, 30, 31, 32, 33, 34, 35, 36, 37
-\item Indian, Fijian Indian, South Asian, IN, I, 43
-\item Asian, Other Asian, SE Asian, East Asian, Chinese, ASN, A, 4, 40, 41, 42, 44
-}
-}
-
-\section{Value}{
-
-Returns either a single CVD risk estimate or a numeric vector of CVD risk estimates.
-}
-
 \examples{
 # As calculator (dataset not provided)
 NoPriorCVDRisk_BMI(sex="F", age=65, eth="Indian", smoker=0, nzdep=5,  diabetes=0,
-                  af=0, familyhx=1, lld=1, athromb=1, bpl=1, sbp=118, tchdl=3.3, bmi=32)
+                  af=0, familyhx=1, lld=1, athrombi=1, bpl=1, sbp=118, tchdl=3.3, bmi=32)
 
 # As vectoriser (dataset provided)
 NoPriorCVDRisk_BMI(dat=DF, sex=sex, age=age, eth=ethnic_labels, smoker=smoking_status, nzdep=nzdep_quintiles,
-                  diabetes=diab_status, af=af, familyhx=fam_hx, lld=lipidlowering, athromb=antithrombics,
+                  diabetes=diab_status, af=af, familyhx=fam_hx, lld=lipidlowering, athrombi=antithrombics,
                   bpl=bplowering, sbp=systolic_bp, tchdl=tchdl_ratio, bmi=bmi)
 
 }
@@ -96,18 +110,14 @@ New Zealand Ministry of Health: HISO 10071:2019 Cardiovascular Disease Risk Asse
 \href{https://www.health.govt.nz/publication/hiso-100712019-cardiovascular-disease-risk-assessment-data-standard}{HISO Document}
 }
 \seealso{
-\code{\link{NoPriorCVDRisk}} Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation.
-
-\code{\link{PriorT2DRisk}} Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation.
-
-\code{\link{MajorBleedRisk}} Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation.
-
-\code{\link{PriorCVDRisk}} Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation.
-
-\code{\link{PolicyCVDRisk}} Creates a 5 year CVD policy risk estimate for people in the general population using the publish IJE equation.
-
-\code{\link{PostACSRisk}} Creates a 5 year CVD risk estimate for people after an ACS event using the published Heart equation.
+\code{\link{NoPriorCVDRisk}} \cr
+\code{\link{NoPriorCVDRisk_BMI}} \cr
+\code{\link{NoPriorCVDRisk_Policy}} \cr
+\code{\link{NoPriorCVDRiskBleedRisk}} \cr
+\code{\link{NoPriorT2DRisk}} \cr
+\code{\link{PostCVDRisk}} \cr
+\code{\link{PostACSRisk}} \cr
 }
 \author{
-Billy Wu (R developer) and Romana Pylypchuk (Principle Investigator)
+Billy Wu (R Developer) and Romana Pylypchuk (Principal Investigator)
 }

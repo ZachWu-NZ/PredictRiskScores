@@ -2,104 +2,115 @@
 #' PREDICT Major Bleed (2018) Risk Score for People Without Prior CVD
 #'
 #' \code{NoPriorCVDBleedRisk} calculates the 5 year risk of major bleeding (gastrointestinal, intracranial, and other bleeds), for people without cardiovascular disease.
-#' If a dataset of input values are not supplied, then individual values for each coefficient can be specified. If a dataset of input values are supplied, then a risk
-#' estimate is produced for each row of data, resulting in a numeric vector of the same length. A specific format is required for each input value. Encoding may be
-#' required. See arguments.
 #'
 #' @usage NoPriorCVDBleedRisk(dat, sex, age, eth, smoker, nzdep, af, familyhx, diabetes,
-#'                        sbp, tchdl, lld, bpl, cancer, gibleed, puddiag, alcohol,
-#'                        liver, puddrug, nsaid, steroids, ssri,...)
+#'                  sbp, tchdl, lld, bpl, cancer, gibleed, puddiag, alcohol,
+#'                  liver, puddrug, nsaid, steroids, ssri,...)
 #'
-#' @param dat   A data.frame or data.table containing input data. Optional. See Details.
-#' @param sex   Sex or gender - input as labels M, Male, F, Female; or encode binary where 1 is male and 0 is female
-#' @param age   Age - input as numeric value between 30 and 74. See age details if outside of this range.
-#' @param eth   Ethnicity - input as label or encoded value. See ethnicity details for all possible inputs.
-#' @param smoker Smoking status - input as labels (or encode as) "Ex smoker" (2), "Ex-smoker" (2), "Ex" (2), "Current Smoker" (1), "Current" (1), "Smoker" (1), "Y" (1), "Yes" (1)
-#' @param nzdep Index of socioeconomic deprivation, specifically the New Zealand Deprivation Index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived).
-#' @param familyhx Family history of premature CVD - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param diabetes Diabetes status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param sbp Systolic blood pressure - input as numeric value representing measured systolic blood pressure in mmHg
-#' @param tchdl Total-HDL cholesterol ratio - input as numeric value representing most recent value of total:HDL cholesterol
-#' @param lld Receiving lipid lowering medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param bpl Receiving at least one blood pressure lowering medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param cancer Any prior primary malignancy excluding squamous and basal cell skin cancers
-#' @param gibleed Any prior gastrointestinal bleeding - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param puddiag Any prior non-bleeding and non-perforated peptic ulcer disease - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param alcohol Chronic high use of alcohol - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param liver Chronic liver disease or pancreatitis - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param puddrug Receiving at peptic ulcer disease medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param nsaid Receiving at least one nonsteroidal anti-inflammatary drug - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param steroids  Receiving at least one corticosteroid medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param ssri Receiving at least one selective serotonine reuptake inhibitor - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param ... Set decimal place for integers. Default is 4. Optional.
+#' @inheritParams NoPriorCVDRisk
+#' @param cancer  prior primary malignancy excluding squamous and basal cell skin cancers
+#' @param gibleed prior gastrointestinal bleeding
+#' @param puddiag prior non-bleeding and non-perforated peptic ulcer disease
+#' @param alcohol chronic high use of alcohol
+#' @param liver   chronic liver disease or pancreatitis
+#' @param puddrug   receiving at lease one peptic ulcer disease medication
+#' @param nsaid     receiving at least one nonsteroidal anti-inflammatary drug
+#' @param steroids  receiving at least one corticosteroid medication
+#' @param ssri      receiving at least one selective serotonine reuptake inhibitor
 #'
-#' @details
-#' The primary prevention risk prediction equations were developed from a cohort of people aged 30 to 74 years who were eligible for CVD risk prediction according to
-#' the 2003 CVD risk assessment and management guidelines and subsequent updates (New Zealand Guidelines Group 2003).
+#' @details  When the parameter \code{dat} is supplied using a dataset, a risk estimate is produced for each row of data, resulting in a numeric vector of the same length.
+#' Each parameter is assigned the corresponding variable name from the dataset. If the parameter \code{dat} is not supplied, then each parameter is assigned an individual's
+#' actual value. \cr
 #'
-#' When the parameter \code{dat} is supplied using a dataset, then parameters take variable names as input. For example, when a dataset is supplied,
-#' the parameter \code{age} requires the variable name \code{index_age} as input from the dataset. When the parameter \code{dat} is not supplied, then parameters
-#' take actual values or labels as input. For example, when \code{dat} is not supplied, the parameter \code{age} requires a single numeric value between 30 and 79.
-#' This method calculates the 5-year risk estimate for a single individual.
+#' The risk prediction equations were developed from a cohort of people aged 30 to 79 years. People aged 18-29 years or 80 years and older, are outside the range used
+#' to derive the equation, and therefore risk will be even more of an approximation. To be consistent with equations for primary prevention in this suite of scores, the function
+#' will calculate ages 18-29 as 30; and ages 80-110 as 80. All other age inputs are invalid and will return \code{NA}. \cr
 #'
-#' @section Age:
-#' People aged 75-79 years are outside of the range for which the algorithms were developed, although assessment of equation performance (calibration) shows
-#' that they perform reasonably well. For people aged 18-29 years or 80 years and older, the equation will only provide a very approximate estimate. The equation will
-#' calculate ages 18-29 as 30; and ages 80-110 as 80. All other age inputs are invalid and will return \code{NA}.
+#' The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and (non-Indian) Asian. To obtain a risk estimate, ensure that the
+#' ethnicity input is either labelled or encoded using one of the values listed below (see values). All other inputs are invalid and will return \code{NA}. \cr
 #'
-#' @section Ethnicity:
-#' The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and (non-Indian) Asian. Individuals with ethnicity labels
-#' (or codes) that fall outside of these categories will not receive a risk estimate. To obtain a risk estimate, ensure that the ethnicity parameter is either
-#' labelled or encoded as one of the following:
-#' \itemize{
-#' \item NZ European, European, NZEO, Euro, E, 1, 10, 11, 12
-#' \item Maori, NZMaori, NZ Maori, M, 2, 21
-#' \item Pacific, Pacific Islander, PI, P, 3, 30, 31, 32, 33, 34, 35, 36, 37
-#' \item Indian, Fijian Indian, South Asian, IN, I, 43
-#' \item Asian, Other Asian, SE Asian, East Asian, Chinese, ASN, A, 4, 40, 41, 42, 44
-#' }
+#' @return
+#' \code{NoPriorCVDBleedRisk} returns either a single 5-year major bleed risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
+#' Input values for each parameter must conform to the following convention:
 #'
-#' @section Value:
-#' Returns either a single bleeding risk estimate or a numeric vector of bleeding risk estimates.
+#' \item{sex}{label or encode as one of the following:
+#'            \itemize{
+#'              \item M, Male, 1
+#'              \item F, Female, 0
+#'              }}
+#' \item{age}{numeric value for years of age between 20 and 110}
+#' \item{eth}{label or encode as one of the following:
+#'            \itemize{
+#'              \item NZ European, European, NZEO, Euro, E, 1, 10, 11, or 12
+#'              \item Maori, NZMaori, NZ Maori, M, 2, or 21
+#'              \item Pacific, Pacific Islander, PI, P, 3, 30, 31, 32, 33, 34, 35, 36, or 37
+#'              \item Indian, Fijian Indian, South Asian, IN, I, or 43
+#'              \item Asian, Other Asian, SE Asian, East Asian, Chinese, ASN, A, 4, 40, 41, 42, or 44
+#'              }}
+#' \item{nzdep}{numeric value between 1 and 5}
+#' \item{smoker}{label or encode as one of the following:
+#'            \itemize{
+#'              \item X, Ex, Ex-smoker, 2
+#'              \item Y, Yes, Smoker, 1, T, TRUE
+#'              \item N, No, Non-smoker, 0, F, FALSE
+#'              }}
+#' \item{diabetes\cr af familyhx\cr bpl lld}{label or encode as one of the following:
+#'            \itemize{
+#'              \item Y, Yes, 1, T, TRUE
+#'              \item N, No, 0, F, FALSE
+#'              }}
+#'\item{cancer gibleed\cr puddiag alcohol liver\cr}{label or encode as one of the following:
+#'            \itemize{
+#'              \item Y, Yes, 1, T, TRUE
+#'              \item N, No, 0, F, FALSE
+#'              }}
+#' \item{puddrug nsaid\cr steroids ssri}{label or encode as one of the following:
+#'            \itemize{
+#'              \item Y, Yes, 1, T, TRUE
+#'              \item N, No, 0, F, FALSE
+#'              }}
+#' \item{sbp tchdl}{numeric value of measured result. Note:
+#'            \itemize{
+#'              \item SBP and total:HDL values must be avaliable
+#'              }}
 #'
 #' @seealso
-#' \code{\link{NoPriorCVDRisk}} Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation.
-#'
-#' \code{\link{NoPriorCVDRisk_BMI}} Creates a 5 year CVD risk estimate for people without prior CVD using the Ministry of Health's HISO equation containing BMI.
-#'
-#' \code{\link{PriorT2DRisk}} Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation.
-#'
-#' \code{\link{PriorCVDRisk}} Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation.
-#'
-#' \code{\link{PolicyCVDRisk}} Creates a 5 year CVD policy risk estimate for people in the general population using the publish IJE equation.
-#'
-#' \code{\link{PostACSRisk}} Creates a 5 year CVD risk estimate for people after an ACS event using the published Heart equation.
+#' \code{\link{NoPriorCVDRisk}} \cr
+#' \code{\link{NoPriorCVDRisk_BMI}} \cr
+#' \code{\link{NoPriorCVDRisk_Policy}} \cr
+#' \code{\link{NoPriorCVDRiskBleedRisk}} \cr
+#' \code{\link{NoPriorT2DRisk}} \cr
+#' \code{\link{PostCVDRisk}} \cr
+#' \code{\link{PostACSRisk}} \cr
 #'
 #' @author
-#' Billy Wu (R developer) and Vanessa Selak (Principal Investigator)
+#' Billy Wu (R Developer) and Vanessa Selak (Principal Investigator)
 #'
 #' @references
-#' Selak V, Jackson R, Poppe K, et al. Predicting Bleeding Risk to Guide Aspirin Use for the Primary Prevention of Cardiovascular Disease: A Cohort Study. Ann Intern Med. 2019;170:357–368. doi: https://doi.org/10.7326/M18-2808
-#'
-#' Full Article: \url{https://www.annals.org/aim/fullarticle/doi/10.7326/M18-2808}
+#' Selak V, Jackson R, Poppe K, et al. Predicting Bleeding Risk to Guide Aspirin Use for the Primary Prevention of Cardiovascular Disease: A Cohort Study. Ann Intern Med. 2019;170:357-368. doi: https://doi.org/10.7326/M18-2808
 #'
 #' Using the bleeding risk equation developed by Selak et al (2019), I developed a web-based risk calculator that provides clinicians with an individualised estimate of the CVD benefit and bleeding harms of aspirin for their patients without established CVD.
 #'
-#' For the calculator: \url{https://aspirinbenefitharmcalculator.shinyapps.io/calculator/}
+#' \href{https://www.annals.org/aim/fullarticle/doi/10.7326/M18-2808}{Full Article}
+#' \href{https://aspirinbenefitharmcalculator.shinyapps.io/calculator/}{Online Calculator}
 #'
 #' @export
 #' @examples
 #' # As calculator (dataset not provided)
-#' NoPriorCVDBleedRisk(sex=0, age=55, eth=21, smoker=1, nzdep=5, af=0, familyhx=1, diabetes=1, sbp=130, tchdl=5, lld=1,
-#'                     bpl=1, cancer=1, gibleed=1,puddiag=1, alcohol=0, liver=0, puddrug=0, nsaid=1, steroids=1, ssri=0)
+#' NoPriorCVDBleedRisk(sex=0, age=55, eth=21, smoker=1, nzdep=5, af=0, familyhx=1,
+#'                     diabetes=1, sbp=130, tchdl=5, lld=1, bpl=1, cancer=1, gibleed=1,
+#'                     puddiag=1, alcohol=0, liver=0, puddrug=0, nsaid=1, steroids=1, ssri=0)
 #'
 #' # As vectoriser (dataset provided)
-#' NoPriorCVDBleedRisk(dat=DT, sex=sex, age=index_age, eth=eth_vars, smoker=smoking_status, nzdep=nzdep, af=af, familyhx=family_hx, diabetes=dm,
-#'                     sbp=index_sbp, tchdl=tchdl, lld=lld, bpl=bpl, cancer=hx_cancer, gibleed=hx_gibleed, puddiag=hx_hud, alcohol=alc, liver=hx_liver,
-#'                     puddrug=pudmx, nsaid=nsaid, steroids=steroidmx, ssri=ssri)
+#' NoPriorCVDBleedRisk(dat=DT, sex=sex, age=index_age, eth=eth_vars, smoker=smoking_status,
+#'                     nzdep=nzdep, af=af, familyhx=family_hx, diabetes=dm, sbp=index_sbp,
+#'                     tchdl=tchdl, lld=lld, bpl=bpl, cancer=hx_cancer, gibleed=hx_gibleed,
+#'                     puddiag=hx_hud, alcohol=alc, liver=hx_liver, puddrug=pudmx, nsaid=nsaid,
+#'                     steroids=steroidmx, ssri=ssri)
 #'
 # --- Code ---
-MajorBleedRisk <- function(dat, sex, age, eth, smoker, nzdep, af, familyhx, diabetes, sbp, tchdl, lld, bpl, cancer, gibleed, puddiag, alcohol, liver, puddrug, nsaid, steroids, ssri,...){
+NoPriorCVDBleedRisk <- function(dat, sex, age, eth, smoker, nzdep, af, familyhx, diabetes, sbp, tchdl, lld, bpl, cancer, gibleed, puddiag,
+                                alcohol, liver, puddrug, nsaid, steroids, ssri,...){
 
   vars   <- as.list(match.call()[-1])
 

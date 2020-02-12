@@ -2,95 +2,122 @@
 #'
 #' \code{PostACSRisk} calculates the 5 year absolute risk of cardiovascular disease (CVD) for people who have experienced an acute coronary syndrome (ACS) event.
 #' It is not intended to be used in the acute phase. The outcome of future CVD is defined as hospitalisation for acute coronary syndrome, heart failure, stroke or
-#' other cerebrovascular disease, peripheral vascular disease, or cardiovascular death. If a dataset of input values are not supplied, then individual values for
-#' each coefficient can be specified. If a dataset of input values are supplied, then a risk estimate is produced for each row of data, resulting in a numeric vector
-#' of the same length. A specific format is required for each input value. Encoding may be required. See arguments.
+#' other cerebrovascular disease, peripheral vascular disease, or cardiovascular death.
 #'
 #' @usage PostACSRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
-#'            af, hf, acsdays, acstype, bmi, sbp, tchdl, hba1c,
-#'            scr, bpl, lld, athromb,...)
+#'             af, hf, acsdays, acstype, bmi, sbp, tchdl, hba1c,
+#'             scr, bpl, lld, athrombi,...)
 #'
-#' @param dat   A data.frame or data.table containing input data. Optional. See Details.
-#' @param sex   Sex or gender - input as labels M, Male, F, Female; or encode binary where 1 is male and 0 is female
-#' @param age   Age - input as numeric value between 30 and 79. See age details if outside of this range.
-#' @param eth   Ethnicity - input as label or encoded value. See ethnicity details for all possible inputs.
-#' @param nzdep Index of socioeconomic deprivation, specifically the New Zealand Deprivation Index - input as numeric quintile value between 1 (least deprived) and 5 (most deprived)
-#' @param smoker Current smoker - input as labels "Y", "Yes", "Smoker", or encode binary where 1 is "Yes"
-#' @param diabetes Diabetes status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param af Atrial fibrillation status - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param hf Heart failure - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param acsdays Time since the most recent prior ACS event - input as numeric value representing days.
-#' @param acstype Type of prior ACS. The referent group is unstable angina - input as labels (or encode as) NSTEMI (1), NONSTEMI (1) or STEMI(2)
-#' @param bmi Body mass index - input as numeric value representing BMI in kg/m^2
-#' @param sbp Systolic blood pressure - input as numeric value representing measured systolic blood pressure in mmHg
-#' @param tchdl Total-HDL cholesterol ratio - input as numeric value representing most recent value of total:HDL cholesterol
-#' @param hba1c HbA1c - input as numeric value representing most recent value of HbA1c in mmol/mol
-#' @param scr Serum creatinine - input as numeric value representing most recent value of serum creatinine in micromol/L
-#' @param bpl Receiving at least one blood pressure lowering medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param lld Receiving lipid lowering medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param athromb Receiving antiplatelet or anticoagulant medication - input as label "Y", "Yes", or encode binary where 1 is "Yes"
-#' @param ... Set decimal place for integers. Default is 4. Optional.
+#' @param dat     an optional data.frame or data.table containing input data (see details)
+#' @param sex     binary sex or gender
+#' @param age     age in years at time of risk assessment (see details)
+#' @param eth     ethnicity (see details)
+#' @param nzdep     socio-economic deprivation (see details)
+#' @param smoker    smoking status
+#' @param diabetes  diabetes status
+#' @param af        atrial fibrillation status
+#' @param hf        heart failure status
+#' @param acsdays   time in days since the most recent prior ACS event
+#' @param acstype   type of prior ACS (see values)
+#' @param bmi       body mass index in kg/m^2
+#' @param sbp       measured systolic blood pressure in mmHg
+#' @param tchdl     most recent value of total:HDL cholesterol
+#' @param hba1c     most recent value of HbA1c in mmol/mol
+#' @param scr       most recent value of serum creatinine in micromol/L
+#' @param bpl       receiving at least one blood pressure lowering medication
+#' @param lld       receiving lipid lowering medication
+#' @param athrombi  receiving antiplatelet or anticoagulant medication
+#' @param ...       an optional number of decimal places
 #'
-#' @details  When the parameter \code{dat} is supplied using a dataset, then parameters take variable names as input. For example, when a dataset is supplied, the parameter \code{age} requires the variable name \code{index_age} as input from the dataset.
-#' When the parameter \code{dat} is not supplied, then parameters take actual values or labels as input. For example, when \code{dat} is not supplied, the parameter \code{age} requires a single numeric value between 30 and 79. This method calculates the 5-year risk estimate for a single individual.
+#' @details  When the parameter \code{dat} is supplied using a dataset, a risk estimate is produced for each row of data, resulting in a numeric vector of the same length.
+#' Each parameter is assigned the corresponding variable name from the dataset. If the parameter \code{dat} is not supplied, then each parameter is assigned an individual's
+#' actual value. \cr
 #'
-#' @section Age:
 #' The risk prediction equations were developed from a cohort of people aged 30 to 79 years. People aged 18-29 years or 80 years and older, are outside the range used
-#' to derive the equation and so risk will be even more of an approximation. To be consistent with equations for primary prevention in this suite of scores, the function
-#' will calculate ages 18-29 as 30; and ages 80-110 as 80.
+#' to derive the equation, and therefore risk will be even more of an approximation. To be consistent with equations for primary prevention in this suite of scores, the function
+#' will calculate ages 18-29 as 30; and ages 80-110 as 80. All other age inputs are invalid and will return \code{NA}. \cr
 #'
-#' @section Ethnicity:
-#' The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and (non-Indian) Asian Asian. Individuals with ethnicity
-#' labels (or codes) that fall outside of these categories will not recieve a risk estimate. To obtain a risk estimate, ensure that the ethnicity parameter is
-#' either labelled or encoded as one of the following:
-#' \itemize{
-#' \item NZ European, European, NZEO, Euro, E, 1, 10, 11, 12
-#' \item Maori, NZMaori, NZ Maori, M, 2, 21
-#' \item Pacific, Pacific Islander, PI, P, 3, 30, 31, 32, 33, 34, 35, 36, 37
-#' \item Indian, Fijian Indian, South Asian, IN, I, 43
-#' \item Asian, Other Asian, SE Asian, East Asian, Chinese, ASN, A, 4, 40, 41, 42, 44
-#' }
+#' The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and (non-Indian) Asian. To obtain a risk estimate, ensure that the
+#' ethnicity input is either labelled or encoded using one of the values listed below (see values). All other inputs are invalid and will return \code{NA}. \cr
 #'
-#' @section Value:
-#' Returns either a single CVD risk estimate or a numeric vector of CVD risk estimates.
+#' @return
+#' \code{PostACSRisk} returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
+#' Input values for each parameter must conform to the following convention:
+#'
+#' \item{sex}{label or encode as one of the following:
+#'            \itemize{
+#'              \item M, Male, 1
+#'              \item F, Female, 0
+#'              }}
+#' \item{age}{numeric value for years of age between 20 and 110}
+#' \item{eth}{label or encode as one of the following:
+#'            \itemize{
+#'              \item NZ European, European, NZEO, Euro, E, 1, 10, 11, or 12
+#'              \item Maori, NZMaori, NZ Maori, M, 2, or 21
+#'              \item Pacific, Pacific Islander, PI, P, 3, 30, 31, 32, 33, 34, 35, 36, or 37
+#'              \item Indian, Fijian Indian, South Asian, IN, I, or 43
+#'              \item Asian, Other Asian, SE Asian, East Asian, Chinese, ASN, A, 4, 40, 41, 42, or 44
+#'              }}
+#' \item{nzdep}{numeric value between 1 and 5}
+#' \item{smoker}{label or encode as one of the following:
+#'            \itemize{
+#'              \item Y, Yes, Smoker, 1, T, TRUE
+#'              \item N, No, Non-smoker, 0, F, FALSE
+#'              }}
+#' \item{diabetes\cr af hf\cr bpl lld\cr athrombi}{label or encode as one of the following:
+#'            \itemize{
+#'              \item Y, Yes, 1, T, TRUE
+#'              \item N, No, 0, F, FALSE
+#'              }}
+#' \item{acsdays}{numeric value of number of days since last ACS event. Nb:
+#'            \itemize{
+#'              \item If the date of most recent CVD event is unknown, then keep as \code{NA}
+#'              }}
+#' \item{acstype}{label or encode as one of the following:
+#'            \itemize{
+#'              \item STEMI, ST-Elevation, 2
+#'              \item NSTEMI, Non-STEMI, 1
+#'              \item Unstable Angina, UA, 0
+#'              }}
+#' \item{bmi sbp\cr tchdl hba1c\cr scr}{numeric value of measured result. Note:
+#'            \itemize{
+#'              \item SBP and total:HDL values must be avaliable
+#'              \item If BMI, HbA1c, or serum creatinine values are unknown, then keep as \code{NA}
+#'              }}
 #'
 #' @seealso
-#' \code{\link{NoPriorCVDRisk}} Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation.
-#'
-#' \code{\link{NoPriorCVDRisk_BMI}} Creates a 5 year CVD risk estimate for people without prior CVD using the Ministry of Health's HISO equation containing BMI.
-#'
-#' \code{\link{PriorT2DRisk}} Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation.
-#'
-#' \code{\link{MajorBleedRisk}} Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation.
-#'
-#' \code{\link{PriorCVDRisk}} Creates a 5 year CVD risk estimate for people with prior CVD using the published Heart equation.
-#'
-#' \code{\link{PolicyCVDRisk}} Creates a 5 year CVD policy risk estimate for people in the general population using the publish IJE equation.
+#' \code{\link{NoPriorCVDRisk}} \cr
+#' \code{\link{NoPriorCVDRisk_BMI}} \cr
+#' \code{\link{NoPriorCVDRisk_Policy}} \cr
+#' \code{\link{NoPriorCVDRiskBleedRisk}} \cr
+#' \code{\link{NoPriorT2DRisk}} \cr
+#' \code{\link{PostCVDRisk}} \cr
+#' \code{\link{PostACSRisk}} \cr
 #'
 #' @author
-#' Billy Wu (R developer) and Katrina Poppe (Principal Investigator)
+#' Billy Wu (R Developer) and Katrina Poppe (Principal Investigator)
 #'
 #' @export
 #' @references
 #' Poppe KK, Doughty RN, Wells S, et al. Development and validation of a cardiovascular risk score for patients in the community after acute coronary syndromeHeart Published Online First: 10 December 2019. doi: 10.1136/heartjnl-2019-315809
 #'
-#' Full Article: \url{https://heart.bmj.com/content/early/2019/12/10/heartjnl-2019-315809.full}
-#'
-#' Toll Free: \url{https://heart.bmj.com/content/heartjnl/early/2019/12/10/heartjnl-2019-315809.full.pdf?ijkey=B9NMccWMr793Ixj&keytype=ref}
+#' \href{https://heart.bmj.com/content/early/2019/12/10/heartjnl-2019-315809.full}{Full Article}
+#' \href{https://heart.bmj.com/content/heartjnl/early/2019/12/10/heartjnl-2019-315809.full.pdf?ijkey=B9NMccWMr793Ixj&keytype=ref}{Toll Free}
 #'
 #' @examples
 #' # As a calculator (dataset not provide)
 #' PostACSRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0,
 #'             af=0, hf=1, acsdays=65, acstype="NSTEMI", bmi=NA, sbp=118,
-#'             tchdl=3.3, hba1c=NA, scr=52, bpl=1, lld=1, athromb=1)
+#'             tchdl=3.3, hba1c=NA, scr=52, bpl=1, lld=1, athrombi=1)
 #'
 #' # As Vectoriser (dataset provided)
-#' PostACSRisk(TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker, diabetes=diabetes, af=af, hf=hf, acsdays=days, acstype=acs_type,
-#'              bmi=bmi, sbp=sbp, tchdl=tchdl, hba1c=hba1c, scr=scr, bpl=bpl, lld=lld, athromb=athromb)
-#'
+#' PostACSRisk(TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker,
+#'             diabetes=diabetes, af=af, hf=hf, acsdays=days, acstype=acs_type,
+#'             bmi=bmi, sbp=sbp, tchdl=tchdl, hba1c=hba1c, scr=scr, bpl=bpl,
+#'             lld=lld, athrombi=athrombi)
 #'
 # --- Code ---
-PostACSRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, acsdays, acstype, bmi, sbp, tchdl, hba1c, scr, bpl, lld, athromb,...){
+PostACSRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, acsdays, acstype, bmi, sbp, tchdl, hba1c, scr, bpl, lld, athrombi,...){
 
   vars   <- as.list(match.call()[-1])
 
@@ -106,7 +133,7 @@ PostACSRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, acs
   param.dat <- deparse(substitute(dat))!=""
 
   params  <- c("sex", "age", "eth", "nzdep", "smoker", "diabetes", "af", "hf", "acsdays", "acstype", "bmi", "sbp", "tchdl", "hba1c",
-               "scr", "bpl", "lld", "athromb")
+               "scr", "bpl", "lld", "athrombi")
 
   for(i in params){
     if(eval(substitute(missing(i)))) {
@@ -139,7 +166,7 @@ PostACSRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, acs
   hf      <- +(vars$hf %in% c("Y", "Yes", 1))
   bpl     <- +(vars$bpl %in% c("Y", "Yes", 1))
   lld     <- +(vars$lld %in% c("Y", "Yes", 1))
-  athromb <- +(vars$athromb %in% c("Y", "Yes", 1))
+  athrombi <- +(vars$athrombi %in% c("Y", "Yes", 1))
 
   nzdep   <- vars$nzdep
   tchdl   <- vars$tchdl
@@ -176,8 +203,8 @@ PostACSRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, acs
                     prior6_12m = +(vars$acsdays >= 182 & vars$acsdays <=365),
                     prior5plus = +(vars$acsdays >= 1826 | is.na(vars$acsdays)))
 
-  acstype   <- list(nstemi  = +(tolower(vars$acstype) %in% c("nstemi", "nonstemi", "1")),
-                    stemi   = +(tolower(vars$acstype) %in% c("stemi", "2")))
+  acstype   <- list(nstemi  = +(tolower(vars$acstype) %in% c("nstemi", "nonstemi", "non-stemi", "1")),
+                    stemi   = +(tolower(vars$acstype) %in% c("stemi", "st-elevation", "2")))
 
   bmi     <- list(bmilt20    = +(vars$bmi < 20 & !is.na(vars$bmi)),
                   bmi20_25   = +(vars$bmi %in% 20:24 & !is.na(vars$bmi)),
@@ -202,7 +229,7 @@ PostACSRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, acs
   # List input values
   # nb: Order to match coeffs list
   values <- c(list(male = male), age, eth, list(nzdep = nzdep), list(smoker = smoker), list(diab = diab), list(af = af),
-              list(hf = hf), acsdays, acstype, bmi, sbp, list(tchdl = tchdl), hba1c, scr, list(bpl = bpl), list(lld = lld), list(athromb = athromb))
+              list(hf = hf), acsdays, acstype, bmi, sbp, list(tchdl = tchdl), hba1c, scr, list(bpl = bpl), list(lld = lld), list(athrombi = athrombi))
 
   # Replace Missing
   values <- lapply(values, function(x)

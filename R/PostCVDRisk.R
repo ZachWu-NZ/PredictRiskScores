@@ -23,6 +23,10 @@
 #' The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and (non-Indian) Asian. To obtain a risk estimate, ensure that the
 #' ethnicity input is either labelled or encoded using one of the values listed below (see values). All other inputs are invalid and will return \code{NA}. \cr
 #'
+#' The scale for socioeconomic deprivation is derived from the New Zealand Index of Deprivation; a small area-based measure that combines census data relating to income,
+#' home ownership, employment, qualifications, family structure, housing, access to transport and communications. The function takes input using an ordinal scale
+#' from 1 to 5, with 1 being the least deprived and 5 being the most deprived.
+#'
 #' @return
 #' \code{PostCVDRisk} returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
 #' Input values for each parameter must conform to the following convention:

@@ -114,6 +114,10 @@ will calculate ages 18-29 as 30; and ages 80-110 as 80. All other age inputs are
 
 The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and (non-Indian) Asian. To obtain a risk estimate, ensure that the
 ethnicity input is either labelled or encoded using one of the values listed below (see values). All other inputs are invalid and will return \code{NA}. \cr
+
+The scale for socioeconomic deprivation is derived from the New Zealand Index of Deprivation; a small area-based measure that combines census data relating to income,
+home ownership, employment, qualifications, family structure, housing, access to transport and communications. The function takes input using an ordinal scale
+from 1 to 5, with 1 being the least deprived and 5 being the most deprived.
 }
 \examples{
 # As calculator (dataset not provided)

@@ -12,7 +12,6 @@ This is an R package featuring functions for generating PREDICT cardiovascular d
 1. `NoPriorCVDRisk` 
     calculates the 5 year absolute risk of CVD for people without a history of atherosclerotic CVD. Published in the Lancet (Pylypchuk et al. 2018) and does not include BMI as a predictor. 
     [Full Article](https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(18)30664-0/fulltext)
-    \newline
     
 2. `NoPriorCVDRisk_BMI` 
     calculates the 5 year absolute risk of CVD for people without a history of atherosclerotic CVD. Published as a Ministry of Health's HISO standard and adds BMI as a predictor to the Lancet equation.

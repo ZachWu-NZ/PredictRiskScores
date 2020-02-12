@@ -101,7 +101,7 @@ Input values for each parameter must conform to the following convention:
 }}
 }
 \description{
-\code{NoPriorCVDBleedRisk} calculates the 5 year risk of major bleeding (gastrointestinal, intracranial, and other bleeds), for people without cardiovascular disease.
+\code{NoPriorCVDBleedRisk} calculates the 5 year absolute risk of major bleeding (gastrointestinal, intracranial, and other bleeds), for people without a history of atherosclerotic CVD.
 }
 \details{
 When the parameter \code{dat} is supplied using a dataset, a risk estimate is produced for each row of data, resulting in a numeric vector of the same length.

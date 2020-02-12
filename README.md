@@ -1,35 +1,49 @@
 # PREDICT CVD Risk Scores
 
-This is an R package featuring functions for generating PREDICT CVD risk scores.
+This is an R package featuring functions for generating PREDICT cardiovascular disease (CVD) risk scores.
 
 ## Features
--	Package offer 5 year CVD risk estimates for primary prevention in people without established CVD or people without established type 2 diabetes; and a 5 year major bleed risk estimate in people without established CVD.
--   Package offers 5 year CVD risk estimates for secondary prevention; used for people with prior established atherosclerotic CVD or hospitalisation of acute coronary sydnrome. 
--	Each functions can be used as either a calculator (by inputting individual values for an single person) or as a vectoriser (by inputting a dataset containing required parameters).
--   By default, risk estimates are provided to 4 decimal placee; with the option to specify _n_ decimals. 
--   All parameters can be encoded as numeric input (e.g. Male = 1, Pacific = 3, smoker = 1, ...)
+-	Estimate 5 year CVD risk in people with and without established CVD
+-   Estimate 5 year CVD risk in people who have experienced an acute coronary syndrome (ACS)
+-   Estimate 5 year CVD risk in people without established Type-II diabetes
+-   Estimate 5 year major bleeding risk in people without established CVD
 
 ## Functions
 1. `NoPriorCVDRisk` 
-    + Creates a 5 year CVD risk estimate for people without prior CVD using the published Lancet equation
-    ([Full Article](https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(18)30664-0/fulltext))
+    calculates the 5 year absolute risk of CVD for people without a history of atherosclerotic CVD. Published in the Lancet (Pylypchuk et al. 2018) and does not include BMI as a predictor. 
+    [Full Article](https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(18)30664-0/fulltext)
+    \newline
+    
 2. `NoPriorCVDRisk_BMI` 
-    + Creates a 5 year CVD risk estimate for people without prior CVD using the Ministry of Health's HISO equation containing BMI 
-    ([HISO Standard](https://www.health.govt.nz/publication/hiso-100712019-cardiovascular-disease-risk-assessment-data-standard))
-3. `PriorT2DRisk` 
-    + Creates a 5 year CVD risk estimate for people with prior Type-II diabetes using the Ministry of Health's HISO equation
-    ([HISO Standard](https://www.health.govt.nz/publication/hiso-100712019-cardiovascular-disease-risk-assessment-data-standard))
-4. `MajorBleedRisk` 
-    + Creates a 5 year major bleeding risk estimate for people without prior CVD using the published AnnIntMed equation
-    ([Full Article](https://www.annals.org/aim/fullarticle/doi/10.7326/M18-2808))
-5. `PriorCVDRisk` 
-    + Creates a 5 year CVD risk estimate for people with prior CVD using the updated Heart equation (unpublished)
-6. `PolicyCVDRisk` 
-    + Creates a 5 year CVD policy risk estimate for people in the general population using the published IJE equation
-    ([Full Article](https://academic.oup.com/ije/article/47/5/1571/5053287))
+    calculates the 5 year absolute risk of CVD for people without a history of atherosclerotic CVD. Published as a Ministry of Health's HISO standard and adds BMI as a predictor to the Lancet equation.
+    [HISO Standard](https://www.health.govt.nz/publication/hiso-100712019-cardiovascular-disease-risk-assessment-data-standard)
+    \newline
+    
+3. `NoPriorCVDRisk_Policy` 
+    calculates the 5 year absolute risk of CVD for people without a history of atherosclerotic CVD that is intended for use at policy or general population level. Publushed in the 
+    IJE (Mehta et al. 2018) and uses routinely-collected health information as predictors.
+    [Full Article](https://academic.oup.com/ije/article/47/5/1571/5053287)
+    \newline
+    
+4. `NoPriorCVDRiskBleedRisk` 
+    calculates the 5 year absolute risk of major bleeding for people without a history of atherosclerotic CVD. Published in AnnIntMed (Selak et al. 2019).
+    [Full Article](https://www.annals.org/aim/fullarticle/doi/10.7326/M18-2808)
+    \newline
+    
+5. `NoPriorT2DRisk` 
+    creates a 5 year absolute risk of CVD for people without a history of type-II diabetes. Published as a Ministry of Health's HISO standard and includes BMI as a predictor.
+    [HISO Standard](https://www.health.govt.nz/publication/hiso-100712019-cardiovascular-disease-risk-assessment-data-standard)
+    \newline
+    
+6. `PostCVDRisk` 
+    creates a 5 year absolute risk of CVD for people with prior CVD. This equation is yet to be published. However, it is an update to the previously published equation in Heart (Poppe et al. 2017).
+    [Full Article](https://heart.bmj.com/content/103/12/891.1)
+    \newline
+    
 7. `PostACSRisk` 
-    + Creates a 5 year CVD risk estimate for people after an ACS event using the published Heart equation
-    ([Full Article](https://heart.bmj.com/content/early/2019/12/10/heartjnl-2019-315809.full))
+    creates a 5 year absolute risk for people for people who have experienced an ACS event. Published in heart (Poppe et al. 2019).
+    [Full Article](https://heart.bmj.com/content/early/2019/12/10/heartjnl-2019-315809.full)
+    \newline
 
 ## Installation
 The R package "devtools" is required to enable things from GitHub to be installed directly into your R environment.
@@ -53,25 +67,25 @@ library(PredictRiskScores)
 Usage with dataset:
 ```
 NoPriorCVDRisk(dat=DF, sex=sex, age=age, eth=ethnicity, smoker=smoking_status, nzdep=nzdep_quint, 
-               diabetes=diab_status, af=hx_af, familyhx=fam_hx, lld=lld_drugs, athromb=antithrombics, 
+               diabetes=diab_status, af=hx_af, familyhx=fam_hx, lld=lld_drugs, athrombi=antithrombics, 
                bpl=bplt, sbp=systolic_bp, tchdl=tchdl_ratio)
 ```
 
 Usage as a calculator:
 ```
-PostACSRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0,
+PostACSRisk(sex="F", age=65, eth=Indian, nzdep=5, smoker=0, diabetes=0,
             af=0, hf=1, acsdays=65, acstype="NSTEMI", bmi=NA, sbp=118,
-            tchdl=3.3, hba1c=NA, scr=52, bpl=1, lld=1, athromb=1)
+            tchdl=3.3, hba1c=NA, scr=52, bpl=1, lld=1, athrombi=1)
 ```
 
 Help:
 ```
 ?NoPriorCVDRisk
 ?NoPriorCVDRisk_BMI
-?PriorT2DRisk
-?MajorBleedRisk
-?PriorCVDRisk
-?PolicyCVDRisk
+?NoPriorCVDRisk_Policy
+?NoPriorCVDRiskBleedRisk
+?NoPriorT2DRisk
+?PostCVDRisk
 ?PostACSRisk
 ```
 
@@ -84,7 +98,8 @@ I built a web-based risk calculator using the bleeding risk equation developed b
 <a href="https://aspirinbenefitharmcalculator.shinyapps.io/calculator/" target="_blank">Link to the risk calculator here</a>
 
 ## Coming Soon
--	5 year CVD risk estimates for primary prevention in people with serious mental illness
--   5 year diabetes risk estimates for primary prevention in people without established diabetes
--   5 year acute CVD risk estimates for secondary prevention in people with established ACS
--   5 year acute bleeding risk estimates for secondary prevention in people with established ACS
+-	Estimate 5 year CVD risk in people with severe mental illness
+-   Estimate 5 year diabetes risk in people without established diabetes
+-   Estimate 5 year acute CVD risk in people with established ACS
+-   Estimate 5 year acute bleeding risk in people with established ACS
+

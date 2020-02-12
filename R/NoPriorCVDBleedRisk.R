@@ -1,7 +1,7 @@
 
 #' PREDICT Major Bleed (2018) Risk Score for People Without Prior CVD
 #'
-#' \code{NoPriorCVDBleedRisk} calculates the 5 year risk of major bleeding (gastrointestinal, intracranial, and other bleeds), for people without cardiovascular disease.
+#' \code{NoPriorCVDBleedRisk} calculates the 5 year absolute risk of major bleeding (gastrointestinal, intracranial, and other bleeds), for people without a history of atherosclerotic CVD.
 #'
 #' @usage NoPriorCVDBleedRisk(dat, sex, age, eth, smoker, nzdep, af, familyhx, diabetes,
 #'                  sbp, tchdl, lld, bpl, cancer, gibleed, puddiag, alcohol,

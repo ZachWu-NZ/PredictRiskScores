@@ -58,7 +58,7 @@ Chinese, MELAA, ME, ASN, A, 4, 40, 41, 42, 44, 5, 51, 52, 53, 54, 61
 }
 \description{
 \code{NoPriorCVDRisk_Policy} calculates the 5 year absolute risk of cardiovascular disease (CVD) for people without a history of atherosclerotic CVD that
-is intended for use at policy or population level. The outcome of future CVD is defined as hospitalisation for acute coronary syndrome, heart failure,
+is intended for use at policy or general population level. The outcome of future CVD is defined as hospitalisation for acute coronary syndrome, heart failure,
 stroke or other cerebrovascular disease, peripheral vascular disease, or cardiovascular death.
 }
 \details{

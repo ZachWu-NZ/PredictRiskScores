@@ -79,6 +79,10 @@
 #' @author
 #' Billy Wu (R Developer) and Katrina Poppe (Principal Investigator)
 #'
+#' @references
+#' This equation is yet to be published. However, it is an update to the previously published equation in Heart (Poppe et al. 2017).\cr
+#' \href{https://heart.bmj.com/content/103/12/891.1}{Full Article}
+#'
 #' @export
 #' @examples
 #' # As a calculator (dataset not provide)

@@ -123,6 +123,10 @@ PostCVDRisk(TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker,
             lld=lld, athrombi=athrombi)
 
 }
+\references{
+This equation is yet to be published. However, it is an update to the previously published equation in Heart (Poppe et al. 2017).\cr
+\href{https://heart.bmj.com/content/103/12/891.1}{Full Article}
+}
 \seealso{
 \code{\link{NoPriorCVDRisk}} \cr
 \code{\link{NoPriorCVDRisk_BMI}} \cr

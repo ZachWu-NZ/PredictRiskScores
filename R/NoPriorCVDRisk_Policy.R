@@ -1,7 +1,7 @@
 #' VARIANZ CVD (2018) Policy-level Risk Score for People Without CVD
 #'
 #' \code{NoPriorCVDRisk_Policy} calculates the 5 year absolute risk of cardiovascular disease (CVD) for people without a history of atherosclerotic CVD that
-#' is intended for use at policy or population level. The outcome of future CVD is defined as hospitalisation for acute coronary syndrome, heart failure,
+#' is intended for use at policy or general population level. The outcome of future CVD is defined as hospitalisation for acute coronary syndrome, heart failure,
 #' stroke or other cerebrovascular disease, peripheral vascular disease, or cardiovascular death.
 #'
 #' @usage NoPriorCVDRisk_Policy(dat, sex, age, eth, nzdep, diabetes, af, bpl, lld,

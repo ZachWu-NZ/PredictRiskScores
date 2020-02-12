@@ -4,7 +4,8 @@
 \alias{NoPriorCVDRisk_Policy}
 \title{VARIANZ CVD (2018) Policy-level Risk Score for People Without CVD}
 \usage{
-NoPriorCVDRisk_Policy(dat, sex, age, eth, nzdep, diabetes, af, bpl, lld, athrombi,...)
+NoPriorCVDRisk_Policy(dat, sex, age, eth, nzdep, diabetes, af, bpl, lld,
+                      athrombi,...)
 }
 \arguments{
 \item{dat}{an optional data.frame or data.table containing input data (see details)}

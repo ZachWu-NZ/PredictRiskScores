@@ -4,7 +4,8 @@
 #' is intended for use at policy or population level. The outcome of future CVD is defined as hospitalisation for acute coronary syndrome, heart failure,
 #' stroke or other cerebrovascular disease, peripheral vascular disease, or cardiovascular death.
 #'
-#' @usage NoPriorCVDRisk_Policy(dat, sex, age, eth, nzdep, diabetes, af, bpl, lld, athrombi,...)
+#' @usage NoPriorCVDRisk_Policy(dat, sex, age, eth, nzdep, diabetes, af, bpl, lld,
+#'                       athrombi,...)
 #'
 #' @inheritParams NoPriorCVDRisk
 #'
@@ -87,7 +88,7 @@ NoPriorCVDRisk_Policy <- function(dat, sex, age, eth, nzdep, diabetes, af, bpl, 
   # Param Check
   param.dat <- deparse(substitute(dat))!=""
 
-  params  <- c("sex", "age", "eth", "nzdep", "diabetes", "af", "bpl", "lld", "athromb")
+  params  <- c("sex", "age", "eth", "nzdep", "diabetes", "af", "bpl", "lld", "athrombi")
 
   for(i in params){
     if(eval(substitute(missing(i)))) {

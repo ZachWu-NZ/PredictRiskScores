@@ -12,9 +12,9 @@
 #' @param othervd prior angina, peripheral vascular disease, or non-hospitalised cerebrovascular disease not associated with stroke or TIA
 #' @param cvddays time in days since most recent CVD event
 #'
-#' @details  When the parameter \code{dat} is supplied using a dataset, a risk estimate is produced for each row of data, resulting in a numeric vector of the same length.
-#' Each parameter is assigned the corresponding variable name from the dataset. If the parameter \code{dat} is not supplied, then each parameter is assigned an individual's
-#' actual value. \cr
+#' @details  When a dataset is supplied, a risk score is produced for each row of data, resulting in a numeric vector of the same length.
+#' Each argument requires the variable name from the dataset \code{dat} that corresponds with the parameter. If the parameter \code{dat} is not supplied, then each argument is assigned an individual's
+#' actual parameter value. \cr
 #'
 #' The risk prediction equations were developed from a cohort of people aged 30 to 79 years. People aged 18-29 years or 80 years and older, are outside the range used
 #' to derive the equation, and therefore risk will be even more of an approximation. To be consistent with equations for primary prevention in this suite of scores, the function
@@ -24,8 +24,8 @@
 #' ethnicity input is either labelled or encoded using one of the values listed below (see values). All other inputs are invalid and will return \code{NA}. \cr
 #'
 #' The scale for socioeconomic deprivation is derived from the New Zealand Index of Deprivation; a small area-based measure that combines census data relating to income,
-#' home ownership, employment, qualifications, family structure, housing, access to transport and communications. The function takes input using an ordinal scale
-#' from 1 to 5, with 1 being the least deprived and 5 being the most deprived.
+#' home ownership, employment, qualifications, family structure, housing, access to transport and communications. The equations require NZDep to be categorised as quintiles,
+#' with 1 being the least deprived and 5 being the most deprived.
 #'
 #' @return
 #' \code{PostCVDRisk} returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
@@ -44,6 +44,7 @@
 #'              \item Pacific, Pacific Islander, PI, P, 3, 30, 31, 32, 33, 34, 35, 36, or 37
 #'              \item Indian, Fijian Indian, South Asian, IN, I, or 43
 #'              \item Asian, Other Asian, SE Asian, East Asian, Chinese, ASN, A, 4, 40, 41, 42, or 44
+#'              \item note: Other Asian includes non-Indian South Asian
 #'              }}
 #' \item{nzdep}{numeric value between 1 and 5}
 #' \item{smoker}{label or encode as one of the following:

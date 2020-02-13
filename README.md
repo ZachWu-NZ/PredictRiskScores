@@ -56,7 +56,7 @@ To load the package:
 library(PredictRiskScores)
 ```
 ### Usage
-#
+
 #### One-off Calculator
 Each function can be used as either a calculator or vectoriser. When used as a one-off calculator, a dataset is not required. This can be handy when checking the risk estimate for 
 an individual person or for quickly seeing the effect of changing a single parameter value. 
@@ -78,7 +78,7 @@ PostACSRisk(sex=0, age=65, eth=43, nzdep=5, smoker=0, diabetes=0,
 ```
 [1] 0.4877
 ```
-#
+
 #### Vectorise Dataset
 When a dataset is supplied, a risk score is produced for each row of data. Each argument requires the variable name from the dataset.
 This can be handy when risk estimates are required for each row of data, or when data requires vectorisation.
@@ -98,9 +98,9 @@ DATA$riskscores <- NoPriorCVDRisk(dat=DATA, sex=sex, age=age, eth=ethnicity, smo
                                     nzdep=nzdep, diabetes=diab_status, af=hx_af, familyhx=familyhx, 
                                     lld=lld, athrombi=athrombotics, bpl=bpl, sbp=sbp, tchdl=tchdl)
 ```
-The suite of functions in this package can be integrated into both `data.table` and `dplyr`. For example, if datasets are extremely large, then consider 
-using `data.table` along with `:=` notation. In the example below, a new column called `riskscore` is created.
-The syntax might seem confusing at first but performance very fast and is suited to large datasets.
+The suite of functions in this package can be integrated into both `data.table` and `dplyr`. For example, when datasets are extremely large, consider 
+using `data.table` along with the `:=` notation. In the example below, a new column called `riskscore` is created.
+The syntax might seem confusing at first but it performances very fast.
 
 ```r
 library(data.table); setDT(DATA)
@@ -109,7 +109,7 @@ DATA[, riskscore := NoPriorCVDRisk(.SD, sex=sex, age=age, eth=ethnicity, smoker=
                                     nzdep=nzdep, diabetes=diab_status, af=hx_af, familyhx=familyhx, 
                                     lld=lld, athrombi=athrombotics, bpl=bpl, sbp=sbp, tchdl=tchdl)]
 ```
-Users who are more comfortable with `dplyr` will find that each function works with `mutate`. In the example below, a new column called `riskscore` is created.
+Users who are more comfortable with `dplyr` will find that the functions works with `mutate`. In the example below, a new column called `riskscore` is created.
 ```r
 library(dplyr)
 
@@ -118,7 +118,7 @@ DATA %>%
                                     nzdep=nzdep, diabetes=diab_status, af=hx_af, familyhx=familyhx, 
                                     lld=lld, athrombi=athrombotics, bpl=bpl, sbp=sbp, tchdl=tchdl))
 ```
-#
+
 #### R Documentation
 ```r
 ?NoPriorCVDRisk

@@ -47,7 +47,7 @@ PostCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
 
 \item{athrombi}{receiving antiplatelet or anticoagulant medication}
 
-\item{...}{an optional number of decimal places}
+\item{...}{additional options (see values)}
 }
 \value{
 \code{PostCVDRisk} returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
@@ -89,6 +89,10 @@ Input values for each parameter must conform to the following convention:
 \item SBP and total:HDL values must be avaliable
 \item If BMI, HbA1c, or serum creatinine values are unknown, then keep as \code{NA}
 }}
+\item{...}{optional arguments:
+\itemize{
+\item \code{dp} sets decimal place; default is 4
+}}
 }
 \description{
 \code{PostCVDRisk} calculates the 5 year absolute risk of cardiovascular disease (CVD) for people with a history of atherosclerotic CVD. The outcome of future CVD
@@ -100,9 +104,9 @@ When a dataset is supplied, a risk score is produced for each row of data, resul
 Each argument requires the variable name from the dataset \code{dat} that corresponds with the parameter. If the parameter \code{dat} is not supplied, then each argument is assigned an individual's
 actual parameter value. \cr
 
-The risk prediction equations were developed from a cohort of people aged 30 to 79 years. People aged 18-29 years or 80 years and older, are outside the range used
-to derive the equation, and therefore risk will be even more of an approximation. To be consistent with equations for primary prevention in this suite of scores, the function
-will calculate ages 18-29 as 30; and ages 80-110 as 80. All other age inputs are invalid and will return \code{NA}. \cr
+The risk prediction equations were developed from a cohort of people aged 30 to 74 years. Additional analyses indicate that the sex-specific risk equations performed adequately in those aged 75-79 years.
+People aged 18-29 years or 80 years and older, are outside the range used to derive the equation, and therefore risk will be even more of an approximation. The function
+will calculate ages 18-29 as 30; and ages 80-110 as 79. All other age inputs are invalid and will return \code{NA}. \cr
 
 The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and (non-Indian) Asian. To obtain a risk estimate, ensure that the
 ethnicity input is either labelled or encoded using one of the values listed below (see values). All other inputs are invalid and will return \code{NA}. \cr
@@ -111,6 +115,17 @@ The scale for socioeconomic deprivation is derived from the New Zealand Index of
 home ownership, employment, qualifications, family structure, housing, access to transport and communications. The equations require NZDep to be categorised as quintiles,
 with 1 being the least deprived and 5 being the most deprived.
 }
+\section{See Also}{
+
+\code{\link{NoPriorCVDRisk}} \cr
+\code{\link{NoPriorCVDRisk_BMI}} \cr
+\code{\link{NoPriorCVDRisk_Policy}} \cr
+\code{\link{NoPriorCVDRiskBleedRisk}} \cr
+\code{\link{NoPriorT2DRisk}} \cr
+\code{\link{PostCVDRisk}} \cr
+\code{\link{PostACSRisk}} \cr
+}
+
 \examples{
 # As a calculator (dataset not provide)
 PostCVDRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0,
@@ -127,15 +142,6 @@ PostCVDRisk(TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker,
 \references{
 This equation is yet to be published. However, it is an update to the previously published equation in Heart (Poppe et al. 2017).\cr
 \href{https://heart.bmj.com/content/103/12/891.1}{Full Article}
-}
-\seealso{
-\code{\link{NoPriorCVDRisk}} \cr
-\code{\link{NoPriorCVDRisk_BMI}} \cr
-\code{\link{NoPriorCVDRisk_Policy}} \cr
-\code{\link{NoPriorCVDRiskBleedRisk}} \cr
-\code{\link{NoPriorT2DRisk}} \cr
-\code{\link{PostCVDRisk}} \cr
-\code{\link{PostACSRisk}} \cr
 }
 \author{
 Billy Wu (R Developer) and Katrina Poppe (Principal Investigator)

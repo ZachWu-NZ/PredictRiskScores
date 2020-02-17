@@ -22,7 +22,7 @@ This is an R package featuring functions for generating PREDICT cardiovascular d
     IJE (Mehta et al. 2018) and uses routinely-collected health information as predictors.
     [Full Article](https://academic.oup.com/ije/article/47/5/1571/5053287)
     
-4. `NoPriorCVDRiskBleedRisk` 
+4. `NoPriorCVDBleedRisk` 
     calculates the 5 year absolute risk of major bleeding for people without a history of atherosclerotic CVD. Published in AnnIntMed (Selak et al. 2019).
     [Full Article](https://www.annals.org/aim/fullarticle/doi/10.7326/M18-2808)
     
@@ -81,7 +81,7 @@ PostACSRisk(sex=0, age=65, eth=43, nzdep=5, smoker=0, diabetes=0,
 
 #### Vectorise Dataset
 When a dataset is supplied, a risk score is produced for each row of data. Each argument requires the variable name from the dataset.
-This can be handy when risk estimates are required for each row of data, or when data requires vectorisation.
+This can be handy when risk estimates are required for each row of data, or when datasets require vectorisation.
 
 ```r
 NoPriorCVDRisk(dat=DATA, sex=sex, age=age, eth=ethnicity, smoker=smoking_status, nzdep=nzdep, 
@@ -100,7 +100,7 @@ DATA$riskscores <- NoPriorCVDRisk(dat=DATA, sex=sex, age=age, eth=ethnicity, smo
 ```
 The suite of functions in this package can be integrated into both `data.table` and `dplyr`. For example, when datasets are extremely large, consider 
 using `data.table` along with the `:=` notation. In the example below, a new column called `riskscore` is created.
-The syntax might seem confusing at first but it performances very fast.
+The `data.table` syntax might seem confusing at first but it offers fast and efficient performance.
 
 ```r
 library(data.table); setDT(DATA)
@@ -121,10 +121,12 @@ DATA %>%
 
 #### R Documentation
 ```r
+library(PredictRiskScores)
+
 ?NoPriorCVDRisk
 ?NoPriorCVDRisk_BMI
 ?NoPriorCVDRisk_Policy
-?NoPriorCVDRiskBleedRisk
+?NoPriorCVDBleedRisk
 ?NoPriorT2DRisk
 ?PostCVDRisk
 ?PostACSRisk

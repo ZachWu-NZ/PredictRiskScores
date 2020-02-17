@@ -60,15 +60,12 @@
 #'            \itemize{
 #'              \item SBP and total:HDL values must be avaliable
 #'              }}
+#' \item{...}{optional arguments:
+#'            \itemize{
+#'              \item \code{dp} sets decimal place; default is 4
+#'              }}
 #'
-#' @seealso
-#' \code{\link{NoPriorCVDRisk}} \cr
-#' \code{\link{NoPriorCVDRisk_BMI}} \cr
-#' \code{\link{NoPriorCVDRisk_Policy}} \cr
-#' \code{\link{NoPriorCVDRiskBleedRisk}} \cr
-#' \code{\link{NoPriorT2DRisk}} \cr
-#' \code{\link{PostCVDRisk}} \cr
-#' \code{\link{PostACSRisk}} \cr
+#' @inheritSection PostACSRisk See Also
 #'
 #' @author
 #' Billy Wu (R Developer) and Romana Pylypchuk (Principal Investigator)
@@ -92,7 +89,7 @@
 # --- Code ---
 NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, familyhx, sbp, tchdl, bpl, lld, athrombi,...){
 
-  vars   <- as.list(match.call()[-1])
+  vars    <- as.list(match.call()[-1])
 
   # Decimal Settings
   if(length(list(...))==0){
@@ -102,9 +99,16 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
     vars$dp <- NULL
   }
 
+  # # ParamCheck
+  # has.dat <- deparse(substitute(dat))!=""
+  # params  <- c("sex", "age", "eth", "nzdep", "smoker", "diabetes", "af", "familyhx", "sbp", "tchdl", "bpl", "lld", "athrombi")
+  #
+  # ParamCheck(vars, params, has.dat)s
+
+
   # Param Check
   param.dat <- deparse(substitute(dat))!=""
-
+# browser()
   params <- c("sex", "age", "eth", "nzdep", "smoker", "diabetes", "af", "familyhx", "sbp", "tchdl", "bpl", "lld", "athrombi")
 
   for(i in params){

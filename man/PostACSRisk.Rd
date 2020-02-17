@@ -47,7 +47,7 @@ PostACSRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
 
 \item{athrombi}{receiving antiplatelet or anticoagulant medication}
 
-\item{...}{an optional number of decimal places}
+\item{...}{additional options (see values)}
 }
 \value{
 \code{PostACSRisk} returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
@@ -94,6 +94,10 @@ Input values for each parameter must conform to the following convention:
 \item SBP and total:HDL values must be avaliable
 \item If BMI, HbA1c, or serum creatinine values are unknown, then keep as \code{NA}
 }}
+\item{...}{optional arguments:
+\itemize{
+\item \code{dp} sets decimal place; default is 4
+}}
 }
 \description{
 \code{PostACSRisk} calculates the 5 year absolute risk of cardiovascular disease (CVD) for people who have experienced an acute coronary syndrome (ACS) event.
@@ -116,6 +120,17 @@ The scale for socioeconomic deprivation is derived from the New Zealand Index of
 home ownership, employment, qualifications, family structure, housing, access to transport and communications. The equations require NZDep to be categorised as quintiles,
 with 1 being the least deprived and 5 being the most deprived.
 }
+\section{See Also}{
+
+\code{\link{NoPriorCVDRisk}} \cr
+\code{\link{NoPriorCVDRisk_BMI}} \cr
+\code{\link{NoPriorCVDRisk_Policy}} \cr
+\code{\link{NoPriorCVDRiskBleedRisk}} \cr
+\code{\link{NoPriorT2DRisk}} \cr
+\code{\link{PostCVDRisk}} \cr
+\code{\link{PostACSRisk}} \cr
+}
+
 \examples{
 # As a calculator (dataset not provide)
 PostACSRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0,
@@ -134,15 +149,6 @@ Poppe KK, Doughty RN, Wells S, et al. Development and validation of a cardiovasc
 
 \href{https://heart.bmj.com/content/early/2019/12/10/heartjnl-2019-315809.full}{Full Article}
 \href{https://heart.bmj.com/content/heartjnl/early/2019/12/10/heartjnl-2019-315809.full.pdf?ijkey=B9NMccWMr793Ixj&keytype=ref}{Toll Free}
-}
-\seealso{
-\code{\link{NoPriorCVDRisk}} \cr
-\code{\link{NoPriorCVDRisk_BMI}} \cr
-\code{\link{NoPriorCVDRisk_Policy}} \cr
-\code{\link{NoPriorCVDRiskBleedRisk}} \cr
-\code{\link{NoPriorT2DRisk}} \cr
-\code{\link{PostCVDRisk}} \cr
-\code{\link{PostACSRisk}} \cr
 }
 \author{
 Billy Wu (R Developer) and Katrina Poppe (Principal Investigator)

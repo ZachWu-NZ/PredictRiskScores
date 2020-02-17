@@ -36,7 +36,7 @@ NoPriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
 
 \item{athrombi}{receiving antiplatelet or anticoagulant medication}
 
-\item{...}{an optional number of decimal places}
+\item{...}{additional options (see values)}
 }
 \value{
 \code{NoPriorCVDRisk} returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
@@ -73,6 +73,10 @@ Input values for each parameter must conform to the following convention:
 \itemize{
 \item SBP and total:HDL values must be avaliable
 }}
+\item{...}{optional arguments:
+\itemize{
+\item \code{dp} sets decimal place; default is 4
+}}
 }
 \description{
 \code{NoPriorCVDRisk} calculates the 5 year absolute risk of cardiovascular disease (CVD) for people without a history of atherosclerotic CVD.
@@ -96,6 +100,17 @@ The scale for socioeconomic deprivation is derived from the New Zealand Index of
 home ownership, employment, qualifications, family structure, housing, access to transport and communications. The equations require NZDep to be categorised as quintiles,
 with 1 being the least deprived and 5 being the most deprived.
 }
+\section{See Also}{
+
+\code{\link{NoPriorCVDRisk}} \cr
+\code{\link{NoPriorCVDRisk_BMI}} \cr
+\code{\link{NoPriorCVDRisk_Policy}} \cr
+\code{\link{NoPriorCVDRiskBleedRisk}} \cr
+\code{\link{NoPriorT2DRisk}} \cr
+\code{\link{PostCVDRisk}} \cr
+\code{\link{PostACSRisk}} \cr
+}
+
 \examples{
 # As Calculator (dataset not provided)
 NoPriorCVDRisk(sex="F", age=65, eth="Indian", smoker=0, nzdep=5,  diabetes=0,
@@ -110,15 +125,6 @@ NoPriorCVDRisk(dat=DF, sex=sex, age=age, eth=ethnicity, smoker=smoking_status, n
 Pylypchuk R, Wells S, Kerr A, Poppe K, Riddell T, Harwood M, et al. Cardiovascular disease risk prediction equations in 400 000 primary care patients in New Zealand: a derivation and validation study. Lancet 2018;391:1897-907.
 
 \href{https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(18)30664-0/fulltext}{Full Article}
-}
-\seealso{
-\code{\link{NoPriorCVDRisk}} \cr
-\code{\link{NoPriorCVDRisk_BMI}} \cr
-\code{\link{NoPriorCVDRisk_Policy}} \cr
-\code{\link{NoPriorCVDRiskBleedRisk}} \cr
-\code{\link{NoPriorT2DRisk}} \cr
-\code{\link{PostCVDRisk}} \cr
-\code{\link{PostACSRisk}} \cr
 }
 \author{
 Billy Wu (R Developer) and Romana Pylypchuk (Principal Investigator)

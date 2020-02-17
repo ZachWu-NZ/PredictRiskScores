@@ -12,20 +12,7 @@
 #' @param othervd prior angina, peripheral vascular disease, or non-hospitalised cerebrovascular disease not associated with stroke or TIA
 #' @param cvddays time in days since most recent CVD event
 #'
-#' @details  When a dataset is supplied, a risk score is produced for each row of data, resulting in a numeric vector of the same length.
-#' Each argument requires the variable name from the dataset \code{dat} that corresponds with the parameter. If the parameter \code{dat} is not supplied, then each argument is assigned an individual's
-#' actual parameter value. \cr
-#'
-#' The risk prediction equations were developed from a cohort of people aged 30 to 79 years. People aged 18-29 years or 80 years and older, are outside the range used
-#' to derive the equation, and therefore risk will be even more of an approximation. To be consistent with equations for primary prevention in this suite of scores, the function
-#' will calculate ages 18-29 as 30; and ages 80-110 as 80. All other age inputs are invalid and will return \code{NA}. \cr
-#'
-#' The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and (non-Indian) Asian. To obtain a risk estimate, ensure that the
-#' ethnicity input is either labelled or encoded using one of the values listed below (see values). All other inputs are invalid and will return \code{NA}. \cr
-#'
-#' The scale for socioeconomic deprivation is derived from the New Zealand Index of Deprivation; a small area-based measure that combines census data relating to income,
-#' home ownership, employment, qualifications, family structure, housing, access to transport and communications. The equations require NZDep to be categorised as quintiles,
-#' with 1 being the least deprived and 5 being the most deprived.
+#' @inherit NoPriorCVDRisk details
 #'
 #' @return
 #' \code{PostCVDRisk} returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
@@ -67,15 +54,12 @@
 #'              \item SBP and total:HDL values must be avaliable
 #'              \item If BMI, HbA1c, or serum creatinine values are unknown, then keep as \code{NA}
 #'              }}
+#' \item{...}{optional arguments:
+#'            \itemize{
+#'              \item \code{dp} sets decimal place; default is 4
+#'              }}
 #'
-#' @seealso
-#' \code{\link{NoPriorCVDRisk}} \cr
-#' \code{\link{NoPriorCVDRisk_BMI}} \cr
-#' \code{\link{NoPriorCVDRisk_Policy}} \cr
-#' \code{\link{NoPriorCVDRiskBleedRisk}} \cr
-#' \code{\link{NoPriorT2DRisk}} \cr
-#' \code{\link{PostCVDRisk}} \cr
-#' \code{\link{PostACSRisk}} \cr
+#' @inheritSection PostACSRisk See Also
 #'
 #' @author
 #' Billy Wu (R Developer) and Katrina Poppe (Principal Investigator)

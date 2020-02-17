@@ -51,15 +51,12 @@
 #'              \item Y, Yes, 1, T, TRUE
 #'              \item N, No, 0, F, FALSE
 #'              }}
+#' \item{...}{optional arguments:
+#'            \itemize{
+#'              \item \code{dp} sets decimal place; default is 4
+#'              }}
 #'
-#' @seealso
-#' \code{\link{NoPriorCVDRisk}} \cr
-#' \code{\link{NoPriorCVDRisk_BMI}} \cr
-#' \code{\link{NoPriorCVDRisk_Policy}} \cr
-#' \code{\link{NoPriorCVDRiskBleedRisk}} \cr
-#' \code{\link{NoPriorT2DRisk}} \cr
-#' \code{\link{PostCVDRisk}} \cr
-#' \code{\link{PostACSRisk}} \cr
+#' @inheritSection PostACSRisk See Also
 #'
 #' @author
 #' Billy Wu (R Developer) and Suneela Mehta (Principal Investigator)

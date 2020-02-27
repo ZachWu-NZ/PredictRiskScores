@@ -5,34 +5,17 @@
 #' other cerebrovascular disease, peripheral vascular disease, or cardiovascular death.
 #'
 #' @usage PostACSRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
-#'             af, hf, acsdays, acstype, bmi, sbp, tchdl, hba1c,
-#'             scr, bpl, lld, athrombi,...)
+#'             af, hf, bpl, lld, athrombi, sbp, tchdl, bmi,
+#'             scr, hba1c, acstype, acsdays, ...)
 #'
-#' @param dat     an optional data.frame or data.table containing input data (see details)
-#' @param sex     binary sex or gender
-#' @param age     age in years  (see details)
-#' @param eth     ethnicity (see details)
-#' @param nzdep     socio-economic deprivation (see details)
-#' @param smoker    currently smoking
-#' @param diabetes  diabetes status
-#' @param af        atrial fibrillation status
-#' @param hf        heart failure status
+#' @inheritParams PostCVDRisk
 #' @param acsdays   time in days since the most recent prior ACS event
 #' @param acstype   type of prior ACS (see values)
-#' @param bmi       body mass index in kg/m^2
-#' @param sbp       measured systolic blood pressure in mmHg
-#' @param tchdl     most recent value of total:HDL cholesterol
-#' @param hba1c     most recent value of HbA1c in mmol/mol
-#' @param scr       most recent value of serum creatinine in micromol/L
-#' @param bpl       receiving at least one blood pressure lowering medication
-#' @param lld       receiving lipid lowering medication
-#' @param athrombi  receiving antiplatelet or anticoagulant medication
-#' @param ...       further arguments passed (see values)
 #'
 #' @inherit NoPriorCVDRisk details
 #'
 #' @return
-#' \code{PostACSRisk} returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
+#' returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
 #' Input values for each parameter must conform to the following convention:
 #'
 #' \item{sex}{label or encode as one of the following:
@@ -53,7 +36,7 @@
 #' \item{nzdep}{numeric value between 1 and 5}
 #' \item{smoker}{label or encode as one of the following:
 #'            \itemize{
-#'              \item Y, Yes, Smoker, 1, T, TRUE
+#'              \item Y, Yes, Smoker, Current, S, 1, T, TRUE
 #'              \item N, No, Non-smoker, 0, F, FALSE
 #'              }}
 #' \item{diabetes\cr af hf\cr bpl lld\cr athrombi}{label or encode as one of the following:
@@ -61,6 +44,11 @@
 #'              \item Y, Yes, 1, T, TRUE
 #'              \item N, No, 0, F, FALSE
 #'              }}
+#' \item{sbp tchdl}{numeric value of measured result. Note:
+#'            \itemize{
+#'              \item SBP and total:HDL values must be avaliable
+#'              }}
+#' \item{bmi scr\cr hba1c}{numeric value of calculated BMI, and measured serum creatinine and hba1c. If a value is unknown, then input as \code{NA}}
 #' \item{acsdays}{numeric value of number of days since last ACS event. Nb:
 #'            \itemize{
 #'              \item If the date of most recent CVD event is unknown, then keep as \code{NA}
@@ -71,24 +59,14 @@
 #'              \item NSTEMI, Non-STEMI, 1
 #'              \item Unstable Angina, UA, 0
 #'              }}
-#' \item{bmi sbp\cr tchdl hba1c\cr scr}{numeric value of measured result. Note:
+#' \item{...}{further arguments:
 #'            \itemize{
-#'              \item SBP and total:HDL values must be avaliable
-#'              \item If BMI, HbA1c, or serum creatinine values are unknown, then keep as \code{NA}
-#'              }}
-#' \item{...}{optional arguments:
-#'            \itemize{
-#'              \item \code{dp} sets decimal place; default is 4
+#'              \item \code{dp} numeric value to set decimal place; default is 4
+#'              \item \code{allow.age} logical. Whether or not age range is extended outside of 30 - 74; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
+#'              \item \code{allow.na} logical. Whether or not missing values for binary variables and smoking status are treated as 0; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
 #'              }}
 #'
-#' @section See Also:
-#' \code{\link{NoPriorCVDRisk}} \cr
-#' \code{\link{NoPriorCVDRisk_BMI}} \cr
-#' \code{\link{NoPriorCVDRisk_Policy}} \cr
-#' \code{\link{NoPriorCVDBleedRisk}} \cr
-#' \code{\link{NoPriorT2DRisk}} \cr
-#' \code{\link{PostCVDRisk}} \cr
-#' \code{\link{PostACSRisk}} \cr
+#' @inheritSection NoPriorCVDRisk See Also
 #'
 #' @author
 #' Billy Wu (R Developer) and Katrina Poppe (Principal Investigator)
@@ -102,9 +80,6 @@
 #'
 #' @examples
 #' # As a calculator (dataset not provide)
-#' PostACSRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0,
-#'             af=0, hf=1, acsdays=65, acstype="NSTEMI", bmi=NA, sbp=118,
-#'             tchdl=3.3, hba1c=NA, scr=52, bpl=1, lld=1, athrombi=1)
 #'
 #' # As Vectoriser (dataset provided)
 #' PostACSRisk(TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker,
@@ -113,87 +88,107 @@
 #'             lld=lld, athrombi=athrombi)
 #'
 # --- Code ---
-PostACSRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, acsdays, acstype, bmi, sbp, tchdl, hba1c, scr, bpl, lld, athrombi,...){
+PostACSRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, bpl, lld, athrombi, sbp, tchdl, bmi, scr, hba1c, acsdays, acstype, ...){
 
-  vars   <- as.list(match.call()[-1])
+  # Params
+  demo.vars   <- c("sex", "age", "eth", "nzdep")
+  smk.vars    <- c("smoker")
+  bin.vars    <- c("diabetes", "af", "hf", "bpl", "lld", "athrombi")
+  num.vars    <- c("sbp", "tchdl")
+  numNA.vars  <- c("bmi", "scr", "hba1c", "acsdays")
+  lvl.vars    <- c("acstype")
 
-  # Decimal Settings
-  if(length(list(...))==0){
-    dp      <- 4
-  }else{
-    dp      <- vars$dp
-    vars$dp <- NULL
-  }
+  # Calls
+  call      <- gsub("()", "",  match.call()[1])
+  is.table  <- deparse(substitute(dat))!=""
+  input     <- as.list(match.call()[-1])
 
-  # Param Check
-  param.dat <- deparse(substitute(dat))!=""
+  if(length(list(...)) == 0){
 
-  params  <- c("sex", "age", "eth", "nzdep", "smoker", "diabetes", "af", "hf", "acsdays", "acstype", "bmi", "sbp", "tchdl", "hba1c",
-               "scr", "bpl", "lld", "athrombi")
+    dp        <- 4
+    allow.age <- TRUE
+    allow.na  <- TRUE
 
-  for(i in params){
-    if(eval(substitute(missing(i)))) {
-      stop(paste("Missing parameter(s):", sQuote(i)), call. = F)
+  } else {
+
+    default <- setdiff(c("dp", "allow.age", "allow.na"), names(list(...)))
+
+    if(length(default) %in% 1:2){
+
+      lapply(default,
+             function(x){
+
+               if(x == "dp"){
+                 val <- 4
+               } else if(x == "allow.na") {
+                 val <- TRUE
+               } else {
+                 val <- TRUE
+               }
+               assign(x, val, envir = parent.frame(2))
+             })
     }
+
+    lapply(names(list(...)),
+           function(x)
+             assign(x, unlist(list(...)[x]),
+                    envir = parent.frame(2)))
+
   }
 
-  # Dataset provided
-  if(param.dat){
-    dat     <- as.data.frame(dat, row.names = NULL)
-    vars    <- vars[-1]
-    input   <- as.vector(sapply(vars, as.character))
+  # ParamCheck
+  vars <- c(demo.vars, bin.vars, smk.vars, num.vars, numNA.vars, lvl.vars)
 
-    # Missing Check
-    is.missing <- any(!input %in% names(dat))
+  ParamCheck(input, vars, call, is.table, allow.age, allow.na)
 
-    if(is.missing){
-      to.check <- input[!input %in% names(dat)]
-      stop(paste("Check input(s) names:", paste(sQuote(to.check), collapse = ", ")), call. = F)
-    }
+  # Values
+  f.ind <- which(tolower(input$sex) %in% ok.female)
+  m.ind <- which(tolower(input$sex) %in% ok.male)
 
-    vars[]  <- dat[, input]
-  }
+  demo.vals <- list(male     = +(input$sex %in% ok.male),
+                    age50_59 = +(input$age %in% 50:59),
+                    age60_69 = +(input$age %in% 60:69),
+                    age70_79 = +(input$age >= 70),
+                    maori    = +(tolower(input$eth) %in% ok.maori),
+                    pacific  = +(tolower(input$eth) %in% ok.pi),
+                    indian   = +(tolower(input$eth) %in% ok.indian),
+                    asian    = +(tolower(input$eth) %in% ok.asian),
+                    smoker   = +(tolower(input$smoker) %in% ok.smoker),
+                    nzdep    = input$nzdep)
 
-  # Inputs Settings
-  male    <- +(vars$sex %in% c("M", "Male", 1))
-  smoker  <- +(vars$smoker %in% c("Y", "Yes", "Smoker", 1))
-  diab    <- +(vars$diabetes %in% c("Y", "Yes", 1))
-  af      <- +(vars$af %in% c("Y", "Yes", 1))
-  hf      <- +(vars$hf %in% c("Y", "Yes", 1))
-  bpl     <- +(vars$bpl %in% c("Y", "Yes", 1))
-  lld     <- +(vars$lld %in% c("Y", "Yes", 1))
-  athrombi <- +(vars$athrombi %in% c("Y", "Yes", 1))
+  bin.vals <- sapply(bin.vars,
+                     function(x){
+                       +(tolower(input[[x]]) %in% ok.true)
+                     },
+                     USE.NAMES = TRUE,
+                     simplify = FALSE)
 
-  nzdep   <- vars$nzdep
-  tchdl   <- vars$tchdl
-  age     <- vars$age
+  num.vals <- sapply("tchdl",    # SBP is reclassified
+                     function(x){
+                       as.numeric(input[[x]])
+                     },
+                     USE.NAMES = TRUE,
+                     simplify = FALSE)
 
-  eth     <- tolower(as.character(vars$eth))
+  sbp     <- list(sbplt100   = +(input$sbp < 100),
+                  sbp120_140 = +(input$sbp >= 120 & input$sbp <= 139),
+                  sbp140_160 = +(input$sbp >= 140 & input$sbp <= 159),
+                  sbpge160   = +(input$sbp >= 160))
 
-  nzeo   <- tolower(c("NZ European", "European", "NZEO", "Euro", "E", "1", "10", "11", "12"))
-  maori  <- tolower(c("Maori", "NZMaori", "NZ Maori", "M", "2", "21"))
-  pi     <- tolower(c("Pacific", "Pacific Islander", "PI", "P", "3", "30", "31", "32", "33", "34", "35", "36", "37"))
-  asian  <- tolower(c("Asian", "Other Asian", "SE Asian", "East Asian", "Chinese", "ASN", "A", "4", "40", "41", "42"))
-  indian <- tolower(c("Indian", "Fijian Indian", "South Asian", "IN", "I", "43"))
+  bmi     <- list(bmilt20    = +(input$bmi < 20 & !is.na(input$bmi)),
+                  bmi20_25   = +(input$bmi %in% 20:24 & !is.na(input$bmi)),
+                  bmi30_35   = +(input$bmi %in% 30:34 & !is.na(input$bmi)),
+                  bmi35_40   = +(input$bmi %in% 35:39 & !is.na(input$bmi)),
+                  bmige40    = +(input$bmi >= 40 & !is.na(input$bmi)),
+                  bmimiss    = +(input$bmi == "" | is.na(input$bmi)))
 
-  # Invalid inputs
-  inval.eth <- which(!eth %in% c(nzeo, maori, pi, asian, indian))
-  inval.age <- which(age < 18 | age > 110 | is.na(age))
+  scr     <- list(creat100_149 = +(input$scr >= 100 & input$scr <= 149 & !is.na(input$scr)),
+                  creatge150   = +(input$scr >= 150 & !is.na(input$scr)),
+                  creatmiss    = +(input$scr == "" | is.na(input$scr)))
 
-  age <- replace(age, which(age < 30), 30)
-  age <- replace(age, which(age > 79), 80)
-  age <- replace(age, inval.age, 0)
-
-  # nb: Each list is ordered to match item order in coeffs list
-  eth     <- list(asian    = +(eth %in% asian),
-                  indian   = +(eth %in% indian),
-                  maori    = +(eth %in% maori),
-                  pacific  = +(eth %in% pi))
-
-  # nb: Each list is ordered to match item order in coeffs list
-  age     <- list(age50_59 = +(age %in% 50:59),
-                  age60_69 = +(age %in% 60:69),
-                  age70_79 = +(age >= 70))
+  hba1c   <- list(hba1c40_65 = +(input$hba1c >= 40 & input$hba1c <= 64 & !is.na(input$hba1c)),
+                  hba1cge65  = +(input$hba1c >= 65 & !is.na(input$hba1c)),
+                  hba1cmiss  = +(input$hba1c == "" | is.na(input$hba1c)))
 
   acsdays   <- list(prior6m    = +(vars$acsdays < 182),
                     prior6_12m = +(vars$acsdays >= 182 & vars$acsdays <=365),
@@ -202,34 +197,7 @@ PostACSRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, acs
   acstype   <- list(nstemi  = +(tolower(vars$acstype) %in% c("nstemi", "nonstemi", "non-stemi", "1")),
                     stemi   = +(tolower(vars$acstype) %in% c("stemi", "st-elevation", "2")))
 
-  bmi     <- list(bmilt20    = +(vars$bmi < 20 & !is.na(vars$bmi)),
-                  bmi20_25   = +(vars$bmi %in% 20:24 & !is.na(vars$bmi)),
-                  bmi30_35   = +(vars$bmi %in% 30:34 & !is.na(vars$bmi)),
-                  bmi35_40   = +(vars$bmi %in% 35:39 & !is.na(vars$bmi)),
-                  bmige40    = +(vars$bmi >= 40 & !is.na(vars$bmi)),
-                  bmimiss    = +(vars$bmi == "" | is.na(vars$bmi)))
-
-  sbp     <- list(sbplt100   = +(vars$sbp < 100),
-                  sbp120_140 = +(vars$sbp >= 120 & vars$sbp <= 139),
-                  sbp140_160 = +(vars$sbp >= 140 & vars$sbp <= 159),
-                  sbpge160   = +(vars$sbp >= 160))
-
-  hba1c   <- list(hba1c40_65 = +(vars$hba1c >= 40 & vars$hba1c <= 64 & !is.na(vars$hba1c)),
-                  hba1cge65  = +(vars$hba1c >= 65 & !is.na(vars$hba1c)),
-                  hba1cmiss  = +(vars$hba1c == "" | is.na(vars$hba1c)))
-
-  scr     <- list(creat100_149 = +(vars$scr >= 100 & vars$scr <= 149 & !is.na(vars$scr)),
-                  creatge150   = +(vars$scr >= 150 & !is.na(vars$scr)),
-                  creatmiss    = +(vars$scr == "" | is.na(vars$scr)))
-
-  # List input values
-  # nb: Order to match coeffs list
-  values <- c(list(male = male), age, eth, list(nzdep = nzdep), list(smoker = smoker), list(diab = diab), list(af = af),
-              list(hf = hf), acsdays, acstype, bmi, sbp, list(tchdl = tchdl), hba1c, scr, list(bpl = bpl), list(lld = lld), list(athrombi = athrombi))
-
-  # Replace Missing
-  values <- lapply(values, function(x)
-    replace(x, is.na(x), 0))
+  values <- c(demo.vals, bin.vals, sbp, num.vals, bmi, scr, hba1c, acsdays, acstype) # Order sensitive!
 
   # Coefficients
   coeffs <- list(

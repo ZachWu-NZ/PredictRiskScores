@@ -161,8 +161,6 @@ PostCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, oth
                      USE.NAMES = TRUE,
                      simplify = FALSE)
 
-
-
   num.vals <- sapply("tchdl",    # SBP is reclassified
                      function(x){
                        as.numeric(input[[x]])

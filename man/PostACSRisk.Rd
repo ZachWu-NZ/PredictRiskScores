@@ -5,8 +5,8 @@
 \title{PREDICT CVD (2019) Risk Score for People After an ACS Event}
 \usage{
 PostACSRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
-            af, hf, acsdays, acstype, bmi, sbp, tchdl, hba1c,
-            scr, bpl, lld, athrombi,...)
+            af, hf, bpl, lld, athrombi, sbp, tchdl, bmi,
+            scr, hba1c, acstype, acsdays, ...)
 }
 \arguments{
 \item{dat}{an optional data.frame or data.table containing input data (see details)}
@@ -27,30 +27,30 @@ PostACSRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
 
 \item{hf}{heart failure status}
 
-\item{acsdays}{time in days since the most recent prior ACS event}
-
-\item{acstype}{type of prior ACS (see values)}
-
-\item{bmi}{body mass index in kg/m^2}
-
-\item{sbp}{measured systolic blood pressure in mmHg}
-
-\item{tchdl}{most recent value of total:HDL cholesterol}
-
-\item{hba1c}{most recent value of HbA1c in mmol/mol}
-
-\item{scr}{most recent value of serum creatinine in micromol/L}
-
 \item{bpl}{receiving at least one blood pressure lowering medication}
 
 \item{lld}{receiving lipid lowering medication}
 
 \item{athrombi}{receiving antiplatelet or anticoagulant medication}
 
+\item{sbp}{measured systolic blood pressure in mmHg}
+
+\item{tchdl}{most recent value of total:HDL cholesterol}
+
+\item{bmi}{body mass index in kg/m^2}
+
+\item{scr}{most recent value of serum creatinine in micromol/L}
+
+\item{hba1c}{most recent value of HbA1c in mmol/mol}
+
+\item{acsdays}{time in days since the most recent prior ACS event}
+
+\item{acstype}{type of prior ACS (see values)}
+
 \item{...}{further arguments passed (see values)}
 }
 \value{
-\code{PostACSRisk} returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
+returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
 Input values for each parameter must conform to the following convention:
 
 \item{sex}{label or encode as one of the following:
@@ -71,7 +71,7 @@ Input values for each parameter must conform to the following convention:
 \item{nzdep}{numeric value between 1 and 5}
 \item{smoker}{label or encode as one of the following:
 \itemize{
-\item Y, Yes, Smoker, 1, T, TRUE
+\item Y, Yes, Smoker, Current, S, 1, T, TRUE
 \item N, No, Non-smoker, 0, F, FALSE
 }}
 \item{diabetes\cr af hf\cr bpl lld\cr athrombi}{label or encode as one of the following:
@@ -79,6 +79,11 @@ Input values for each parameter must conform to the following convention:
 \item Y, Yes, 1, T, TRUE
 \item N, No, 0, F, FALSE
 }}
+\item{sbp tchdl}{numeric value of measured result. Note:
+\itemize{
+\item SBP and total:HDL values must be avaliable
+}}
+\item{bmi scr\cr hba1c}{numeric value of calculated BMI, and measured serum creatinine and hba1c. If a value is unknown, then input as \code{NA}}
 \item{acsdays}{numeric value of number of days since last ACS event. Nb:
 \itemize{
 \item If the date of most recent CVD event is unknown, then keep as \code{NA}
@@ -89,14 +94,11 @@ Input values for each parameter must conform to the following convention:
 \item NSTEMI, Non-STEMI, 1
 \item Unstable Angina, UA, 0
 }}
-\item{bmi sbp\cr tchdl hba1c\cr scr}{numeric value of measured result. Note:
+\item{...}{further arguments:
 \itemize{
-\item SBP and total:HDL values must be avaliable
-\item If BMI, HbA1c, or serum creatinine values are unknown, then keep as \code{NA}
-}}
-\item{...}{optional arguments:
-\itemize{
-\item \code{dp} sets decimal place; default is 4
+\item \code{dp} numeric value to set decimal place; default is 4
+\item \code{allow.age} logical. Whether or not age range is extended outside of 30 - 74; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
+\item \code{allow.na} logical. Whether or not missing values for binary variables and smoking status are treated as 0; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
 }}
 }
 \description{
@@ -133,9 +135,6 @@ with 1 being the least deprived and 5 being the most deprived.
 
 \examples{
 # As a calculator (dataset not provide)
-PostACSRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0,
-            af=0, hf=1, acsdays=65, acstype="NSTEMI", bmi=NA, sbp=118,
-            tchdl=3.3, hba1c=NA, scr=52, bpl=1, lld=1, athrombi=1)
 
 # As Vectoriser (dataset provided)
 PostACSRisk(TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker,

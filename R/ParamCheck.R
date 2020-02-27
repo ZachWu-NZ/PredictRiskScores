@@ -44,6 +44,10 @@ ParamCheck <- function(input, vars, call, is.table, allow.age, allow.na){
     get("numNA.vars", parent.frame())
   }
 
+  lvl.vars <- if(call == "PostACSRisk"){
+    get("lvl.vars", parent.frame())
+  }
+
   # 1.  Missing argument check
   if(is.table){
     input <- get("input", parent.frame())
@@ -136,6 +140,8 @@ ParamCheck <- function(input, vars, call, is.table, allow.age, allow.na){
   ok.nonsmk <- tolower(c("N", "No", "Non", "Non-smoker", "N", 0, "F", FALSE))
   ok.true   <- tolower(c("Y", "Yes", 1, "T", TRUE))
   ok.false  <- tolower(c("N", "No", 0, "F", FALSE))
+  ok.stemi  <- tolower(c("STEMI", "ST-Elevation", "2"))
+  ok.nstemi <- tolower(c("NSTEMI", "NONSTEMI", "NON-STEMI", "1"))
 
   # 4.  Input check
   lapply(ls(pattern = "ok."),
@@ -200,6 +206,21 @@ ParamCheck <- function(input, vars, call, is.table, allow.age, allow.na){
            function(x){
 
              invalid <- which(!class(input[[x]]) %in% c("numeric", "integer", "logical"))
+
+             assign(paste("inval", x, sep = "."),
+                    invalid,
+                    envir = parent.frame(2L))
+
+           })
+  }
+
+  if(call == "PostACSRisk"){
+    lapply(lvl.vars,
+           function(x){
+
+             if(x == "acstype"){
+               invalid <- which(!tolower(input[[x]]) %in% c(ok.stemi, ok.nstemi, na))
+             }
 
              assign(paste("inval", x, sep = "."),
                     invalid,

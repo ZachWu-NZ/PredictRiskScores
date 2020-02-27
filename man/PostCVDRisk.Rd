@@ -130,6 +130,9 @@ with 1 being the least deprived and 5 being the most deprived.
 
 \examples{
 # As a calculator (dataset not provide)
+PostCVDRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0,
+            af=0, hf=1, othervd=0,  bpl=1, lld=1, athrombi=1, sbp=118,
+            tchdl=3.3, bmi=NA, scr=52, hba1c=NA, cvddays=365)
 
 # As Vectoriser (dataset provided)
 PostCVDRisk(TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker,

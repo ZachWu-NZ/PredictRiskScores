@@ -7,9 +7,17 @@
 ParamCheck(params, ignore.age)
 }
 \arguments{
-\item{params}{character vector of expected parameters within this function}
+\item{input}{list of all input values inherited from the parent.frame}
 
-\item{ignore.age}{logical; if \code{FALSE} then only valid ages of 30-74 are calculated}
+\item{vars}{character vector of required parameters from the parent.frame}
+
+\item{call}{name of the function being called in the parent.frame}
+
+\item{is.table}{logical; whether a dataset is provided in the parent.frame}
+
+\item{allow.age}{logical; whether ages of between 18-29 and 75-110 are calculated}
+
+\item{allow.na}{logical; whether \code{na} is allowed for binary variables including smoking. If TRUE, then \code{na} is treated as 0.}
 }
 \value{
 \code{ParamCheck} returns warning messages if any invalid values are detected. In cases where input data is invalid, \code{ParamCheck} will

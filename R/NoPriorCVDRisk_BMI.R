@@ -5,16 +5,16 @@
 #' for coronary heart disease, stroke or other cerebrovascular disease (including transient ischaemic attack), peripheral vascular disease and heart failure,
 #' or cardiovascular death.
 #'
-#' @usage NoPriorCVDRisk_BMI(dat, sex, age, eth, nzdep, smoker, diabetes,
-#'                    af, familyhx, sbp, tchdl, bpl, lld, athrombi,...)
+#' @usage NoPriorCVDRisk_BMI(dat, sex, age, eth, nzdep, exsmoker, smoker, diabetes,
+#'                    af, familyhx, sbp, tchdl, bmi, bpl, lld, athrombi, ...)
 #'
-#' @inheritParams PostACSRisk
-#' @param familyhx family history of premature CVD
+#' @inheritParams NoPriorCVDRisk
+#' @param bmi  body mass index in kg/m^2
 #'
 #' @inherit NoPriorCVDRisk details
 #'
 #' @return
-#' \code{NoPriorCVDRisk_BMI} returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
+#' returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
 #' Input values for each parameter must conform to the following convention:
 #'
 #' \item{sex}{label or encode as one of the following:
@@ -33,28 +33,34 @@
 #'              \item note: Other Asian includes non-Indian South Asian
 #'              }}
 #' \item{nzdep}{numeric value between 1 and 5}
+#' \item{exsmoker}{label or encode as one of the following:
+#'            \itemize{
+#'              \item Y, Yes, Ex, Ex-smoker, Exsmoker, E, 1, T, TRUE
+#'              \item N, No, Non-smoker, Non, 0, F, FALSE
+#'              }}
 #' \item{smoker}{label or encode as one of the following:
 #'            \itemize{
-#'              \item X, Ex, Ex-smoker, 2
-#'              \item Y, Yes, Smoker, 1, T, TRUE
-#'              \item N, No, Non-smoker, 0, F, FALSE
+#'              \item Y, Yes, Smoker, Current, S, 1, T, TRUE
+#'              \item N, No, Non-smoker, Non, 0, F, FALSE
 #'              }}
 #' \item{diabetes\cr af familyhx bpl lld\cr athrombi}{label or encode as one of the following:
 #'            \itemize{
 #'              \item Y, Yes, 1, T, TRUE
 #'              \item N, No, 0, F, FALSE
 #'              }}
-#' \item{bmi sbp\cr tchdl}{numeric value of measured result. Note:
+#' \item{sbp tchdl}{numeric value of measured result. Note:
 #'            \itemize{
 #'              \item SBP and total:HDL values must be avaliable
-#'              \item If BMI is unknown, then keep as \code{NA}
 #'              }}
-#' \item{...}{optional arguments:
+#' \item{bmi}{numeric value of calculated BMI. If BMI is unknown, input as \code{NA}}
+#' \item{...}{further arguments:
 #'            \itemize{
-#'              \item \code{dp} sets decimal place; default is 4
+#'              \item \code{dp} numeric value to set decimal place; default is 4
+#'              \item \code{allow.age} logical. Whether or not age range is extended outside of 30 - 74; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
+#'              \item \code{allow.na} logical. Whether or not missing values for binary variables and smoking status are treated as 0; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
 #'              }}
 #'
-#' @inheritSection PostACSRisk See Also
+#' @inheritSection NoPriorCVDRisk See Also
 #'
 #' @author
 #' Billy Wu (R Developer) and Romana Pylypchuk (Principal Investigator)
@@ -76,120 +82,138 @@
 #'                   bpl=bplowering, sbp=systolic_bp, tchdl=tchdl_ratio, bmi=bmi)
 #'
 # --- Code ---
-NoPriorCVDRisk_BMI <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, familyhx, sbp, tchdl, bmi, bpl, lld, athrombi,...){
+NoPriorCVDRisk_BMI <- function(dat, sex, age, eth, nzdep, exsmoker, smoker, diabetes, af, familyhx, sbp, tchdl, bmi, bpl, lld, athrombi,...){
 
-  vars   <- as.list(match.call()[-1])
+  # Params
+  demo.vars   <- c("sex", "age", "eth", "nzdep")
+  smk.vars    <- c("exsmoker", "smoker")
+  bin.vars    <- c("diabetes", "af", "familyhx", "lld", "athrombi", "bpl")
+  num.vars    <- c("sbp", "tchdl")
+  numNA.vars  <- c("bmi")
 
-  # Decimal Settings
-  if(length(list(...))==0){
-    dp      <- 4
-  }else{
-    dp      <- vars$dp
-    vars$dp <- NULL
-  }
+  # Calls
+  call      <- gsub("()", "",  match.call()[1])
+  is.table  <- deparse(substitute(dat))!=""
+  input     <- as.list(match.call()[-1])
 
-  # Param Check
-  param.dat <- deparse(substitute(dat))!=""
+  if(length(list(...)) == 0){
 
-  params  <- c("sex", "age", "eth", "nzdep", "smoker", "diabetes", "af", "familyhx", "sbp", "tchdl", "bmi", "bpl", "lld", "athrombi")
+    dp        <- 4
+    allow.age <- TRUE
+    allow.na  <- TRUE
 
-  for(i in params){
-    if(eval(substitute(missing(i)))) {
-      stop(paste("Missing parameter(s):", sQuote(i)), call. = F)
+  } else {
+
+    default <- setdiff(c("dp", "allow.age", "allow.na"), names(list(...)))
+
+    if(length(default) %in% 1:2){
+
+      lapply(default,
+             function(x){
+
+               if(x == "dp"){
+                 val <- 4
+               } else if(x == "allow.na") {
+                 val <- TRUE
+               } else {
+                 val <- TRUE
+               }
+               assign(x, val, envir = parent.frame(2))
+             })
     }
+
+    lapply(names(list(...)),
+           function(x)
+             assign(x, unlist(list(...)[x]),
+                    envir = parent.frame(2)))
+
   }
 
-  # Dataset provided
-  if(param.dat){
-    dat     <- as.data.frame(dat, row.names = NULL)
-    vars    <- vars[-1]
-    input   <- as.vector(sapply(vars, as.character))
+  # ParamCheck
+  vars <- c(demo.vars, bin.vars, smk.vars, num.vars, numNA.vars)
 
-    # Missing Check
-    is.missing <- any(!input %in% names(dat))
+  ParamCheck(input, vars, call, is.table, allow.age, allow.na)
 
-    if(is.missing){
-      to.check <- input[!input %in% names(dat)]
-      stop(paste("Check input(s) names:", paste(sQuote(to.check), collapse = ", ")), call. = F)
-    }
+  # Values
+  f.ind <- which(tolower(input$sex) %in% ok.female)
+  m.ind <- which(tolower(input$sex) %in% ok.male)
 
-    vars[]  <- dat[, input]
+  demo.vals <- list(age      = input$age,
+                    maori    = +(tolower(input$eth) %in% ok.maori),
+                    pacific  = +(tolower(input$eth) %in% ok.pi),
+                    indian   = +(tolower(input$eth) %in% ok.indian),
+                    asian    = +(tolower(input$eth) %in% ok.asian),
+                    exsmoker = +(tolower(input$exsmoker) %in% ok.exsmkr),
+                    smoker   = +(tolower(input$smoker) %in% ok.smoker),
+                    nzdep    = input$nzdep)
+
+  bin.vals <- sapply(bin.vars,
+                     function(x){
+                       +(tolower(input[[x]]) %in% ok.true)
+                     },
+                     USE.NAMES = TRUE,
+                     simplify = FALSE)
+
+  num.vals <- sapply(num.vars,
+                     function(x){
+                       as.numeric(input[[x]])
+                     },
+                     USE.NAMES = TRUE,
+                     simplify = FALSE)
+
+  bmi     <- list(bmilt185   = +(input$bmi < 18.5 & !is.na(input$bmi)),
+                  bmi25_30   = +(input$bmi %in% 25:29.9 & !is.na(input$bmi)),
+                  bmi30_35   = +(input$bmi %in% 30:34.9 & !is.na(input$bmi)),
+                  bmi35_40   = +(input$bmi %in% 35:39.9 & !is.na(input$bmi)),
+                  bmige40    = +(input$bmi >= 40 & !is.na(input$bmi)),
+                  bmimiss    = +(input$bmi == "" | is.na(input$bmi)))
+
+
+  values <- c(demo.vals, bin.vals, num.vals, bmi) # Order sensitive!
+
+  # Adjustments
+  if(allow.age){
+    values$age[which(values$age < 30)] <- 30
+    values$age[which(values$age > 79)] <- 80
   }
 
+  if(!allow.na){
 
-  # Inputs Settings
-  sex       <- +(vars$sex %in% c("M", "Male", 1))
-  diab      <- +(vars$diabetes %in% c("Y", 1))
-  af        <- +(vars$af %in% c("Y", 1))
-  familyhx  <- +(vars$familyhx %in% c("Y", 1))
-  bpl       <- +(vars$bpl %in% c("Y", 1))
-  lld       <- +(vars$lld %in% c("Y", 1))
-  athrombi  <- +(vars$athrombi %in% c("Y", 1))
+    vars <- c(smk.vars, bin.vars)
 
-  tchdl   <- vars$tchdl
-  nzdep   <- vars$nzdep
-  age     <- vars$age
-  sbp     <- vars$sbp
+    values[vars] <- sapply(vars,
+                           function(x){
 
-  eth     <- tolower(as.character(vars$eth))
+                             input[[x]] <- if(is.name(input[[x]])){
+                               as.character(input[[x]])
+                             }
+                             replace(values[[x]],
+                                     which(is.na(input[[x]])),
+                                     NA)
+                           },
+                           USE.NAMES = TRUE,
+                           simplify = FALSE)
+  }
 
-  nzeo   <- tolower(c("NZ European", "European", "NZEO", "Euro", "E", "1", "10", "11", "12"))
-  maori  <- tolower(c("Maori", "NZMaori", "NZ Maori", "M", "2", "21"))
-  pi     <- tolower(c("Pacific", "Pacific Islander", "PI", "P", "3", "30", "31", "32", "33", "34", "35", "36", "37"))
-  asian  <- tolower(c("Asian", "Other Asian", "SE Asian", "East Asian", "Chinese", "ASN", "A", "4", "40", "41", "42"))
-  indian <- tolower(c("Indian", "Fijian Indian", "South Asian", "IN", "I", "43"))
+  values$exsmoker[which(values$smoker == 1)] <- 0
 
-  # Invalid inputs
-  inval.eth <- which(!eth %in% c(nzeo, maori, pi, asian, indian))
-  inval.age <- which(age < 18 | age > 110 | is.na(age))
+  # Recentering
+  values$age[f.ind] <- values$age[f.ind] - 56.05801
+  values$age[m.ind] <- values$age[m.ind] - 51.59444
+  # browser()
+  values$nzdep[f.ind] <- values$nzdep[f.ind] - 2.994877
+  values$nzdep[m.ind] <- values$nzdep[m.ind] - 2.975732
 
-  age <- replace(age, which(age < 30), 30)
-  age <- replace(age, which(age > 79), 80)
-  age <- replace(age, inval.age, 0)
+  values$sbp[f.ind] <- values$sbp[f.ind] - 128.6736
+  values$sbp[m.ind] <- values$sbp[m.ind] - 128.8637
 
-  # nb: Each list is ordered to match item order in coeffs list
-  eth     <- list(maori    = +(eth %in% maori),
-                  pacific  = +(eth %in% pi),
-                  indian   = +(eth %in% indian),
-                  asian    = +(eth %in% asian))
+  values$tchdl[f.ind] <- values$tchdl[f.ind] - 3.715383
+  values$tchdl[m.ind] <- values$tchdl[m.ind] - 4.385853
 
-  smoke   <- list(ex_smoke = +(vars$smoker %in% c("Ex smoker", "Ex-smoker", "Ex", 1)),
-                  cur_smoke = +(vars$smoker %in% c("Current Smoker", "Current", "Smoker", "Y", "Yes", 2)))
-
-  bmi     <- list(bmilt185   = +(vars$bmi < 18.5 & !is.na(vars$bmi)),
-                  bmi25_30   = +(vars$bmi %in% 25:29.9 & !is.na(vars$bmi)),
-                  bmi30_35   = +(vars$bmi %in% 30:34.9 & !is.na(vars$bmi)),
-                  bmi35_40   = +(vars$bmi %in% 35:39.9 & !is.na(vars$bmi)),
-                  bmige40    = +(vars$bmi >= 40 & !is.na(vars$bmi)),
-                  bmimiss    = +(vars$bmi == "" | is.na(vars$bmi)))
-
-  # Interaction / Recentering
-  cen.age <-  ifelse(sex == 0,
-                     age - 56.05801,
-                     age - 51.59444)
-  cen.nzdep <-  ifelse(sex == 0,
-                       nzdep - 2.994877,
-                       nzdep - 2.975732)
-  cen.sbp <-  ifelse(sex == 0,
-                     sbp - 128.6736,
-                     sbp - 128.8637)
-  cen.tchdl <-  ifelse(sex == 0,
-                       tchdl - 3.715383,
-                       tchdl - 4.385853)
-
-  interaction <- list(int_age_diab = ifelse(diab == 0, 0, cen.age),
-                      int_age_sbp  = cen.age * cen.sbp,
-                      int_sbp_bplt = ifelse(bpl==0, 0, cen.sbp))
-
-  # List input values
-  # nb: Order to match coeffs list
-  values <- c(list(age = cen.age), eth, smoke, list(nzdep = cen.nzdep), list(diab = diab), list(af = af), list(familyhx = familyhx),
-              list(lld = lld), list(athrombi = athrombi), list(bpl = bpl), list(sbp = cen.sbp), list(tchdl = cen.tchdl), bmi,
-              interaction)
-
-  # Replace Missing
-  values <- lapply(values, function(x)
-    replace(x, is.na(x), 0))
+  # Interaction
+  values$int_age_diab <- ifelse(values$diabetes == 0, 0, values$age)
+  values$int_age_sbp  <- values$age * values$sbp
+  values$int_sbp_bplt <- ifelse(values$bpl == 0, 0, values$sbp)
 
   # Coefficients
   fem.coeff <- list(age       = 0.0734393,
@@ -244,12 +268,9 @@ NoPriorCVDRisk_BMI <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, 
                      int_age_sbp  = -0.0004931,
                      int_sbp_bplt = -0.0049226)
 
-  f.ind <- which(sex == 0)
-  m.ind <- which(sex == 1)
-
   value.score <- mapply(function(val, f.coeff, m.coeff){
 
-    effect <- rep(0, length(sex))
+    effect <- rep(0, length(input$sex))
     effect <- replace(effect, f.ind, val[f.ind] * f.coeff)
     effect <- replace(effect, m.ind, val[m.ind] * m.coeff)
 
@@ -270,21 +291,10 @@ NoPriorCVDRisk_BMI <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, 
                                     format = 'f',
                                     digits = dp))
 
-  if(length(inval.eth) >= 1){
-    warning("Ethnicity input contains one or more non-calculated classes. See R documentation using ?NoPriorCVDRisk_BMI",
-            call. = F)
+  if(length(ls(pattern = "inval.")) >= 1){
 
     rounded.val <- replace(rounded.val,
-                           inval.eth,
-                           NA)
-  }
-
-  if(length(inval.age) >= 1){
-    warning("Age input contains one or more non-calculatable values. See R documentation using ?NoPriorCVDRisk_BMI",
-            call. = F)
-
-    rounded.val <- replace(rounded.val,
-                           inval.age,
+                           unlist(mget(ls(pattern = "inval."))),
                            NA)
   }
 

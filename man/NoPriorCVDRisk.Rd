@@ -4,8 +4,8 @@
 \alias{NoPriorCVDRisk}
 \title{PREDICT CVD (2017) Risk Score for People Without CVD}
 \usage{
-NoPriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
-               af, familyhx, sbp, tchdl, bpl, lld, athrombi,...)
+NoPriorCVDRisk(dat, sex, age, eth, nzdep, exsmoker, smoker, diabetes,
+               af, familyhx, sbp, tchdl, bpl, lld, athrombi, ...)
 }
 \arguments{
 \item{dat}{an optional data.frame or data.table containing input data (see details)}
@@ -18,7 +18,9 @@ NoPriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
 
 \item{nzdep}{socio-economic deprivation (see details)}
 
-\item{smoker}{smoking status}
+\item{exsmoker}{ex-smoker or recently quit}
+
+\item{smoker}{currently smoking}
 
 \item{diabetes}{diabetes status}
 
@@ -36,10 +38,10 @@ NoPriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
 
 \item{athrombi}{receiving antiplatelet or anticoagulant medication}
 
-\item{...}{additional options (see values)}
+\item{...}{further arguments passed (see values)}
 }
 \value{
-\code{NoPriorCVDRisk} returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
+returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
 Input values for each parameter must conform to the following convention:
 
 \item{sex}{label or encode as one of the following:
@@ -58,11 +60,15 @@ Input values for each parameter must conform to the following convention:
 \item note: Other Asian includes non-Indian South Asian
 }}
 \item{nzdep}{numeric value between 1 and 5}
+\item{exsmoker}{label or encode as one of the following:
+\itemize{
+\item Y, Yes, Ex, Ex-smoker, Exsmoker, E, 1, T, TRUE
+\item N, No, Non-smoker, Non, 0, F, FALSE
+}}
 \item{smoker}{label or encode as one of the following:
 \itemize{
-\item X, Ex, Ex-smoker, 2
-\item Y, Yes, Smoker, 1, T, TRUE
-\item N, No, Non-smoker, 0, F, FALSE
+\item Y, Yes, Smoker, Current, S, 1, T, TRUE
+\item N, No, Non-smoker, Non, 0, F, FALSE
 }}
 \item{diabetes\cr af familyhx bpl lld\cr athrombi}{label or encode as one of the following:
 \itemize{
@@ -73,9 +79,11 @@ Input values for each parameter must conform to the following convention:
 \itemize{
 \item SBP and total:HDL values must be avaliable
 }}
-\item{...}{optional arguments:
+\item{...}{further arguments:
 \itemize{
-\item \code{dp} sets decimal place; default is 4
+\item \code{dp} numeric value to set decimal place; default is 4
+\item \code{allow.age} logical. Whether or not age range is extended outside of 30 - 74; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
+\item \code{allow.na} logical. Whether or not missing values for binary variables and smoking status are treated as 0; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
 }}
 }
 \description{
@@ -105,7 +113,7 @@ with 1 being the least deprived and 5 being the most deprived.
 \code{\link{NoPriorCVDRisk}} \cr
 \code{\link{NoPriorCVDRisk_BMI}} \cr
 \code{\link{NoPriorCVDRisk_Policy}} \cr
-\code{\link{NoPriorCVDRiskBleedRisk}} \cr
+\code{\link{NoPriorCVDBleedRisk}} \cr
 \code{\link{NoPriorT2DRisk}} \cr
 \code{\link{PostCVDRisk}} \cr
 \code{\link{PostACSRisk}} \cr
@@ -116,9 +124,14 @@ with 1 being the least deprived and 5 being the most deprived.
 NoPriorCVDRisk(sex="F", age=65, eth="Indian", smoker=0, nzdep=5,  diabetes=0,
                af=0, familyhx=1, lld=1, athrombi=1, bpl=1, sbp=118, tchdl=3.3)
 
+NoPriorCVDRisk(sex=1, age=82, eth="Asian", exsmoker=NA, smoker=Y, nzdep=4, diabetes=N,
+               af=1, familyhx=1, lld=T, athrombi=F, bpl=0, sbp=140, tchdl=3.3, dp = 5,
+               allow.age = FALSE, allow.na = FALSE)
+
 # As vectoriser (dataset provided)
-NoPriorCVDRisk(dat=DF, sex=sex, age=age, eth=ethnicity, smoker=smoking_status, nzdep=nzdep_quint, diabetes=diab_status,
-               af=af, familyhx=fam_hx, lld=lld_drugs, athrombi=antithrombics, bpl=bplt, sbp=systolic_bp, tchdl=tchdl_ratio)
+NoPriorCVDRisk(dat=TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, exsmoker=smoker,
+               smoker=smoker,  diabetes=diabetes, af=af, familyhx=familyhx, lld=lld,
+               athrombi=athromb, bpl=bpl, sbp=sbp, tchdl=tchdl, allow.na =TRUE)
 
 }
 \references{

@@ -19,7 +19,7 @@ PostACSRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
 
 \item{nzdep}{socio-economic deprivation (see details)}
 
-\item{smoker}{smoking status}
+\item{smoker}{currently smoking}
 
 \item{diabetes}{diabetes status}
 
@@ -47,7 +47,7 @@ PostACSRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
 
 \item{athrombi}{receiving antiplatelet or anticoagulant medication}
 
-\item{...}{additional options (see values)}
+\item{...}{further arguments passed (see values)}
 }
 \value{
 \code{PostACSRisk} returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
@@ -125,7 +125,7 @@ with 1 being the least deprived and 5 being the most deprived.
 \code{\link{NoPriorCVDRisk}} \cr
 \code{\link{NoPriorCVDRisk_BMI}} \cr
 \code{\link{NoPriorCVDRisk_Policy}} \cr
-\code{\link{NoPriorCVDRiskBleedRisk}} \cr
+\code{\link{NoPriorCVDBleedRisk}} \cr
 \code{\link{NoPriorT2DRisk}} \cr
 \code{\link{PostCVDRisk}} \cr
 \code{\link{PostACSRisk}} \cr

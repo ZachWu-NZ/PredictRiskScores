@@ -5,8 +5,8 @@
 \title{PREDICT CVD (2019) Risk Score for People With CVD}
 \usage{
 PostCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
-            af, hf, othervd, cvddays, bmi, sbp, tchdl,
-            hba1c, scr, bpl, lld, athrombi,...)
+            af, hf, othervd, bpl, lld, athrombi, sbp, tchdl, bmi,
+            scr, hba1c, cvddays...)
 }
 \arguments{
 \item{dat}{an optional data.frame or data.table containing input data (see details)}
@@ -19,7 +19,7 @@ PostCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
 
 \item{nzdep}{socio-economic deprivation (see details)}
 
-\item{smoker}{smoking status}
+\item{smoker}{currently smoking}
 
 \item{diabetes}{diabetes status}
 
@@ -29,28 +29,28 @@ PostCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
 
 \item{othervd}{prior angina, peripheral vascular disease, or non-hospitalised cerebrovascular disease not associated with stroke or TIA}
 
-\item{cvddays}{time in days since most recent CVD event}
-
-\item{bmi}{body mass index in kg/m^2}
-
-\item{sbp}{measured systolic blood pressure in mmHg}
-
-\item{tchdl}{most recent value of total:HDL cholesterol}
-
-\item{hba1c}{most recent value of HbA1c in mmol/mol}
-
-\item{scr}{most recent value of serum creatinine in micromol/L}
-
 \item{bpl}{receiving at least one blood pressure lowering medication}
 
 \item{lld}{receiving lipid lowering medication}
 
 \item{athrombi}{receiving antiplatelet or anticoagulant medication}
 
-\item{...}{additional options (see values)}
+\item{sbp}{measured systolic blood pressure in mmHg}
+
+\item{tchdl}{most recent value of total:HDL cholesterol}
+
+\item{bmi}{body mass index in kg/m^2}
+
+\item{scr}{most recent value of serum creatinine in micromol/L}
+
+\item{hba1c}{most recent value of HbA1c in mmol/mol}
+
+\item{cvddays}{time in days since most recent CVD event}
+
+\item{...}{further arguments passed (see values)}
 }
 \value{
-\code{PostCVDRisk} returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
+returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
 Input values for each parameter must conform to the following convention:
 
 \item{sex}{label or encode as one of the following:
@@ -79,19 +79,21 @@ Input values for each parameter must conform to the following convention:
 \item Y, Yes, 1, T, TRUE
 \item N, No, 0, F, FALSE
 }}
-\item{cvddays}{numeric value of number of days since last ACS event. Note:
-\itemize{
-\item If the most recent CVD event was angina or peripheral vascular disease, then enter 1826
-\item If the days since most recent CVD event is not known, then keep as \code{NA}
-}}
-\item{bmi sbp\cr tchdl hba1c\cr scr}{numeric value of measured result. Note:
+\item{sbp tchdl}{numeric value of measured result. Note:
 \itemize{
 \item SBP and total:HDL values must be avaliable
-\item If BMI, HbA1c, or serum creatinine values are unknown, then keep as \code{NA}
 }}
-\item{...}{optional arguments:
+\item{bmi scr\cr hba1c}{numeric value of calculated BMI, and measured serum creatinine and hba1c. If a value is unknown, then input as \code{NA}}
+\item{cvddays}{numeric value of number of days since last ACS event. Note:
 \itemize{
-\item \code{dp} sets decimal place; default is 4
+\item If the days since most recent CVD event is not known, then keep as \code{NA}
+\item Ensure that \code{othervd} is checked if any prior angina or peripheral vascular disease. If \code{othervd} is selected, then \code{cvddays} will default to 1826.
+}}
+\item{...}{further arguments:
+\itemize{
+\item \code{dp} numeric value to set decimal place; default is 4
+\item \code{allow.age} logical. Whether or not age range is extended outside of 30 - 74; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
+\item \code{allow.na} logical. Whether or not missing values for binary variables and smoking status are treated as 0; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
 }}
 }
 \description{
@@ -120,7 +122,7 @@ with 1 being the least deprived and 5 being the most deprived.
 \code{\link{NoPriorCVDRisk}} \cr
 \code{\link{NoPriorCVDRisk_BMI}} \cr
 \code{\link{NoPriorCVDRisk_Policy}} \cr
-\code{\link{NoPriorCVDRiskBleedRisk}} \cr
+\code{\link{NoPriorCVDBleedRisk}} \cr
 \code{\link{NoPriorT2DRisk}} \cr
 \code{\link{PostCVDRisk}} \cr
 \code{\link{PostACSRisk}} \cr
@@ -128,9 +130,6 @@ with 1 being the least deprived and 5 being the most deprived.
 
 \examples{
 # As a calculator (dataset not provide)
-PostCVDRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0,
-            af=0, hf=1, othervd=1, cvddays=65, bmi=NA, sbp=118, tchdl=3.3,
-            hba1c=NA, scr=52, bpl=1, lld=1, athrombi=1)
 
 # As Vectoriser (dataset provided)
 PostCVDRisk(TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker,

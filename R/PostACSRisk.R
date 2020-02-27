@@ -13,7 +13,7 @@
 #' @param age     age in years  (see details)
 #' @param eth     ethnicity (see details)
 #' @param nzdep     socio-economic deprivation (see details)
-#' @param smoker    smoking status
+#' @param smoker    currently smoking
 #' @param diabetes  diabetes status
 #' @param af        atrial fibrillation status
 #' @param hf        heart failure status
@@ -27,7 +27,7 @@
 #' @param bpl       receiving at least one blood pressure lowering medication
 #' @param lld       receiving lipid lowering medication
 #' @param athrombi  receiving antiplatelet or anticoagulant medication
-#' @param ...       additional options (see values)
+#' @param ...       further arguments passed (see values)
 #'
 #' @inherit NoPriorCVDRisk details
 #'

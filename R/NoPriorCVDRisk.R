@@ -5,10 +5,25 @@
 #' for coronary heart disease, stroke or other cerebrovascular disease (including transient ischaemic attack), peripheral vascular disease and heart failure,
 #' or cardiovascular death.
 #'
-#' @usage NoPriorCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
-#'                af, familyhx, sbp, tchdl, bpl, lld, athrombi,...)
+#' @usage NoPriorCVDRisk(dat, sex, age, eth, nzdep, exsmoker, smoker, diabetes,
+#'                af, familyhx, sbp, tchdl, bpl, lld, athrombi, ...)
 #'
-#' @inheritParams NoPriorCVDRisk_BMI
+#' @param dat     an optional data.frame or data.table containing input data (see details)
+#' @param sex     binary sex or gender
+#' @param age     age in years  (see details)
+#' @param eth     ethnicity (see details)
+#' @param nzdep     socio-economic deprivation (see details)
+#' @param exsmoker ex-smoker or recently quit
+#' @param smoker    currently smoking
+#' @param diabetes  diabetes status
+#' @param af        atrial fibrillation status
+#' @param familyhx family history of premature CVD
+#' @param sbp       measured systolic blood pressure in mmHg
+#' @param tchdl     most recent value of total:HDL cholesterol
+#' @param bpl       receiving at least one blood pressure lowering medication
+#' @param lld       receiving lipid lowering medication
+#' @param athrombi  receiving antiplatelet or anticoagulant medication
+#' @param ...       further arguments passed (see values)
 #'
 #' @details  When a dataset is supplied, a risk score is produced for each row of data, resulting in a numeric vector of the same length.
 #' Each argument requires the variable name from the dataset \code{dat} that corresponds with the parameter. If the parameter \code{dat} is not supplied, then each argument is assigned an individual's
@@ -26,7 +41,7 @@
 #' with 1 being the least deprived and 5 being the most deprived.
 #'
 #' @return
-#' \code{NoPriorCVDRisk} returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
+#' returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
 #' Input values for each parameter must conform to the following convention:
 #'
 #' \item{sex}{label or encode as one of the following:
@@ -45,11 +60,15 @@
 #'              \item note: Other Asian includes non-Indian South Asian
 #'              }}
 #' \item{nzdep}{numeric value between 1 and 5}
+#' \item{exsmoker}{label or encode as one of the following:
+#'            \itemize{
+#'              \item Y, Yes, Ex, Ex-smoker, Exsmoker, E, 1, T, TRUE
+#'              \item N, No, Non-smoker, Non, 0, F, FALSE
+#'              }}
 #' \item{smoker}{label or encode as one of the following:
 #'            \itemize{
-#'              \item X, Ex, Ex-smoker, 2
-#'              \item Y, Yes, Smoker, 1, T, TRUE
-#'              \item N, No, Non-smoker, 0, F, FALSE
+#'              \item Y, Yes, Smoker, Current, S, 1, T, TRUE
+#'              \item N, No, Non-smoker, Non, 0, F, FALSE
 #'              }}
 #' \item{diabetes\cr af familyhx bpl lld\cr athrombi}{label or encode as one of the following:
 #'            \itemize{
@@ -60,12 +79,21 @@
 #'            \itemize{
 #'              \item SBP and total:HDL values must be avaliable
 #'              }}
-#' \item{...}{optional arguments:
+#' \item{...}{further arguments:
 #'            \itemize{
-#'              \item \code{dp} sets decimal place; default is 4
+#'              \item \code{dp} numeric value to set decimal place; default is 4
+#'              \item \code{allow.age} logical. Whether or not age range is extended outside of 30 - 74; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
+#'              \item \code{allow.na} logical. Whether or not missing values for binary variables and smoking status are treated as 0; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
 #'              }}
 #'
-#' @inheritSection PostACSRisk See Also
+#' @section See Also:
+#' \code{\link{NoPriorCVDRisk}} \cr
+#' \code{\link{NoPriorCVDRisk_BMI}} \cr
+#' \code{\link{NoPriorCVDRisk_Policy}} \cr
+#' \code{\link{NoPriorCVDBleedRisk}} \cr
+#' \code{\link{NoPriorT2DRisk}} \cr
+#' \code{\link{PostCVDRisk}} \cr
+#' \code{\link{PostACSRisk}} \cr
 #'
 #' @author
 #' Billy Wu (R Developer) and Romana Pylypchuk (Principal Investigator)
@@ -82,124 +110,139 @@
 #' NoPriorCVDRisk(sex="F", age=65, eth="Indian", smoker=0, nzdep=5,  diabetes=0,
 #'                af=0, familyhx=1, lld=1, athrombi=1, bpl=1, sbp=118, tchdl=3.3)
 #'
+#' NoPriorCVDRisk(sex=1, age=82, eth="Asian", exsmoker=NA, smoker=Y, nzdep=4, diabetes=N,
+#'                af=1, familyhx=1, lld=T, athrombi=F, bpl=0, sbp=140, tchdl=3.3, dp = 5,
+#'                allow.age = FALSE, allow.na = FALSE)
+#'
 #' # As vectoriser (dataset provided)
-#' NoPriorCVDRisk(dat=DF, sex=sex, age=age, eth=ethnicity, smoker=smoking_status, nzdep=nzdep_quint, diabetes=diab_status,
-#'                af=af, familyhx=fam_hx, lld=lld_drugs, athrombi=antithrombics, bpl=bplt, sbp=systolic_bp, tchdl=tchdl_ratio)
+#' NoPriorCVDRisk(dat=TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, exsmoker=smoker,
+#'                smoker=smoker,  diabetes=diabetes, af=af, familyhx=familyhx, lld=lld,
+#'                athrombi=athromb, bpl=bpl, sbp=sbp, tchdl=tchdl, allow.na =TRUE)
 #'
 # --- Code ---
-NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, familyhx, sbp, tchdl, bpl, lld, athrombi,...){
+NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, exsmoker, smoker, diabetes, af, familyhx, sbp, tchdl, bpl, lld, athrombi,...){
 
-  vars    <- as.list(match.call()[-1])
+  # Params
+  demo.vars   <- c("sex", "age", "eth", "nzdep")
+  smk.vars    <- c("exsmoker", "smoker")
+  bin.vars    <- c("diabetes", "af", "familyhx", "lld", "athrombi", "bpl")
+  num.vars    <- c("sbp", "tchdl")
 
-  # Decimal Settings
-  if(length(list(...))==0){
-    dp      <- 4
-  }else{
-    dp      <- vars$dp
-    vars$dp <- NULL
+  # Calls
+  call      <- gsub("()", "",  match.call()[1])
+  is.table  <- deparse(substitute(dat))!=""
+  input     <- as.list(match.call()[-1])
+
+  if(length(list(...)) == 0){
+
+    dp        <- 4
+    allow.age <- TRUE
+    allow.na  <- TRUE
+
+  } else {
+
+    default <- setdiff(c("dp", "allow.age", "allow.na"), names(list(...)))
+
+    if(length(default) %in% 1:2){
+
+      lapply(default,
+             function(x){
+
+               if(x == "dp"){
+                 val <- 4
+               } else if(x == "allow.na") {
+                 val <- TRUE
+               } else {
+                 val <- TRUE
+               }
+               assign(x, val, envir = parent.frame(2))
+             })
+    }
+
+    lapply(names(list(...)),
+           function(x)
+             assign(x, unlist(list(...)[x]),
+                    envir = parent.frame(2)))
+
   }
 
-  # # ParamCheck
-  # has.dat <- deparse(substitute(dat))!=""
-  # params  <- c("sex", "age", "eth", "nzdep", "smoker", "diabetes", "af", "familyhx", "sbp", "tchdl", "bpl", "lld", "athrombi")
-  #
-  # ParamCheck(vars, params, has.dat)s
+  # ParamCheck
+  vars <- c(demo.vars, bin.vars, smk.vars, num.vars)
 
+  ParamCheck(input, vars, call, is.table, allow.age, allow.na)
 
-  # Param Check
-  param.dat <- deparse(substitute(dat))!=""
+  # Values
+  f.ind <- which(tolower(input$sex) %in% ok.female)
+  m.ind <- which(tolower(input$sex) %in% ok.male)
+
+  demo.vals <- list(age      = input$age,
+                    maori    = +(tolower(input$eth) %in% ok.maori),
+                    pacific  = +(tolower(input$eth) %in% ok.pi),
+                    indian   = +(tolower(input$eth) %in% ok.indian),
+                    asian    = +(tolower(input$eth) %in% ok.asian),
+                    exsmoker = +(tolower(input$exsmoker) %in% ok.exsmkr),
+                    smoker   = +(tolower(input$smoker) %in% ok.smoker),
+                    nzdep    = input$nzdep)
+
+  bin.vals <- sapply(bin.vars,
+                     function(x){
+                       +(tolower(input[[x]]) %in% ok.true)
+                     },
+                     USE.NAMES = TRUE,
+                     simplify = FALSE)
+
+  num.vals <- sapply(num.vars,
+                      function(x){
+                        as.numeric(input[[x]])
+                      },
+                      USE.NAMES = TRUE,
+                      simplify = FALSE)
+
+  values <- c(demo.vals, bin.vals, num.vals) # Order sensitive!
+
+  # Adjustments
+  if(allow.age){
+    values$age[which(values$age < 30)] <- 30
+    values$age[which(values$age > 79)] <- 80
+  }
+
+  if(!allow.na){
+
+    vars <- c(smk.vars, bin.vars)
+
+    values[vars] <- sapply(vars,
+                           function(x){
+
+                             input[[x]] <- if(is.name(input[[x]])){
+                               as.character(input[[x]])
+                             }
+                               replace(values[[x]],
+                                       which(is.na(input[[x]])),
+                                       NA)
+                           },
+                           USE.NAMES = TRUE,
+                           simplify = FALSE)
+  }
+
+  values$exsmoker[which(values$smoker == 1)] <- 0
+
+  # Recentering
+  values$age[f.ind] <- values$age[f.ind] - 56.13665
+  values$age[m.ind] <- values$age[m.ind] - 51.79953
 # browser()
-  params <- c("sex", "age", "eth", "nzdep", "smoker", "diabetes", "af", "familyhx", "sbp", "tchdl", "bpl", "lld", "athrombi")
+  values$nzdep[f.ind] <- values$nzdep[f.ind] - 2.990826
+  values$nzdep[m.ind] <- values$nzdep[m.ind] - 2.972793
 
-  for(i in params){
-    if(eval(substitute(missing(i)))) {
-      stop(paste("Missing parameter(s):", sQuote(i)), call. = F)
-    }
-  }
+  values$sbp[f.ind] <- values$sbp[f.ind] - 129.0173
+  values$sbp[m.ind] <- values$sbp[m.ind] - 129.1095
 
-  # Dataset provided
-  if(param.dat){
-    dat     <- as.data.frame(dat, row.names = NULL)
-    vars    <- vars[-1]
-    input   <- as.vector(sapply(vars, as.character))
+  values$tchdl[f.ind] <- values$tchdl[f.ind] - 3.726268
+  values$tchdl[m.ind] <- values$tchdl[m.ind] - 4.38906
 
-    # Missing Check
-    is.missing <- any(!input %in% names(dat))
-
-    if(is.missing){
-      to.check <- input[!input %in% names(dat)]
-      stop(paste("Check input(s) names:", paste(sQuote(to.check), collapse = ", ")), call. = F)
-    }
-
-    vars[]  <- dat[, input]
-  }
-
-  # Inputs Settings
-  sex       <- +(vars$sex %in% c("M", "Male", 1))
-  diab      <- +(vars$diabetes %in% c("Y", 1))
-  af        <- +(vars$af %in% c("Y", 1))
-  familyhx  <- +(vars$familyhx %in% c("Y", 1))
-  bpl       <- +(vars$bpl %in% c("Y", 1))
-  lld       <- +(vars$lld %in% c("Y", 1))
-  athrombi  <- +(vars$athrombi %in% c("Y", 1))
-
-  tchdl   <- vars$tchdl
-  nzdep   <- vars$nzdep
-  age     <- vars$age
-  sbp     <- vars$sbp
-
-  eth     <- tolower(as.character(vars$eth))
-
-  nzeo   <- tolower(c("NZ European", "European", "NZEO", "Euro", "E", "1", "10", "11", "12"))
-  maori  <- tolower(c("Maori", "NZMaori", "NZ Maori", "M", "2", "21"))
-  pi     <- tolower(c("Pacific", "Pacific Islander", "PI", "P", "3", "30", "31", "32", "33", "34", "35", "36", "37"))
-  asian  <- tolower(c("Asian", "Other Asian", "SE Asian", "East Asian", "Chinese", "ASN", "A", "4", "40", "41", "42"))
-  indian <- tolower(c("Indian", "Fijian Indian", "South Asian", "IN", "I", "43"))
-
-  # Invalid inputs
-  inval.eth <- which(!eth %in% c(nzeo, maori, pi, asian, indian))
-  inval.age <- which(age < 18 | age > 110 | is.na(age))
-
-  age <- replace(age, which(age < 30), 30)
-  age <- replace(age, which(age > 79), 80)
-  age <- replace(age, inval.age, 0)
-
-  # nb: Each list is ordered to match item order in coeffs list
-  eth     <- list(maori    = +(eth %in% maori),
-                  pacific  = +(eth %in% pi),
-                  indian   = +(eth %in% indian),
-                  asian    = +(eth %in% asian))
-
-  smoke   <- list(ex_smoke = +(vars$smoker %in% c("Ex smoker", "Ex-smoker", "Ex", 2)),
-                  cur_smoke = +(vars$smoker %in% c("Current Smoker", "Current", "Smoker", "Y", "Yes", 1)))
-
-  # Interaction / Recentering
-  cen.age <-  ifelse(sex == 0,
-                     age - 56.13665,
-                     age - 51.79953)
-  cen.nzdep <-  ifelse(sex == 0,
-                       nzdep - 2.990826,
-                       nzdep - 2.972793)
-  cen.sbp <-  ifelse(sex == 0,
-                     sbp - 129.0173,
-                     sbp - 129.1095)
-  cen.tchdl <-  ifelse(sex == 0,
-                       tchdl - 3.726268,
-                       tchdl - 4.38906)
-
-  interaction <- list(int_age_diab = ifelse(diab == 0, 0, cen.age),
-                      int_age_sbp  = cen.age * cen.sbp,
-                      int_sbp_bplt = ifelse(bpl==0, 0, cen.sbp))
-
-  # List input values
-  # nb: Order to match coeffs list
-  values <- c(list(age = cen.age), eth, smoke, list(nzdep = cen.nzdep), list(diab = diab), list(af = af), list(familyhx = familyhx),
-              list(lld = lld), list(athrombi = athrombi), list(bpl = bpl), list(sbp = cen.sbp), list(tchdl = cen.tchdl),
-              interaction)
-
-  # Replace Missing
-  values <- lapply(values, function(x)
-    replace(x, is.na(x), 0))
+  # Interaction
+  values$int_age_diab <- ifelse(values$diabetes == 0, 0, values$age)
+  values$int_age_sbp  <- values$age * values$sbp
+  values$int_sbp_bplt <- ifelse(values$bpl == 0, 0, values$sbp)
 
   # Coefficients
   fem.coeff <- list(age     = 0.0756412,
@@ -242,12 +285,10 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
                      int_age_sbp = -0.0004184,
                      int_sbp_bplt = -0.0053077)
 
-  f.ind <- which(sex == 0)
-  m.ind <- which(sex == 1)
-
+  # Turn into function
   value.score <- mapply(function(val, f.coeff, m.coeff){
 
-    effect <- rep(0, length(sex))
+    effect <- rep(0, length(input$sex))
     effect <- replace(effect, f.ind, val[f.ind] * f.coeff)
     effect <- replace(effect, m.ind, val[m.ind] * m.coeff)
 
@@ -268,21 +309,10 @@ NoPriorCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, fami
                                     format = 'f',
                                     digits = dp))
 
-  if(length(inval.eth) >= 1){
-    warning("Ethnicity input contains one or more non-calculated classes. See R documentation using ?NoPriorCVDRisk",
-            call. = F)
+  if(length(ls(pattern = "inval.")) >= 1){
 
     rounded.val <- replace(rounded.val,
-                           inval.eth,
-                           NA)
-  }
-
-  if(length(inval.age) >= 1){
-    warning("Age input contains one or more non-calculatable values. See R documentation using ?NoPriorCVDRisk",
-            call. = F)
-
-    rounded.val <- replace(rounded.val,
-                           inval.age,
+                           unlist(mget(ls(pattern = "inval."))),
                            NA)
   }
 

@@ -4,9 +4,9 @@
 \alias{PriorT2DRisk}
 \title{PREDICT CVD Type-II Diabetes (2018.1) Risk Score for People Without Prior CVD}
 \usage{
-PriorT2DRisk(dat, sex, age, eth, nzdep, smoker, af, familyhx,
-             sbp, tchdl, bmi, years, egfr, acr, hba1c, oral, insulin,
-             bpl, lld, athrombi,...)
+PriorT2DRisk(sex, age, eth, nzdep, smoker, af, familyhx,
+             lld, athrombi, bpl, oral, insulin, sbp, tchdl, bmi,
+             egfr, acr, hba1c, years, ...)
 }
 \arguments{
 \item{dat}{an optional data.frame or data.table containing input data (see details)}
@@ -19,11 +19,21 @@ PriorT2DRisk(dat, sex, age, eth, nzdep, smoker, af, familyhx,
 
 \item{nzdep}{socio-economic deprivation (see details)}
 
-\item{smoker}{smoking status}
+\item{smoker}{currently smoking}
 
 \item{af}{atrial fibrillation status}
 
 \item{familyhx}{family history of premature CVD}
+
+\item{lld}{receiving lipid lowering medication}
+
+\item{athrombi}{receiving antiplatelet or anticoagulant medication}
+
+\item{bpl}{receiving at least one blood pressure lowering medication}
+
+\item{oral}{receiving oral hypoglycaemic medication}
+
+\item{insulin}{receiving insulin treatment}
 
 \item{sbp}{measured systolic blood pressure in mmHg}
 
@@ -31,28 +41,18 @@ PriorT2DRisk(dat, sex, age, eth, nzdep, smoker, af, familyhx,
 
 \item{bmi}{body mass index in kg/m^2}
 
-\item{years}{years since diagnosis of type 2 diabetes}
-
 \item{egfr}{most recent calculated value of eGFRvalue in mL/min/1.73m2}
 
 \item{acr}{most recent value of ACR value in mg/mmol}
 
 \item{hba1c}{most recent value of HbA1c in mmol/mol}
 
-\item{oral}{receiving oral hypoglycaemic medication}
+\item{years}{years since diagnosis of type 2 diabetes}
 
-\item{insulin}{receiving insulin treatment}
-
-\item{bpl}{receiving at least one blood pressure lowering medication}
-
-\item{lld}{receiving lipid lowering medication}
-
-\item{athrombi}{receiving antiplatelet or anticoagulant medication}
-
-\item{...}{additional options (see values)}
+\item{...}{further arguments passed (see values)}
 }
 \value{
-\code{PriorT2DRisk} returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
+returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
 Input values for each parameter must conform to the following convention:
 
 \item{sex}{label or encode as one of the following:
@@ -73,10 +73,9 @@ Input values for each parameter must conform to the following convention:
 \item{nzdep}{numeric value between 1 and 5}
 \item{smoker}{label or encode as one of the following:
 \itemize{
-\item Y, Yes, Smoker, 1, T, TRUE
+\item Y, Yes, Smoker, Current, S, 1, T, TRUE
 \item N, No, Non-smoker, 0, F, FALSE
 }}
-\item{years}{numeric value of number of years since T2D diagnosis}
 \item{familyhx\cr af bpl lld\cr athrombi}{label or encode as one of the following:
 \itemize{
 \item Y, Yes, 1, T, TRUE
@@ -91,9 +90,12 @@ Input values for each parameter must conform to the following convention:
 \itemize{
 \item all values must be avaliable
 }}
-\item{...}{optional arguments:
+\item{years}{numeric value of number of years since T2D diagnosis}
+\item{...}{further arguments:
 \itemize{
-\item \code{dp} sets decimal place; default is 4
+\item \code{dp} numeric value to set decimal place; default is 4
+\item \code{allow.age} logical. Whether or not age range is extended outside of 30 - 74; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
+\item \code{allow.na} logical. Whether or not missing values for binary variables and smoking status are treated as 0; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
 }}
 }
 \description{
@@ -123,7 +125,7 @@ with 1 being the least deprived and 5 being the most deprived.
 \code{\link{NoPriorCVDRisk}} \cr
 \code{\link{NoPriorCVDRisk_BMI}} \cr
 \code{\link{NoPriorCVDRisk_Policy}} \cr
-\code{\link{NoPriorCVDRiskBleedRisk}} \cr
+\code{\link{NoPriorCVDBleedRisk}} \cr
 \code{\link{NoPriorT2DRisk}} \cr
 \code{\link{PostCVDRisk}} \cr
 \code{\link{PostACSRisk}} \cr
@@ -131,9 +133,9 @@ with 1 being the least deprived and 5 being the most deprived.
 
 \examples{
 # As calculator (Dataset not Provided)
-PriorT2DRisk(sex="M", age=35, eth=2, nzdep=5, smoker=1, af=1, familyhx=1,
-             sbp=120, tchdl=3.3, bmi=27, years=1, egfr=78, acr=1, hba1c=48,
-             oral=0, insulin=0, bpl=0, lld=0, athrombi=0)
+PriorT2DRisk(sex="M", age=35, eth=2, nzdep=5, smoker=1, af=1, familyhx=1, lld=0,
+             athrombi=0, bpl=0, oral=0, insulin=0, sbp=120, tchdl=3.3, bmi=27,
+             egfr=78, acr=1, hba1c=48, years=1)
 
 # As vectoriser (Dataset Provided)
 PriorT2DRisk(dat=DF, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker,

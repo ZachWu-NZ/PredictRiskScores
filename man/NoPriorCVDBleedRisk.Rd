@@ -4,9 +4,9 @@
 \alias{NoPriorCVDBleedRisk}
 \title{PREDICT Major Bleed (2018) Risk Score for People Without Prior CVD}
 \usage{
-NoPriorCVDBleedRisk(dat, sex, age, eth, smoker, nzdep, af, familyhx, diabetes,
-                 sbp, tchdl, lld, bpl, cancer, gibleed, puddiag, alcohol,
-                 liver, puddrug, nsaid, steroids, ssri,...)
+NoPriorCVDBleedRisk(dat, sex, age, eth, exsmoker, smoker, nzdep, diabetes,
+                 familyhx, lld, bpl, cancer, gibleed, puddiag, alcohol, liver,
+                 puddrug, nsaid, steroids, ssri, sbp, tchdl, ...)
 }
 \arguments{
 \item{dat}{an optional data.frame or data.table containing input data (see details)}
@@ -17,19 +17,15 @@ NoPriorCVDBleedRisk(dat, sex, age, eth, smoker, nzdep, af, familyhx, diabetes,
 
 \item{eth}{ethnicity (see details)}
 
-\item{smoker}{smoking status}
+\item{exsmoker}{ex-smoker or recently quit}
+
+\item{smoker}{currently smoking}
 
 \item{nzdep}{socio-economic deprivation (see details)}
 
-\item{af}{atrial fibrillation status}
-
-\item{familyhx}{family history of premature CVD}
-
 \item{diabetes}{diabetes status}
 
-\item{sbp}{measured systolic blood pressure in mmHg}
-
-\item{tchdl}{most recent value of total:HDL cholesterol}
+\item{familyhx}{family history of premature CVD}
 
 \item{lld}{receiving lipid lowering medication}
 
@@ -53,10 +49,14 @@ NoPriorCVDBleedRisk(dat, sex, age, eth, smoker, nzdep, af, familyhx, diabetes,
 
 \item{ssri}{receiving at least one selective serotonine reuptake inhibitor}
 
-\item{...}{additional options (see values)}
+\item{sbp}{measured systolic blood pressure in mmHg}
+
+\item{tchdl}{most recent value of total:HDL cholesterol}
+
+\item{...}{further arguments passed (see values)}
 }
 \value{
-\code{NoPriorCVDBleedRisk} returns either a single 5-year major bleed risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
+returns either a single 5-year major bleed risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
 Input values for each parameter must conform to the following convention:
 
 \item{sex}{label or encode as one of the following:
@@ -75,13 +75,17 @@ Input values for each parameter must conform to the following convention:
 \item note: Other Asian includes non-Indian South Asian
 }}
 \item{nzdep}{numeric value between 1 and 5}
+\item{exsmoker}{label or encode as one of the following:
+\itemize{
+\item Y, Yes, Ex, Ex-smoker, Exsmoker, E, 1, T, TRUE
+\item N, No, Non-smoker, Non, 0, F, FALSE
+}}
 \item{smoker}{label or encode as one of the following:
 \itemize{
-\item X, Ex, Ex-smoker, 2
-\item Y, Yes, Smoker, 1, T, TRUE
-\item N, No, Non-smoker, 0, F, FALSE
+\item Y, Yes, Smoker, Current, S, 1, T, TRUE
+\item N, No, Non-smoker, Non, 0, F, FALSE
 }}
-\item{diabetes\cr af familyhx\cr bpl lld}{label or encode as one of the following:
+\item{diabetes\cr familyhx\cr bpl lld}{label or encode as one of the following:
 \itemize{
 \item Y, Yes, 1, T, TRUE
 \item N, No, 0, F, FALSE
@@ -100,9 +104,11 @@ Input values for each parameter must conform to the following convention:
 \itemize{
 \item SBP and total:HDL values must be avaliable
 }}
-\item{...}{optional arguments:
+\item{...}{further arguments:
 \itemize{
-\item \code{dp} sets decimal place; default is 4
+\item \code{dp} numeric value to set decimal place; default is 4
+\item \code{allow.age} logical. Whether or not age range is extended outside of 30 - 74; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
+\item \code{allow.na} logical. Whether or not missing values for binary variables and smoking status are treated as 0; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
 }}
 }
 \description{
@@ -129,7 +135,7 @@ with 1 being the least deprived and 5 being the most deprived.
 \code{\link{NoPriorCVDRisk}} \cr
 \code{\link{NoPriorCVDRisk_BMI}} \cr
 \code{\link{NoPriorCVDRisk_Policy}} \cr
-\code{\link{NoPriorCVDRiskBleedRisk}} \cr
+\code{\link{NoPriorCVDBleedRisk}} \cr
 \code{\link{NoPriorT2DRisk}} \cr
 \code{\link{PostCVDRisk}} \cr
 \code{\link{PostACSRisk}} \cr
@@ -137,16 +143,21 @@ with 1 being the least deprived and 5 being the most deprived.
 
 \examples{
 # As calculator (dataset not provided)
-NoPriorCVDBleedRisk(sex=0, age=55, eth=21, smoker=1, nzdep=5, af=0, familyhx=1,
-                    diabetes=1, sbp=130, tchdl=5, lld=1, bpl=1, cancer=1, gibleed=1,
-                    puddiag=1, alcohol=0, liver=0, puddrug=0, nsaid=1, steroids=1, ssri=0)
+NoPriorCVDBleedRisk(sex=0, age=55, eth=21, exsmoker=0, smoker=0, nzdep=5, diabetes=1,
+                    familyhx=1, lld=1, bpl=1, cancer=1, gibleed=1, puddiag=1, alcohol=0,
+                    liver=0, puddrug=0, nsaid=1, steroids=1, ssri=0, sbp=130, tchdl=5)
+
+NoPriorCVDBleedRisk(sex=0, age=76, eth=21, exsmoker=0, smoker=N, nzdep=5, diabetes=1,
+                    familyhx=1, lld=1, bpl=1, cancer=1, gibleed=1, puddiag=1, alcohol=0,
+                    liver=0, puddrug=0, nsaid=1, steroids=NA, ssri=0, sbp=130, tchdl=5,
+                    dp = 5, allow.age = F, allow.na = FALSE)
 
 # As vectoriser (dataset provided)
-NoPriorCVDBleedRisk(dat=DT, sex=sex, age=index_age, eth=eth_vars, smoker=smoking_status,
-                    nzdep=nzdep, af=af, familyhx=family_hx, diabetes=dm, sbp=index_sbp,
-                    tchdl=tchdl, lld=lld, bpl=bpl, cancer=hx_cancer, gibleed=hx_gibleed,
-                    puddiag=hx_hud, alcohol=alc, liver=hx_liver, puddrug=pudmx, nsaid=nsaid,
-                    steroids=steroidmx, ssri=ssri)
+NoPriorCVDBleedRisk(dat=DT, sex=sex, age=index_age, eth=eth_vars, exsmoker=exsmoke,
+                    smoker=smoking_current, nzdep=nzdep, familyhx=family_hx, diabetes=dm,
+                    sbp=index_sbp, tchdl=tchdl, lld=lld, bpl=bpl, cancer=hx_cancer,
+                    gibleed=hx_gibleed, puddiag=hx_hud, alcohol=alc, liver=hx_liver,
+                    puddrug=pudmx, nsaid=nsaid, steroids=steroidmx, ssri=ssri)
 
 }
 \references{

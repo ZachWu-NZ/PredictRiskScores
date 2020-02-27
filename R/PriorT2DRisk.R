@@ -6,9 +6,9 @@
 #' for coronary heart disease, stroke or other cerebrovascular disease (including transient ischaemic attack), peripheral vascular disease and heart failure,
 #' or cardiovascular death.
 #'
-#' @usage PriorT2DRisk(dat, sex, age, eth, nzdep, smoker, af, familyhx,
-#'              sbp, tchdl, bmi, years, egfr, acr, hba1c, oral, insulin,
-#'              bpl, lld, athrombi,...)
+#' @usage PriorT2DRisk(sex, age, eth, nzdep, smoker, af, familyhx,
+#'              lld, athrombi, bpl, oral, insulin, sbp, tchdl, bmi,
+#'              egfr, acr, hba1c, years, ...)
 #'
 #' @inheritParams NoPriorCVDRisk_BMI
 #' @param years years since diagnosis of type 2 diabetes
@@ -21,7 +21,7 @@
 #' @inherit NoPriorCVDRisk details
 #'
 #' @return
-#' \code{PriorT2DRisk} returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
+#' returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
 #' Input values for each parameter must conform to the following convention:
 #'
 #' \item{sex}{label or encode as one of the following:
@@ -42,10 +42,9 @@
 #' \item{nzdep}{numeric value between 1 and 5}
 #' \item{smoker}{label or encode as one of the following:
 #'            \itemize{
-#'              \item Y, Yes, Smoker, 1, T, TRUE
+#'              \item Y, Yes, Smoker, Current, S, 1, T, TRUE
 #'              \item N, No, Non-smoker, 0, F, FALSE
 #'              }}
-#' \item{years}{numeric value of number of years since T2D diagnosis}
 #' \item{familyhx\cr af bpl lld\cr athrombi}{label or encode as one of the following:
 #'            \itemize{
 #'              \item Y, Yes, 1, T, TRUE
@@ -60,9 +59,12 @@
 #'            \itemize{
 #'              \item all values must be avaliable
 #'              }}
-#' \item{...}{optional arguments:
+#' \item{years}{numeric value of number of years since T2D diagnosis}
+#' \item{...}{further arguments:
 #'            \itemize{
-#'              \item \code{dp} sets decimal place; default is 4
+#'              \item \code{dp} numeric value to set decimal place; default is 4
+#'              \item \code{allow.age} logical. Whether or not age range is extended outside of 30 - 74; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
+#'              \item \code{allow.na} logical. Whether or not missing values for binary variables and smoking status are treated as 0; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
 #'              }}
 #'
 #' @inheritSection PostACSRisk See Also
@@ -78,9 +80,9 @@
 #' @export
 #' @examples
 #' # As calculator (Dataset not Provided)
-#' PriorT2DRisk(sex="M", age=35, eth=2, nzdep=5, smoker=1, af=1, familyhx=1,
-#'              sbp=120, tchdl=3.3, bmi=27, years=1, egfr=78, acr=1, hba1c=48,
-#'              oral=0, insulin=0, bpl=0, lld=0, athrombi=0)
+#' PriorT2DRisk(sex="M", age=35, eth=2, nzdep=5, smoker=1, af=1, familyhx=1, lld=0,
+#'              athrombi=0, bpl=0, oral=0, insulin=0, sbp=120, tchdl=3.3, bmi=27,
+#'              egfr=78, acr=1, hba1c=48, years=1)
 #'
 #' # As vectoriser (Dataset Provided)
 #' PriorT2DRisk(dat=DF, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker,
@@ -89,129 +91,136 @@
 #'              lld=lld, athrombi=athrombi)
 #'
 # --- Code ---
-PriorT2DRisk <- function(dat, sex, age, eth, nzdep, smoker, af, familyhx, sbp, tchdl, bmi, years, egfr, acr, hba1c, oral, insulin, bpl, lld, athrombi,...){
+PriorT2DRisk <- function(dat, sex, age, eth, nzdep, smoker, af, familyhx, lld, athrombi, bpl, oral, insulin, sbp, tchdl, bmi, egfr, acr, hba1c, years, ...){
 
-  vars   <- as.list(match.call()[-1])
+  # Params
+  demo.vars   <- c("sex", "age", "eth", "nzdep")
+  smk.vars    <- c("smoker")
+  bin.vars    <- c("af", "familyhx", "lld", "athrombi", "bpl", "oral", "insulin")
+  num.vars    <- c("sbp", "tchdl", "bmi", "egfr", "acr", "hba1c", "years")
 
-  # Decimal Settings
-  if(length(list(...))==0){
-    dp      <- 4
-  }else{
-    dp      <- vars$dp
-    vars$dp <- NULL
-  }
+  # Calls
+  call      <- gsub("()", "",  match.call()[1])
+  is.table  <- deparse(substitute(dat))!=""
+  input     <- as.list(match.call()[-1])
 
-  # Param Check
-  param.dat <- deparse(substitute(dat))!=""
+  if(length(list(...)) == 0){
 
-  params  <- c("sex", "age", "eth", "nzdep", "smoker", "af", "familyhx", "sbp", "tchdl", "bmi", "years", "egfr", "acr", "hba1c",
-               "oral", "insulin", "bpl", "lld", "athrombi")
+    dp        <- 4
+    allow.age <- TRUE
+    allow.na  <- TRUE
 
-  for(i in params){
-    if(eval(substitute(missing(i)))) {
-      stop(paste("Missing parameter(s):", sQuote(i)), call. = F)
+  } else {
+
+    default <- setdiff(c("dp", "allow.age", "allow.na"), names(list(...)))
+
+    if(length(default) %in% 1:2){
+
+      lapply(default,
+             function(x){
+
+               if(x == "dp"){
+                 val <- 4
+               } else if(x == "allow.na") {
+                 val <- TRUE
+               } else {
+                 val <- TRUE
+               }
+               assign(x, val, envir = parent.frame(2))
+             })
     }
+
+    lapply(names(list(...)),
+           function(x)
+             assign(x, unlist(list(...)[x]),
+                    envir = parent.frame(2)))
+
   }
 
-  # Dataset provided
-  if(param.dat){
-    dat     <- as.data.frame(dat, row.names = NULL)
-    vars    <- vars[-1]
-    input   <- as.vector(sapply(vars, as.character))
+  # ParamCheck
+  vars <- c(demo.vars, bin.vars, smk.vars, num.vars)
 
-    # Missing Check
-    is.missing <- any(!input %in% names(dat))
+  ParamCheck(input, vars, call, is.table, allow.age, allow.na)
 
-    if(is.missing){
-      to.check <- input[!input %in% names(dat)]
-      stop(paste("Check input(s) names:", paste(sQuote(to.check), collapse = ", ")), call. = F)
-    }
+  # Values
+  f.ind <- which(tolower(input$sex) %in% ok.female)
+  m.ind <- which(tolower(input$sex) %in% ok.male)
 
-    vars[]  <- dat[, input]
+  demo.vals <- list(age      = input$age,
+                    maori    = +(tolower(input$eth) %in% ok.maori),
+                    pacific  = +(tolower(input$eth) %in% ok.pi),
+                    indian   = +(tolower(input$eth) %in% ok.indian),
+                    asian    = +(tolower(input$eth) %in% ok.asian),
+                    smoker   = +(tolower(input$smoker) %in% ok.smoker),
+                    nzdep    = input$nzdep)
+
+  bin.vals <- sapply(bin.vars,
+                     function(x){
+                       +(tolower(input[[x]]) %in% ok.true)
+                     },
+                     USE.NAMES = TRUE,
+                     simplify = FALSE)
+
+  num.vals <- sapply(num.vars,
+                     function(x){
+                       as.numeric(input[[x]])
+                     },
+                     USE.NAMES = TRUE,
+                     simplify = FALSE)
+
+  values <- c(demo.vals, bin.vals, num.vals) # Order sensitive!
+
+  # Adjustments
+  if(allow.age){
+    values$age[which(values$age < 30)] <- 30
+    values$age[which(values$age > 79)] <- 80
   }
 
-  # Inputs Settings
-  sex       <- +(vars$sex %in% c("M", "Male", 1))
-  smoker    <- +(vars$smoker %in% c("Y", "Yes", "Smoker", 1))
-  familyhx  <- +(vars$familyhx %in% c("Y", 1))
-  af        <- +(vars$af %in% c("Y", 1))
-  oral      <- +(vars$oral %in% c("Y", 1))
-  insulin   <- +(vars$insulin %in% c("Y", 1))
-  bpl       <- +(vars$bpl %in% c("Y", 1))
-  lld       <- +(vars$lld %in% c("Y", 1))
-  athrombi  <- +(vars$athrombi %in% c("Y", 1))
+  if(!allow.na){
 
-  age     <- vars$age
-  nzdep   <- vars$nzdep
-  sbp     <- vars$sbp
-  tchdl   <- vars$tchdl
-  bmi     <- vars$bmi
-  years   <- vars$years
-  egfr    <- vars$egfr
-  acr     <- vars$acr
-  hba1c   <- vars$hba1c
+    vars <- c(smk.vars, bin.vars)
 
-  eth     <- tolower(as.character(vars$eth))
+    values[vars] <- sapply(vars,
+                           function(x){
 
-  nzeo   <- tolower(c("NZ European", "European", "NZEO", "Euro", "E", "1", "10", "11", "12"))
-  maori  <- tolower(c("Maori", "NZMaori", "NZ Maori", "M", "2", "21"))
-  pi     <- tolower(c("Pacific", "Pacific Islander", "PI", "P", "3", "30", "31", "32", "33", "34", "35", "36", "37"))
-  asian  <- tolower(c("Asian", "Other Asian", "SE Asian", "East Asian", "Chinese", "ASN", "A", "4", "40", "41", "42"))
-  indian <- tolower(c("Indian", "Fijian Indian", "South Asian", "IN", "I", "43"))
+                             input[[x]] <- if(is.name(input[[x]])){
+                               as.character(input[[x]])
+                             }
+                             replace(values[[x]],
+                                     which(is.na(input[[x]])),
+                                     NA)
+                           },
+                           USE.NAMES = TRUE,
+                           simplify = FALSE)
+  }
 
-  # Invalid inputs
-  inval.eth <- which(!eth %in% c(nzeo, maori, pi, asian, indian))
-  inval.age <- which(age < 18 | age > 110 | is.na(age))
+  # Recentering
+  values$age[f.ind] <- values$age[f.ind] - 53.598009
+  values$age[m.ind] <- values$age[m.ind] - 53.738152
 
-  age <- replace(age, which(age < 30), 30)
-  age <- replace(age, which(age > 79), 80)
-  age <- replace(age, inval.age, 0)
+  values$nzdep[f.ind] <- values$nzdep[f.ind] - 3.657006
+  values$nzdep[m.ind] <- values$nzdep[m.ind] - 3.410281
 
-  # nb: Each list is ordered to match item order in coeffs list
-  eth     <- list(maori    = +(eth %in% maori),
-                  pacific  = +(eth %in% pi),
-                  indian   = +(eth %in% indian),
-                  asian    = +(eth %in% asian))
+  values$sbp[f.ind] <- values$sbp[f.ind] - 131.380365
+  values$sbp[m.ind] <- values$sbp[m.ind] - 131.662168
 
-  # Interaction / Recentering
-  cen.age   <- ifelse(sex == 0,
-                      age - 53.598009,
-                      age - 53.738152)
-  cen.nzdep <- ifelse(sex == 0,
-                      nzdep - 3.657006,
-                      nzdep - 3.410281)
-  cen.sbp   <- ifelse(sex == 0,
-                      sbp - 131.380365,
-                      sbp - 131.662168)
-  cen.tchdl <- ifelse(sex == 0,
-                      tchdl - 3.970698,
-                      tchdl - 4.330372)
-  cen.bmi   <- ifelse(sex == 0,
-                      bmi - 33.515572,
-                      bmi - 31.338254)
-  cen.years <- ifelse(sex == 0,
-                      years - 5.406364,
-                      years - 5.183025)
-  cen.egfr  <- ifelse(sex == 0,
-                      egfr - 89.558866,
-                      egfr - 88.788314)
-  cen.acr   <- ifelse(sex == 0,
-                      log((acr + 0.0099999997764826) / 1000) + 4.314302355,
-                      log((acr + 0.0099999997764826) / 1000) + 4.2751790)
-  cen.hba1c <- ifelse(sex == 0,
-                      hba1c - 63.618622,
-                      hba1c - 63.889441)
+  values$tchdl[f.ind] <- values$tchdl[f.ind] - 3.970698
+  values$tchdl[m.ind] <- values$tchdl[m.ind] - 4.330372
 
-  # List input values
-  # nb: Order to match coeffs list
-  values <- c(list(age = cen.age), eth, list(nzdep = cen.nzdep), list(smoker = smoker), list(familyhx = familyhx), list(af = af),
-              list(sbp = cen.sbp), list(tchdl = cen.tchdl), list(bmi = cen.bmi), list(years = cen.years), list(egfr = cen.egfr),
-              list(acr = cen.acr), list(hba1c = cen.hba1c), list(oral = oral), list(insulin = insulin), list(bpl = bpl),
-              list(lld = lld), list(athrombi = athrombi))
+  values$bmi[f.ind] <- values$bmi[f.ind] - 33.515572
+  values$bmi[m.ind] <- values$bmi[m.ind] - 31.338254
 
-  # Replace Missing
-  values <- lapply(values, function(x)
-    replace(x, is.na(x), 0))
+  values$egfr[f.ind] <- values$egfr[f.ind] - 89.558866
+  values$egfr[m.ind] <- values$egfr[m.ind] - 88.788314
+
+  values$acr[f.ind] <- log((acr + 0.0099999997764826) / 1000) + 4.314302355
+  values$acr[m.ind] <- log((acr + 0.0099999997764826) / 1000) + 4.275179000
+
+  values$hba1c[f.ind] <- values$hba1c[f.ind] - 63.618622
+  values$hba1c[m.ind] <- values$hba1c[m.ind] - 63.889441
+
+  values$years[f.ind] <- values$years[f.ind] - 5.406364
+  values$years[m.ind] <- values$years[m.ind] - 5.183025
 
   # Coefficients
   fem.coeff <- list(age       = 0.0424465,
@@ -219,51 +228,50 @@ PriorT2DRisk <- function(dat, sex, age, eth, nzdep, smoker, af, familyhx, sbp, t
                     pacific   = -0.253300,
                     indian    = 0.138371,
                     asian     = -0.3611259,
-                    nzdep     = 0.0699105,
                     smoker    = 0.4391752,
-                    familyhx  = 0.1063846,
+                    nzdep     = 0.0699105,
                     af        = 0.7864886,
+                    familyhx  = 0.1063846,
+                    lld       = -0.1595083,
+                    athrombi  = 0.0605766,
+                    bpl       = 0.0988141,
+                    oral      = 0.1248604,
+                    insulin   = 0.3535548,
                     sbp       = 0.0127053,
                     tchdl     = 0.1139678,
                     bmi       = 0.0073966,
-                    years     = 0.0163962,
                     egfr      = -0.0090784,
                     acr       = 0.1842885,
                     hba1c     = 0.0076733,
-                    oral      = 0.1248604,
-                    insulin   = 0.3535548,
-                    bpl       = 0.0988141,
-                    lld       = -0.1595083,
-                    athrombi  = 0.0605766)
+                    years     = 0.0163962
+                    )
 
   male.coeff <- list(age       = 0.0472422,
                      maori     = -0.0553093,
                      pacific   = -0.210811,
                      indian    = 0.1522338,
                      asian     = -0.3852922,
-                     nzdep     = 0.0413719,
                      smoker    = 0.3509447,
-                     familyhx  = 0.2093793,
+                     nzdep     = 0.0413719,
                      af        = 0.5284553,
+                     familyhx  = 0.2093793,
+                     lld       = -0.0344494,
+                     athrombi  = 0.0474684,
+                     bpl       = 0.1532122,
+                     oral      = 0.0051476,
+                     insulin   = 0.1846547,
                      sbp       = 0.0054797,
                      tchdl     = 0.0805627,
                      bmi       = 0.0117137,
-                     years     = 0.0162351,
                      egfr      = -0.0025889,
                      acr       = 0.1815067,
                      hba1c     = 0.0074805,
-                     oral      = 0.0051476,
-                     insulin   = 0.1846547,
-                     bpl       = 0.1532122,
-                     lld       = -0.0344494,
-                     athrombi  = 0.0474684)
-
-  f.ind <- which(sex == 0)
-  m.ind <- which(sex == 1)
+                     years     = 0.0162351
+                     )
 
   value.score <- mapply(function(val, f.coeff, m.coeff){
 
-    effect <- rep(0, length(sex))
+    effect <- rep(0, length(input$sex))
     effect <- replace(effect, f.ind, val[f.ind] * f.coeff)
     effect <- replace(effect, m.ind, val[m.ind] * m.coeff)
 
@@ -284,21 +292,10 @@ PriorT2DRisk <- function(dat, sex, age, eth, nzdep, smoker, af, familyhx, sbp, t
                                     format = 'f',
                                     digits = dp))
 
-  if(length(inval.eth) >= 1){
-    warning("Ethnicity input contains one or more non-calculated classes. See R documentation using ?PriorT2DRisk",
-            call. = F)
+  if(length(ls(pattern = "inval.")) >= 1){
 
     rounded.val <- replace(rounded.val,
-                           inval.eth,
-                           NA)
-  }
-
-  if(length(inval.age) >= 1){
-    warning("Age input contains one or more non-calculatable values. See R documentation using ?PriorT2DRisk",
-            call. = F)
-
-    rounded.val <- replace(rounded.val,
-                           inval.age,
+                           unlist(mget(ls(pattern = "inval."))),
                            NA)
   }
 

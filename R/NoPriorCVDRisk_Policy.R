@@ -5,8 +5,8 @@
 #' for coronary heart disease, stroke or other cerebrovascular disease (including transient ischaemic attack), peripheral vascular disease and heart failure,
 #' or cardiovascular death.
 #'
-#' @usage NoPriorCVDRisk_Policy(dat, sex, age, eth, nzdep, diabetes, af, bpl, lld,
-#'                       athrombi, ...)
+#' @usage NoPriorCVDRisk_Policy(dat, sex, age, eth, nzdep, diabetes, af,
+#'                       bpl, lld, athrombi, ...)
 #'
 #' @inheritParams NoPriorCVDRisk
 #'
@@ -33,7 +33,12 @@
 #'              \item note: Other Asian includes non-Indian South Asian
 #'              }}
 #' \item{nzdep}{numeric value between 1 and 5}
-#' \item{diabetes\cr af bpl lld\cr athrombi}{label or encode as one of the following:
+#' \item{diabetes,\cr af}{label or encode as one of the following:
+#'            \itemize{
+#'              \item Y, Yes, 1, T, TRUE
+#'              \item N, No, 0, F, FALSE
+#'              }}
+#' \item{bpl, lld,\cr athrombi}{label or encode as one of the following:
 #'            \itemize{
 #'              \item Y, Yes, 1, T, TRUE
 #'              \item N, No, 0, F, FALSE

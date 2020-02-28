@@ -70,12 +70,17 @@
 #'              \item Y, Yes, Smoker, Current, S, 1, T, TRUE
 #'              \item N, No, Non-smoker, Non, 0, F, FALSE
 #'              }}
-#' \item{diabetes\cr af familyhx bpl lld\cr athrombi}{label or encode as one of the following:
+#' \item{diabetes \cr af familyhx}{label or encode as one of the following:
 #'            \itemize{
 #'              \item Y, Yes, 1, T, TRUE
 #'              \item N, No, 0, F, FALSE
 #'              }}
-#' \item{sbp tchdl}{numeric value of measured result. Note:
+#' \item{bpl, lld,\cr athrombi}{label or encode as one of the following:
+#'            \itemize{
+#'              \item Y, Yes, 1, T, TRUE
+#'              \item N, No, 0, F, FALSE
+#'              }}
+#' \item{sbp, tchdl}{numeric value of measured result. Note:
 #'            \itemize{
 #'              \item SBP and total:HDL values must be avaliable
 #'              }}

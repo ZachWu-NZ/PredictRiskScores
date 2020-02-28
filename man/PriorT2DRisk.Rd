@@ -76,17 +76,22 @@ Input values for each parameter must conform to the following convention:
 \item Y, Yes, Smoker, Current, S, 1, T, TRUE
 \item N, No, Non-smoker, 0, F, FALSE
 }}
-\item{familyhx\cr af bpl lld\cr athrombi}{label or encode as one of the following:
+\item{af, familyhx}{label or encode as one of the following:
 \itemize{
 \item Y, Yes, 1, T, TRUE
 \item N, No, 0, F, FALSE
 }}
-\item{oral\cr insulin}{label or encode as one of the following:
+\item{bpl, lld,\cr athrombi}{label or encode as one of the following:
 \itemize{
 \item Y, Yes, 1, T, TRUE
 \item N, No, 0, F, FALSE
 }}
-\item{bmi sbp tchdl\cr egfr acr hba1c}{numeric value of measured result. Note:
+\item{oral, insulin}{label or encode as one of the following:
+\itemize{
+\item Y, Yes, 1, T, TRUE
+\item N, No, 0, F, FALSE
+}}
+\item{bmi, sbp, tchdl,\cr egfr, acr, hba1c}{numeric value of measured result. Note:
 \itemize{
 \item all values must be avaliable
 }}
@@ -136,6 +141,10 @@ with 1 being the least deprived and 5 being the most deprived.
 PriorT2DRisk(sex="M", age=35, eth=2, nzdep=5, smoker=1, af=1, familyhx=1, lld=0,
              athrombi=0, bpl=0, oral=0, insulin=0, sbp=120, tchdl=3.3, bmi=27,
              egfr=78, acr=1, hba1c=48, years=1)
+
+PriorT2DRisk(sex=0, age=75, eth=PI, nzdep=3, smoker=0, af=F, familyhx=0, lld=Y,
+             athrombi=0, bpl=F, oral=T, insulin=0, sbp=130, tchdl=4, bmi=31,
+             egfr=92, acr=1.4, hba1c=56, years=3)
 
 # As vectoriser (Dataset Provided)
 PriorT2DRisk(dat=DF, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker,

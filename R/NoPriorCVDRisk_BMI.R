@@ -43,12 +43,17 @@
 #'              \item Y, Yes, Smoker, Current, S, 1, T, TRUE
 #'              \item N, No, Non-smoker, Non, 0, F, FALSE
 #'              }}
-#' \item{diabetes\cr af familyhx bpl lld\cr athrombi}{label or encode as one of the following:
+#' \item{diabetes,\cr af, hf}{label or encode as one of the following:
 #'            \itemize{
 #'              \item Y, Yes, 1, T, TRUE
 #'              \item N, No, 0, F, FALSE
 #'              }}
-#' \item{sbp tchdl}{numeric value of measured result. Note:
+#' \item{bpl, lld,\cr athrombi}{label or encode as one of the following:
+#'            \itemize{
+#'              \item Y, Yes, 1, T, TRUE
+#'              \item N, No, 0, F, FALSE
+#'              }}
+#' \item{sbp, tchdl}{numeric value of measured result. Note:
 #'            \itemize{
 #'              \item SBP and total:HDL values must be avaliable
 #'              }}
@@ -74,12 +79,15 @@
 #' @examples
 #' # As calculator (dataset not provided)
 #' NoPriorCVDRisk_BMI(sex="F", age=65, eth="Indian", smoker=0, nzdep=5,  diabetes=0,
-#'                   af=0, familyhx=1, lld=1, athrombi=1, bpl=1, sbp=118, tchdl=3.3, bmi=32)
+#'                    af=0, familyhx=1, lld=1, athrombi=1, bpl=1, sbp=118, tchdl=3.3, bmi=32)
+#'
+#' NoPriorCVDRisk_BMI(sex=F, age=55, eth=IN, exsmoker=Y, smoker=0, nzdep=5,  diabetes=T,
+#'                    af=Y, familyhx=T, lld=1, athrombi=Y, bpl=T, sbp=120, tchdl=3.2, bmi=42)
 #'
 #' # As vectoriser (dataset provided)
 #' NoPriorCVDRisk_BMI(dat=DF, sex=sex, age=age, eth=ethnic_labels, smoker=smoking_status, nzdep=nzdep_quintiles,
-#'                   diabetes=diab_status, af=af, familyhx=fam_hx, lld=lipidlowering, athrombi=antithrombics,
-#'                   bpl=bplowering, sbp=systolic_bp, tchdl=tchdl_ratio, bmi=bmi)
+#'                    diabetes=diab_status, af=af, familyhx=fam_hx, lld=lipidlowering, athrombi=antithrombics,
+#'                    bpl=bplowering, sbp=systolic_bp, tchdl=tchdl_ratio, bmi=bmi)
 #'
 # --- Code ---
 NoPriorCVDRisk_BMI <- function(dat, sex, age, eth, nzdep, exsmoker, smoker, diabetes, af, familyhx, sbp, tchdl, bmi, bpl, lld, athrombi,...){

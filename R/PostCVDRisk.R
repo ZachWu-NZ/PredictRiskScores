@@ -55,7 +55,8 @@
 #' \item{cvddays}{numeric value of number of days since last ACS event. Note:
 #'            \itemize{
 #'              \item If the days since most recent CVD event is not known, then keep as \code{NA}
-#'              \item Ensure that \code{othervd} is checked if any prior angina or peripheral vascular disease. If \code{othervd} is selected, then \code{cvddays} will default to 1826.
+#'              \item Ensure that \code{othervd} is checked if any prior angina or peripheral vascular disease.
+#'              \item If \code{othervd} is selected, of if \code{cvddays} is unknown, then will default to 1826.
 #'              }}
 #' \item{...}{further arguments:
 #'            \itemize{
@@ -76,15 +77,20 @@
 #' @export
 #' @examples
 #' # As a calculator (dataset not provide)
-#' PostCVDRisk(sex="F", age=65, eth="Indian", nzdep=5, smoker=0, diabetes=0,
+#' PostCVDRisk(sex=0, age=65, eth=In, nzdep=5, smoker=0, diabetes=0, af=0,
+#'             hf=1, othervd=0,  bpl=1, lld=1, athrombi=1, sbp=118, tchdl=3.3,
+#'             bmi=NA, scr=52, hba1c=NA, cvddays=60)
+#'
+#' PostCVDRisk(sex="F", age=76, eth="Indian", nzdep=5, smoker=0, diabetes=0,
 #'             af=0, hf=1, othervd=0,  bpl=1, lld=1, athrombi=1, sbp=118,
-#'             tchdl=3.3, bmi=NA, scr=52, hba1c=NA, cvddays=365)
+#'             tchdl=3.3, bmi=NA, scr=52, hba1c=NA, cvddays=365,
+#'             allow.age=F, allow.na=F)
 #'
 #' # As Vectoriser (dataset provided)
 #' PostCVDRisk(TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker,
 #'             diabetes=diabetes, af=af, hf=hf, othervd=othervd, cvddays=days,
 #'             bmi=bmi, sbp=sbp, tchdl=tchdl, hba1c=hba1c, scr=scr, bpl=bpl,
-#'             lld=lld, athrombi=athrombi)
+#'             lld=lld, athrombi=athromb)
 #'
 # --- Code ---
 PostCVDRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, othervd, bpl, lld, athrombi, sbp, tchdl, bmi, scr, hba1c, cvddays, ...){

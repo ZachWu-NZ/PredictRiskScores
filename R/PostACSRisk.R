@@ -39,31 +39,41 @@
 #'              \item Y, Yes, Smoker, Current, S, 1, T, TRUE
 #'              \item N, No, Non-smoker, 0, F, FALSE
 #'              }}
-#' \item{diabetes\cr af hf\cr bpl lld\cr athrombi}{label or encode as one of the following:
+#' \item{diabetes,\cr af, hf}{label or encode as one of the following:
 #'            \itemize{
 #'              \item Y, Yes, 1, T, TRUE
 #'              \item N, No, 0, F, FALSE
 #'              }}
-#' \item{sbp tchdl}{numeric value of measured result. Note:
+#' \item{bpl, lld,\cr athrombi}{label or encode as one of the following:
+#'            \itemize{
+#'              \item Y, Yes, 1, T, TRUE
+#'              \item N, No, 0, F, FALSE
+#'              }}
+#' \item{sbp, tchdl}{numeric value of measured result. Note:
 #'            \itemize{
 #'              \item SBP and total:HDL values must be avaliable
 #'              }}
-#' \item{bmi scr\cr hba1c}{numeric value of calculated BMI, and measured serum creatinine and hba1c. If a value is unknown, then input as \code{NA}}
-#' \item{acsdays}{numeric value of number of days since last ACS event. Nb:
+#' \item{bmi, scr,\cr hba1c}{numeric value of calculated BMI, and measured serum creatinine and hba1c.
+#'             \itemize{
+#'              \item If a value is unknown, then input as \code{NA}
+#'              \item Note: a separate coefficient is applied to missing values
+#'              }}
+#' \item{acsdays}{numeric value of number of days since last ACS event.
 #'            \itemize{
 #'              \item If the date of most recent CVD event is unknown, then keep as \code{NA}
+#'              \item Note:
 #'              }}
 #' \item{acstype}{label or encode as one of the following:
 #'            \itemize{
-#'              \item STEMI, ST-Elevation, 2
-#'              \item NSTEMI, Non-STEMI, 1
+#'              \item STEMI, ST-Elevation, S, 2
+#'              \item NSTEMI, Non-STEMI, N, 1
 #'              \item Unstable Angina, UA, 0
 #'              }}
 #' \item{...}{further arguments:
 #'            \itemize{
 #'              \item \code{dp} numeric value to set decimal place; default is 4
 #'              \item \code{allow.age} logical. Whether or not age range is extended outside of 30 - 74; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
-#'              \item \code{allow.na} logical. Whether or not missing values for binary variables and smoking status are treated as 0; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
+#'              \item \code{allow.na} logical. Whether or not missing values \code{NA}are treated as 0; default is TRUE. Only applies to binary variables and smoking status. If set to FALSE, then \code{NA} is returned as risk estimate.
 #'              }}
 #'
 #' @inheritSection NoPriorCVDRisk See Also
@@ -80,12 +90,18 @@
 #'
 #' @examples
 #' # As a calculator (dataset not provide)
+#' PostACSRisk(sex=0, age=65, eth=43, nzdep=3, smoker=0, diabetes=1, af=0, hf=0,
+#'             bpl=1, lld=1, athrombi=1, sbp=118, tchdl=5, bmi=NA, scr=52, hba1c=NA,
+#'             acsdays=1825, acstype=2)
+#'
+#' PostACSRisk(sex=1, age=65, eth=43, nzdep=3, smoker=0, diabetes=1, af=0, hf=NA,
+#'             bpl=1, lld=1, athrombi=1, sbp=118, tchdl=5, bmi=NA, scr=52, hba1c=NA,
+#'             acsdays=1825, acstype=NA, allow.na=F)
 #'
 #' # As Vectoriser (dataset provided)
-#' PostACSRisk(TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker,
-#'             diabetes=diabetes, af=af, hf=hf, acsdays=days, acstype=acs_type,
-#'             bmi=bmi, sbp=sbp, tchdl=tchdl, hba1c=hba1c, scr=scr, bpl=bpl,
-#'             lld=lld, athrombi=athrombi)
+#' PostACSRisk(dat=DF, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker, diabetes=diabetes,
+#'             af=af, hf=hf, bpl=bpl, lld=lld, athrombi=athromb, sbp=sbp, tchdl=tchdl, bmi=bmi,
+#'             scr=scr, hba1c=hba1c, acsdays=acsdays, acstype=acstype)
 #'
 # --- Code ---
 PostACSRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, bpl, lld, athrombi, sbp, tchdl, bmi, scr, hba1c, acsdays, acstype, ...){
@@ -190,12 +206,12 @@ PostACSRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, bpl
                   hba1cge65  = +(input$hba1c >= 65 & !is.na(input$hba1c)),
                   hba1cmiss  = +(input$hba1c == "" | is.na(input$hba1c)))
 
-  acsdays   <- list(prior6m    = +(vars$acsdays < 182),
-                    prior6_12m = +(vars$acsdays >= 182 & vars$acsdays <=365),
-                    prior5plus = +(vars$acsdays >= 1826 | is.na(vars$acsdays)))
+  acsdays   <- list(prior6m    = +(input$acsdays < 182 & !is.na(input$acsdays)),
+                    prior6_12m = +(input$acsdays >= 182 & input$acsdays <=365 & !is.na(input$acsdays)),
+                    prior5plus = +(input$acsdays >= 1826 | is.na(input$acsdays)))
 
-  acstype   <- list(nstemi  = +(tolower(vars$acstype) %in% c("nstemi", "nonstemi", "non-stemi", "1")),
-                    stemi   = +(tolower(vars$acstype) %in% c("stemi", "st-elevation", "2")))
+  acstype   <- list(nstemi  = +(tolower(input$acstype) %in% ok.nstemi),
+                    stemi   = +(tolower(input$acstype) %in% ok.stemi))
 
   values <- c(demo.vals, bin.vals, sbp, num.vals, bmi, scr, hba1c, acsdays, acstype) # Order sensitive!
 
@@ -205,40 +221,41 @@ PostACSRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, bpl
     age50_59      = 0.101907023,
     age60_69      = 0.385735211,
     age70_79      = 0.665588277,
-    asian         = -0.310811716,
-    indian        = 0.032579054,
     maori         = 0.090076398,
     pacific       = -0.026195857,
+    indian        = 0.032579054,
+    asian         = -0.310811716,
+    smoker        = 0.253474601,
     nzdep         = 0.091394060,
-    smoking       = 0.253474601,
-    diab          = 0.278017733,
+    diabetes      = 0.278017733,
     af            = 0.285378352,
     hf            = 0.687503944,
-    prior6m       = 0.284562205,
-    prior6_12m    = 0.194750339,
-    prior5plus    = -0.128308825,
-    nstemi        = -0.035132993,
-    stemi         = -0.169336414,
+    bplower       = 0.170906191,
+    lipidlower    = -0.029601692,
+    bloodthin     = 0.005888522,
+    sbplt100      = 0.102472311,
+    sbp120_140    = -0.064080362,
+    sbp140_160    = -0.006568964,
+    sbpge160      = 0.136227657,
+    tchdl         = 0.064230206,
     bmilt20       = -0.050627926,
     bmi20_25      = 0.011668190,
     bmi30_35      = -0.021161519,
     bmi35_40      = -0.035571412,
     bmige40       = -0.012558351,
     bmimiss       = 0.012687985,
-    sbplt100      = 0.102472311,
-    sbp120_140    = -0.064080362,
-    sbp140_160    = -0.006568964,
-    sbpge160      = 0.136227657,
-    tchdl         = 0.064230206,
-    hba1c40_65    = 0.099219955,
-    hba1cge65     = 0.356544954,
-    hba1cmiss     = 0.110588511,
     creat100_149  = 0.197880356,
     creatge150    = 0.531777765,
     creatmiss     = 0.020199113,
-    bplower       = 0.170906191,
-    lipidlower    = -0.029601692,
-    bloodthin     = 0.005888522)
+    hba1c40_65    = 0.099219955,
+    hba1cge65     = 0.356544954,
+    hba1cmiss     = 0.110588511,
+    prior6m       = 0.284562205,
+    prior6_12m    = 0.194750339,
+    prior5plus    = -0.128308825,
+    nstemi        = -0.035132993,
+    stemi         = -0.169336414
+    )
 
   # Calculations
   value.score <- Map("*", values, coeffs)
@@ -249,24 +266,14 @@ PostACSRisk <- function(dat, sex, age, eth, nzdep, smoker, diabetes, af, hf, bpl
                                     format = 'f',
                                     digits = dp))
 
-  if(length(inval.eth) >= 1){
-    warning("Ethnicity input contains one or more non-calculated classes. See R documentation using ?PostACSRisk",
-            call. = F)
+  if(length(ls(pattern = "inval.")) >= 1){
 
     rounded.val <- replace(rounded.val,
-                           inval.eth,
-                           NA)
-  }
-
-  if(length(inval.age) >= 1){
-    warning("Age input contains one or more non-calculatable values. See R documentation using ?PostACSRisk",
-            call. = F)
-
-    rounded.val <- replace(rounded.val,
-                           inval.age,
+                           unlist(mget(ls(pattern = "inval."))),
                            NA)
   }
 
   return(rounded.val)
 
 }
+

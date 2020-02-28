@@ -4,8 +4,8 @@
 \alias{NoPriorCVDRisk_Policy}
 \title{VARIANZ CVD (2018) Policy-level Risk Score for People Without CVD}
 \usage{
-NoPriorCVDRisk_Policy(dat, sex, age, eth, nzdep, diabetes, af, bpl, lld,
-                      athrombi, ...)
+NoPriorCVDRisk_Policy(dat, sex, age, eth, nzdep, diabetes, af,
+                      bpl, lld, athrombi, ...)
 }
 \arguments{
 \item{dat}{an optional data.frame or data.table containing input data (see details)}
@@ -51,7 +51,12 @@ Chinese, MELAA, ME, ASN, A, 4, 40, 41, 42, 44, 5, 51, 52, 53, 54, 61
 \item note: Other Asian includes non-Indian South Asian
 }}
 \item{nzdep}{numeric value between 1 and 5}
-\item{diabetes\cr af bpl lld\cr athrombi}{label or encode as one of the following:
+\item{diabetes,\cr af}{label or encode as one of the following:
+\itemize{
+\item Y, Yes, 1, T, TRUE
+\item N, No, 0, F, FALSE
+}}
+\item{bpl, lld,\cr athrombi}{label or encode as one of the following:
 \itemize{
 \item Y, Yes, 1, T, TRUE
 \item N, No, 0, F, FALSE

@@ -1,22 +1,26 @@
 #' General Parameter Checking for PredictRiskScores
 #'
-#' \code{ParamCheck} evaluates input parameters for names, values, and availability to ensure that a risk calculation can be carried out; else provide warnings, else stopped.
-#' @usage ParamCheck(params, ignore.age)
-#' @param input list of all input values inherited from the parent.frame
-#' @param vars character vector of required parameters from the parent.frame
-#' @param call name of the function being called in the parent.frame
+#' \code{ParamCheck} evaluates input parameters inherited from the parent.frame; to check for names, values, and validity and ensure that a risk calculation can be carried out.
+#' The call is stopped completely when required arguments are not stated or when compulsary inputs are invalid.
+#' Invalid values may still be calculated an \code{NA} returned with an error message indicating one or more problematic variables.
+#'
+#' @usage ParamCheck(input, vars, call, is.table, allow.age, allow.na)
+#'
+#' @param input list of all input values inherited from the function call
+#' @param vars character vector of required parameters
+#' @param call name of the function being called
 #' @param is.table logical; whether a dataset is provided in the parent.frame
-#' @param allow.age logical; whether ages of between 18-29 and 75-110 are calculated
-#' @param allow.na logical; whether \code{na} is allowed for binary variables including smoking. If TRUE, then \code{na} is treated as 0.
+#' @param allow.age logical. Whether or not age range is extended outside of 30 - 74; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
+#' @param allow.na logical. Whether or not missing values for binary variables and smoking status are treated as 0; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
 #' @details
 #' \code{ParamCheck} identifies the following errors and invalid inputs:
 #' \enumerate{
 #'  \item missing arguments - operations stops
 #'  \item missing input data - operation stops
-#'  \item invalid sex, age, ethnicity, nzdep inputs
+#'  \item invalid sex, age, ethnicity, nzdep, smoking inputs
 #'  \item invalid binary inputs
 #'  \item invalid numeric inputs
-#'  \item invalid time inputs
+#'  \item invalid level inputs
 #'  }
 #' @return
 #' \code{ParamCheck} returns warning messages if any invalid values are detected. In cases where input data is invalid, \code{ParamCheck} will
@@ -38,7 +42,7 @@ ParamCheck <- function(input, vars, call, is.table, allow.age, allow.na){
     smk.vars   <- get("smk.vars", parent.frame())
   }
 
-  numNA.vars <- if(call %in% c("NoPriorCVDRisk_Policy", "NoPriorCVDBleedRisk", "PriorT2DRisk")){
+  numNA.vars <- if(call %in% c("NoPriorCVDRisk_Policy", "NoPriorCVDBleedRisk", "PriorT2DRisk", "NoPriorCVDRisk")){
     character(0)
   } else {
     get("numNA.vars", parent.frame())
@@ -140,8 +144,8 @@ ParamCheck <- function(input, vars, call, is.table, allow.age, allow.na){
   ok.nonsmk <- tolower(c("N", "No", "Non", "Non-smoker", "N", 0, "F", FALSE))
   ok.true   <- tolower(c("Y", "Yes", 1, "T", TRUE))
   ok.false  <- tolower(c("N", "No", 0, "F", FALSE))
-  ok.stemi  <- tolower(c("STEMI", "ST-Elevation", "2"))
-  ok.nstemi <- tolower(c("NSTEMI", "NONSTEMI", "NON-STEMI", "1"))
+  ok.stemi  <- tolower(c("STEMI", "ST-Elevation", "S", "2"))
+  ok.nstemi <- tolower(c("NSTEMI", "NONSTEMI", "NON-STEMI", "N", "1"))
 
   # 4.  Input check
   lapply(ls(pattern = "ok."),
@@ -219,7 +223,7 @@ ParamCheck <- function(input, vars, call, is.table, allow.age, allow.na){
            function(x){
 
              if(x == "acstype"){
-               invalid <- which(!tolower(input[[x]]) %in% c(ok.stemi, ok.nstemi, na))
+               invalid <- which(!tolower(input[[x]]) %in% c(ok.stemi, ok.nstemi, c(na, "0")))
              }
 
              assign(paste("inval", x, sep = "."),
@@ -230,9 +234,11 @@ ParamCheck <- function(input, vars, call, is.table, allow.age, allow.na){
   }
 
   # warning message
-  inval.vars <- names(unlist(sapply(ls(pattern = "inval."),
-                                         function(x)
-                                           get(x) == 1)))
+  inval.vars <- ls(pattern = "inval.")
+  inval.vars <- inval.vars[sapply(inval.vars,
+                                  function(x){
+                                    length(get(x)) >= 1
+                                  }, USE.NAMES = T)]
 
   if(length(inval.vars) >= 1){
     warning(call. = FALSE,

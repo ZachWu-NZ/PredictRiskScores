@@ -74,31 +74,41 @@ Input values for each parameter must conform to the following convention:
 \item Y, Yes, Smoker, Current, S, 1, T, TRUE
 \item N, No, Non-smoker, 0, F, FALSE
 }}
-\item{diabetes\cr af hf\cr bpl lld\cr athrombi}{label or encode as one of the following:
+\item{diabetes,\cr af, hf}{label or encode as one of the following:
 \itemize{
 \item Y, Yes, 1, T, TRUE
 \item N, No, 0, F, FALSE
 }}
-\item{sbp tchdl}{numeric value of measured result. Note:
+\item{bpl, lld,\cr athrombi}{label or encode as one of the following:
+\itemize{
+\item Y, Yes, 1, T, TRUE
+\item N, No, 0, F, FALSE
+}}
+\item{sbp, tchdl}{numeric value of measured result. Note:
 \itemize{
 \item SBP and total:HDL values must be avaliable
 }}
-\item{bmi scr\cr hba1c}{numeric value of calculated BMI, and measured serum creatinine and hba1c. If a value is unknown, then input as \code{NA}}
-\item{acsdays}{numeric value of number of days since last ACS event. Nb:
+\item{bmi, scr,\cr hba1c}{numeric value of calculated BMI, and measured serum creatinine and hba1c.
+\itemize{
+\item If a value is unknown, then input as \code{NA}
+\item Note: a separate coefficient is applied to missing values
+}}
+\item{acsdays}{numeric value of number of days since last ACS event.
 \itemize{
 \item If the date of most recent CVD event is unknown, then keep as \code{NA}
+\item Note:
 }}
 \item{acstype}{label or encode as one of the following:
 \itemize{
-\item STEMI, ST-Elevation, 2
-\item NSTEMI, Non-STEMI, 1
+\item STEMI, ST-Elevation, S, 2
+\item NSTEMI, Non-STEMI, N, 1
 \item Unstable Angina, UA, 0
 }}
 \item{...}{further arguments:
 \itemize{
 \item \code{dp} numeric value to set decimal place; default is 4
 \item \code{allow.age} logical. Whether or not age range is extended outside of 30 - 74; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
-\item \code{allow.na} logical. Whether or not missing values for binary variables and smoking status are treated as 0; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.
+\item \code{allow.na} logical. Whether or not missing values \code{NA}are treated as 0; default is TRUE. Only applies to binary variables and smoking status. If set to FALSE, then \code{NA} is returned as risk estimate.
 }}
 }
 \description{
@@ -135,12 +145,18 @@ with 1 being the least deprived and 5 being the most deprived.
 
 \examples{
 # As a calculator (dataset not provide)
+PostACSRisk(sex=0, age=65, eth=43, nzdep=3, smoker=0, diabetes=1, af=0, hf=0,
+            bpl=1, lld=1, athrombi=1, sbp=118, tchdl=5, bmi=NA, scr=52, hba1c=NA,
+            acsdays=1825, acstype=2)
+
+PostACSRisk(sex=1, age=65, eth=43, nzdep=3, smoker=0, diabetes=1, af=0, hf=NA,
+            bpl=1, lld=1, athrombi=1, sbp=118, tchdl=5, bmi=NA, scr=52, hba1c=NA,
+            acsdays=1825, acstype=NA, allow.na=F)
 
 # As Vectoriser (dataset provided)
-PostACSRisk(TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker,
-            diabetes=diabetes, af=af, hf=hf, acsdays=days, acstype=acs_type,
-            bmi=bmi, sbp=sbp, tchdl=tchdl, hba1c=hba1c, scr=scr, bpl=bpl,
-            lld=lld, athrombi=athrombi)
+PostACSRisk(dat=DF, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker, diabetes=diabetes,
+            af=af, hf=hf, bpl=bpl, lld=lld, athrombi=athromb, sbp=sbp, tchdl=tchdl, bmi=bmi,
+            scr=scr, hba1c=hba1c, acsdays=acsdays, acstype=acstype)
 
 }
 \references{

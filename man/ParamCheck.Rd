@@ -4,37 +4,39 @@
 \alias{ParamCheck}
 \title{General Parameter Checking for PredictRiskScores}
 \usage{
-ParamCheck(params, ignore.age)
+ParamCheck(input, vars, call, is.table, allow.age, allow.na)
 }
 \arguments{
-\item{input}{list of all input values inherited from the parent.frame}
+\item{input}{list of all input values inherited from the function call}
 
-\item{vars}{character vector of required parameters from the parent.frame}
+\item{vars}{character vector of required parameters}
 
-\item{call}{name of the function being called in the parent.frame}
+\item{call}{name of the function being called}
 
 \item{is.table}{logical; whether a dataset is provided in the parent.frame}
 
-\item{allow.age}{logical; whether ages of between 18-29 and 75-110 are calculated}
+\item{allow.age}{logical. Whether or not age range is extended outside of 30 - 74; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.}
 
-\item{allow.na}{logical; whether \code{na} is allowed for binary variables including smoking. If TRUE, then \code{na} is treated as 0.}
+\item{allow.na}{logical. Whether or not missing values for binary variables and smoking status are treated as 0; default is TRUE. If set to FALSE, then \code{NA} is returned as risk estimate.}
 }
 \value{
 \code{ParamCheck} returns warning messages if any invalid values are detected. In cases where input data is invalid, \code{ParamCheck} will
 stop the function's operation and return an error message.
 }
 \description{
-\code{ParamCheck} evaluates input parameters for names, values, and availability to ensure that a risk calculation can be carried out; else provide warnings, else stopped.
+\code{ParamCheck} evaluates input parameters inherited from the parent.frame; to check for names, values, and validity and ensure that a risk calculation can be carried out.
+The call is stopped completely when required arguments are not stated or when compulsary inputs are invalid.
+Invalid values may still be calculated an \code{NA} returned with an error message indicating one or more problematic variables.
 }
 \details{
 \code{ParamCheck} identifies the following errors and invalid inputs:
 \enumerate{
 \item missing arguments - operations stops
 \item missing input data - operation stops
-\item invalid sex, age, ethnicity, nzdep inputs
+\item invalid sex, age, ethnicity, nzdep, smoking inputs
 \item invalid binary inputs
 \item invalid numeric inputs
-\item invalid time inputs
+\item invalid level inputs
 }
 }
 \author{

@@ -85,22 +85,27 @@ Input values for each parameter must conform to the following convention:
 \item Y, Yes, Smoker, Current, S, 1, T, TRUE
 \item N, No, Non-smoker, Non, 0, F, FALSE
 }}
-\item{diabetes\cr familyhx\cr bpl lld}{label or encode as one of the following:
+\item{diabetes,\cr familyhx}{label or encode as one of the following:
 \itemize{
 \item Y, Yes, 1, T, TRUE
 \item N, No, 0, F, FALSE
 }}
-\item{cancer gibleed\cr puddiag alcohol liver\cr}{label or encode as one of the following:
+\item{bpl, lld}{label or encode as one of the following:
 \itemize{
 \item Y, Yes, 1, T, TRUE
 \item N, No, 0, F, FALSE
 }}
-\item{puddrug nsaid\cr steroids ssri}{label or encode as one of the following:
+\item{cancer, gibleed,\cr puddiag, alcohol, liver\cr}{label or encode as one of the following:
 \itemize{
 \item Y, Yes, 1, T, TRUE
 \item N, No, 0, F, FALSE
 }}
-\item{sbp tchdl}{numeric value of measured result. Note:
+\item{puddrug, nsaid,\cr steroids, ssri}{label or encode as one of the following:
+\itemize{
+\item Y, Yes, 1, T, TRUE
+\item N, No, 0, F, FALSE
+}}
+\item{sbp, tchdl}{numeric value of measured result. Note:
 \itemize{
 \item SBP and total:HDL values must be avaliable
 }}

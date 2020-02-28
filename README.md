@@ -69,11 +69,11 @@ PostACSRisk(sex="F", age=65, eth=Indian, nzdep=5, smoker=0, diabetes=0,
 ```
 [1] 0.4877
 ```
-All parameter values can be numeric or encoded. Values for some parameters such as BMI and HbA1C can be `NA` if the value is unknown. See *values* in R documentation.
+All parameter values can be numeric or encoded. Values for some parameters such as BMI and HbA1C can be `NA` if the value is unknown. See *values* in R documentation. Binary variables can take `TRUE`/`FALSE` boolean values.
 ```r
 PostACSRisk(sex=0, age=65, eth=43, nzdep=5, smoker=0, diabetes=0,
             af=0, hf=1, acsdays=65, acstype=1, bmi=NA, sbp=118,
-            tchdl=3.3, hba1c=NA, scr=52, bpl=1, lld=1, athrombi=1)
+            tchdl=3.3, hba1c=NA, scr=52, bpl=T, lld=F, athrombi=1)
 ```
 ```
 [1] 0.4877
@@ -98,6 +98,8 @@ DATA$riskscores <- NoPriorCVDRisk(dat=DATA, sex=sex, age=age, eth=ethnicity, smo
                                     nzdep=nzdep, diabetes=diab_status, af=hx_af, familyhx=familyhx, 
                                     lld=lld, athrombi=athrombotics, bpl=bpl, sbp=sbp, tchdl=tchdl)
 ```
+
+#### Integration with `data.table` and `dplr`
 The suite of functions in this package can be integrated into both `data.table` and `dplyr`. For example, when datasets are extremely large, consider 
 using `data.table` along with the `:=` notation. In the example below, a new column called `riskscore` is created.
 The `data.table` syntax might seem confusing at first but it offers fast and efficient performance.
@@ -118,6 +120,14 @@ DATA %>%
                                     nzdep=nzdep, diabetes=diab_status, af=hx_af, familyhx=familyhx, 
                                     lld=lld, athrombi=athrombotics, bpl=bpl, sbp=sbp, tchdl=tchdl))
 ```
+
+#### Further Arguements
+Each function contains 3 dot parameters: `dp`, `allow.age`, and `allow.na`. A function will:
+
+- by default return risk scores to 4 decimal places. The number of decimal places can be changed using the argument `dp`. For example, `dp = 6` will produce risk scores containing 6 decimal places. 
+-   by default return risk scores for people between 18 and 110 years of age. Ages 18 - 29 are calculated as 30; and 80 - 110 as 79. However, the risk prediction equations were developed from a cohort of people aged 30 to 74 years. Using the argument `allow.age` will determine whether a function is applied to ages outside of 30 - 74. If `allow.age` is set to `FALSE`, then age values between 30 and 74 must be provided, else `NA` is returned as the risk score. 
+-   by default return risk scores where the missing values `NA` is treated as `0`, `No`, or `FALSE`. This applies only to binary variables including smoking status. If `allow.na` is set to `FALSE`, then binary inputs including smoking status must have a value, else `NA` will be returned as the risk score.
+
 
 #### R Documentation
 ```r

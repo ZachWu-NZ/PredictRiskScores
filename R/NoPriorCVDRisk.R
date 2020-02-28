@@ -23,7 +23,7 @@
 #' @param bpl       receiving at least one blood pressure lowering medication
 #' @param lld       receiving lipid lowering medication
 #' @param athrombi  receiving antiplatelet or anticoagulant medication
-#' @param ...       further arguments passed (see values)
+#' @param ...       further arguments (see values)
 #'
 #' @details  When a dataset is supplied, a risk score is produced for each row of data, resulting in a numeric vector of the same length.
 #' Each argument requires the variable name from the dataset \code{dat} that corresponds with the parameter. If the parameter \code{dat} is not supplied, then each argument is assigned an individual's
@@ -70,7 +70,7 @@
 #'              \item Y, Yes, Smoker, Current, S, 1, T, TRUE
 #'              \item N, No, Non-smoker, Non, 0, F, FALSE
 #'              }}
-#' \item{diabetes \cr af familyhx}{label or encode as one of the following:
+#' \item{diabetes, \cr af, familyhx}{label or encode as one of the following:
 #'            \itemize{
 #'              \item Y, Yes, 1, T, TRUE
 #'              \item N, No, 0, F, FALSE

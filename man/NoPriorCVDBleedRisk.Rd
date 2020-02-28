@@ -53,7 +53,7 @@ NoPriorCVDBleedRisk(dat, sex, age, eth, exsmoker, smoker, nzdep, diabetes,
 
 \item{tchdl}{most recent value of total:HDL cholesterol}
 
-\item{...}{further arguments passed (see values)}
+\item{...}{further arguments (see values)}
 }
 \value{
 returns either a single 5-year major bleed risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.

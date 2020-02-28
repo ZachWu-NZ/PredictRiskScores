@@ -47,7 +47,7 @@ PostCVDRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
 
 \item{cvddays}{time in days since most recent CVD event}
 
-\item{...}{further arguments passed (see values)}
+\item{...}{further arguments (see values)}
 }
 \value{
 returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.

@@ -47,7 +47,7 @@ PostACSRisk(dat, sex, age, eth, nzdep, smoker, diabetes,
 
 \item{acstype}{type of prior ACS (see values)}
 
-\item{...}{further arguments passed (see values)}
+\item{...}{further arguments (see values)}
 }
 \value{
 returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.

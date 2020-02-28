@@ -28,7 +28,7 @@ NoPriorCVDRisk_Policy(dat, sex, age, eth, nzdep, diabetes, af,
 
 \item{athrombi}{receiving antiplatelet or anticoagulant medication}
 
-\item{...}{further arguments passed (see values)}
+\item{...}{further arguments (see values)}
 }
 \value{
 returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.

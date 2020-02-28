@@ -49,7 +49,7 @@ PriorT2DRisk(sex, age, eth, nzdep, smoker, af, familyhx,
 
 \item{years}{years since diagnosis of type 2 diabetes}
 
-\item{...}{further arguments passed (see values)}
+\item{...}{further arguments (see values)}
 }
 \value{
 returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.

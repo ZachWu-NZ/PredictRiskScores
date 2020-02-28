@@ -38,7 +38,7 @@ NoPriorCVDRisk(dat, sex, age, eth, nzdep, exsmoker, smoker, diabetes,
 
 \item{athrombi}{receiving antiplatelet or anticoagulant medication}
 
-\item{...}{further arguments passed (see values)}
+\item{...}{further arguments (see values)}
 }
 \value{
 returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
@@ -70,7 +70,7 @@ Input values for each parameter must conform to the following convention:
 \item Y, Yes, Smoker, Current, S, 1, T, TRUE
 \item N, No, Non-smoker, Non, 0, F, FALSE
 }}
-\item{diabetes \cr af familyhx}{label or encode as one of the following:
+\item{diabetes, \cr af, familyhx}{label or encode as one of the following:
 \itemize{
 \item Y, Yes, 1, T, TRUE
 \item N, No, 0, F, FALSE

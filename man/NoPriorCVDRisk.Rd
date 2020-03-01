@@ -82,7 +82,7 @@ Input values for each parameter must conform to the following convention:
 }}
 \item{sbp, tchdl}{numeric value of measured result. Note:
 \itemize{
-\item SBP and total:HDL values must be avaliable
+\item SBP and total:HDL values must be available
 }}
 \item{...}{further arguments:
 \itemize{
@@ -133,7 +133,7 @@ NoPriorCVDRisk(sex=1, age=82, eth="Asian", exsmoker=NA, smoker=Y, nzdep=4, diabe
                af=1, familyhx=1, lld=T, athrombi=F, bpl=0, sbp=140, tchdl=3.3, dp = 5,
                allow.age = FALSE, allow.na = FALSE)
 
-# As vectoriser (dataset provided)
+# As a vectoriser (dataset provided)
 NoPriorCVDRisk(dat=TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, exsmoker=smoker,
                smoker=smoker,  diabetes=diabetes, af=af, familyhx=familyhx, lld=lld,
                athrombi=athromb, bpl=bpl, sbp=sbp, tchdl=tchdl, allow.na =TRUE)

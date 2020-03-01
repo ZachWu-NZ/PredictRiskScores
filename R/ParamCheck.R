@@ -37,6 +37,10 @@ ParamCheck <- function(input, vars, call, is.table, allow.age, allow.na){
     num.vars   <- character(0)
     smk.vars   <- character(0)
 
+    if(!is.table){
+      warning(call. = FALSE, paste0("Using this function as a calculator for an individual is not recommended! See ?",  call))
+    }
+
   } else {
     num.vars   <- get("num.vars", parent.frame())
     smk.vars   <- get("smk.vars", parent.frame())

@@ -81,7 +81,7 @@ Input values for each parameter must conform to the following convention:
 }}
 \item{sbp tchdl}{numeric value of measured result. Note:
 \itemize{
-\item SBP and total:HDL values must be avaliable
+\item SBP and total:HDL values must be available
 }}
 \item{bmi scr\cr hba1c}{numeric value of calculated BMI, and measured serum creatinine and hba1c. If a value is unknown, then input as \code{NA}}
 \item{cvddays}{numeric value of number of days since last ACS event. Note:
@@ -130,7 +130,7 @@ with 1 being the least deprived and 5 being the most deprived.
 }
 
 \examples{
-# As a calculator (dataset not provide)
+# As a calculator (dataset not provided)
 PostCVDRisk(sex=0, age=65, eth=In, nzdep=5, smoker=0, diabetes=0, af=0,
             hf=1, othervd=0,  bpl=1, lld=1, athrombi=1, sbp=118, tchdl=3.3,
             bmi=NA, scr=52, hba1c=NA, cvddays=60)
@@ -140,7 +140,7 @@ PostCVDRisk(sex="F", age=76, eth="Indian", nzdep=5, smoker=0, diabetes=0,
             tchdl=3.3, bmi=NA, scr=52, hba1c=NA, cvddays=365,
             allow.age=F, allow.na=F)
 
-# As Vectoriser (dataset provided)
+# As a vectoriser (dataset provided)
 PostCVDRisk(TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker,
             diabetes=diabetes, af=af, hf=hf, othervd=othervd, cvddays=days,
             bmi=bmi, sbp=sbp, tchdl=tchdl, hba1c=hba1c, scr=scr, bpl=bpl,

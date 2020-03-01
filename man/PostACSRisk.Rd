@@ -86,7 +86,7 @@ Input values for each parameter must conform to the following convention:
 }}
 \item{sbp, tchdl}{numeric value of measured result. Note:
 \itemize{
-\item SBP and total:HDL values must be avaliable
+\item SBP and total:HDL values must be available
 }}
 \item{bmi, scr,\cr hba1c}{numeric value of calculated BMI, and measured serum creatinine and hba1c.
 \itemize{
@@ -153,7 +153,7 @@ PostACSRisk(sex=1, age=65, eth=43, nzdep=3, smoker=0, diabetes=1, af=0, hf=NA,
             bpl=1, lld=1, athrombi=1, sbp=118, tchdl=5, bmi=NA, scr=52, hba1c=NA,
             acsdays=1825, acstype=NA, allow.na=F)
 
-# As Vectoriser (dataset provided)
+# As a vectoriser (dataset provided)
 PostACSRisk(dat=DF, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker, diabetes=diabetes,
             af=af, hf=hf, bpl=bpl, lld=lld, athrombi=athromb, sbp=sbp, tchdl=tchdl, bmi=bmi,
             scr=scr, hba1c=hba1c, acsdays=acsdays, acstype=acstype)

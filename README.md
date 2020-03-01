@@ -99,7 +99,7 @@ DATA$riskscores <- NoPriorCVDRisk(dat=DATA, sex=sex, age=age, eth=ethnicity, smo
                                     lld=lld, athrombi=athrombotics, bpl=bpl, sbp=sbp, tchdl=tchdl)
 ```
 
-#### Integration with `data.table` and `dplr`
+#### Integration with `data.table` and `dplyr`
 The suite of functions in this package can be integrated into both `data.table` and `dplyr`. For example, when datasets are extremely large, consider 
 using `data.table` along with the `:=` notation. In the example below, a new column called `riskscore` is created.
 The `data.table` syntax might seem confusing at first but it offers fast and efficient performance.

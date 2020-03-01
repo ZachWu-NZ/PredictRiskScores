@@ -62,7 +62,7 @@
 #'              }}
 #' \item{bmi, sbp, tchdl,\cr egfr, acr, hba1c}{numeric value of measured result. Note:
 #'            \itemize{
-#'              \item all values must be avaliable
+#'              \item all values must be available
 #'              }}
 #' \item{years}{numeric value of number of years since T2D diagnosis}
 #' \item{...}{further arguments:
@@ -84,7 +84,7 @@
 #'
 #' @export
 #' @examples
-#' # As calculator (Dataset not Provided)
+#' # As calculator (Dataset not provided)
 #' PriorT2DRisk(sex="M", age=35, eth=2, nzdep=5, smoker=1, af=1, familyhx=1, lld=0,
 #'              athrombi=0, bpl=0, oral=0, insulin=0, sbp=120, tchdl=3.3, bmi=27,
 #'              egfr=78, acr=1, hba1c=48, years=1)
@@ -93,7 +93,7 @@
 #'              athrombi=0, bpl=F, oral=T, insulin=0, sbp=130, tchdl=4, bmi=31,
 #'              egfr=92, acr=1.4, hba1c=56, years=3)
 #'
-#' # As vectoriser (Dataset Provided)
+#' # As a vectoriser (Dataset provided)
 #' PriorT2DRisk(dat=DF, sex=sex, age=age, eth=eth, nzdep=nzdep, smoker=smoker,
 #'              af=af, familyhx=familyhx, sbp=sbp, tchdl=tchdl, bmi=bmi, years=years,
 #'              egfr=egfr, acr=acr, hba1c=hba1c, oral=oral, insulin=insulin, bpl=bpl,

@@ -107,7 +107,7 @@ Input values for each parameter must conform to the following convention:
 }}
 \item{sbp, tchdl}{numeric value of measured result. Note:
 \itemize{
-\item SBP and total:HDL values must be avaliable
+\item SBP and total:HDL values must be available
 }}
 \item{...}{further arguments:
 \itemize{
@@ -157,7 +157,7 @@ NoPriorCVDBleedRisk(sex=0, age=76, eth=21, exsmoker=0, smoker=N, nzdep=5, diabet
                     liver=0, puddrug=0, nsaid=1, steroids=NA, ssri=0, sbp=130, tchdl=5,
                     dp = 5, allow.age = F, allow.na = FALSE)
 
-# As vectoriser (dataset provided)
+# As a vectoriser (dataset provided)
 NoPriorCVDBleedRisk(dat=DT, sex=sex, age=index_age, eth=eth_vars, exsmoker=exsmoke,
                     smoker=smoking_current, nzdep=nzdep, familyhx=family_hx, diabetes=dm,
                     sbp=index_sbp, tchdl=tchdl, lld=lld, bpl=bpl, cancer=hx_cancer,

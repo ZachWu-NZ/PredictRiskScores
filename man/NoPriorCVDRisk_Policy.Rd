@@ -75,9 +75,9 @@ for coronary heart disease, stroke or other cerebrovascular disease (including t
 or cardiovascular death.
 }
 \details{
-When a dataset is supplied, a risk score is produced for each row of data, resulting in a numeric vector of the same length.
-Each argument requires the variable name from the dataset \code{dat} that corresponds with the parameter. If the parameter \code{dat} is not supplied, then each argument is assigned an individual's
-actual parameter value. \cr
+\code{NoPriorCVDRisk_Policy} is intended to be used at the policy or general population level. As such, a dataset containing a population should be provided, and outputs should be summarised.
+Using this function as a calculator for an individual is not recommended. When a dataset is supplied, a risk score is produced for each row of data, resulting in a numeric vector of the same length.
+Each argument requires the variable name from the dataset \code{dat} that corresponds with the parameter. \cr
 
 The risk prediction equations were developed from a cohort of people aged 30 to 74 years. Additional analyses indicate that the sex-specific risk equations performed adequately in those aged 75-79 years.
 People aged 18-29 years or 80 years and older, are outside the range used to derive the equation, and therefore risk will be even more of an approximation. The function
@@ -102,10 +102,7 @@ with 1 being the least deprived and 5 being the most deprived.
 }
 
 \examples{
-# As a calculator (dataset not provide)
-NoPriorCVDRisk_Policy(sex="F", age=65, eth="Maori", nzdep=5, diabetes=0, af=0, bpl=1, lld=1, athrombi=1)
-
-# As Vectoriser (dataset provided)
+# As a vectoriser (dataset provided)
 NoPriorCVDRisk_Policy(dat=TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, diabetes=diabetes, af=af, lld=lld,
                       athrombi=athromb, bpl=bpl, dp =6, allow.na = FALSE)
 

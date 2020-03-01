@@ -10,7 +10,20 @@
 #'
 #' @inheritParams NoPriorCVDRisk
 #'
-#' @inherit NoPriorCVDRisk details
+#' @details  \code{NoPriorCVDRisk_Policy} is intended to be used at the policy or general population level. As such, a dataset containing a population should be provided, and outputs should be summarised.
+#' Using this function as a calculator for an individual is not recommended. When a dataset is supplied, a risk score is produced for each row of data, resulting in a numeric vector of the same length.
+#' Each argument requires the variable name from the dataset \code{dat} that corresponds with the parameter. \cr
+#'
+#' The risk prediction equations were developed from a cohort of people aged 30 to 74 years. Additional analyses indicate that the sex-specific risk equations performed adequately in those aged 75-79 years.
+#' People aged 18-29 years or 80 years and older, are outside the range used to derive the equation, and therefore risk will be even more of an approximation. The function
+#' will calculate ages 18-29 as 30; and ages 80-110 as 79. All other age inputs are invalid and will return \code{NA}. \cr
+#'
+#' The co-efficients for ethnicity apply only to the following groups: European, Maori, Pacific, Indian, and (non-Indian) Asian. To obtain a risk estimate, ensure that the
+#' ethnicity input is either labelled or encoded using one of the values listed below (see values). All other inputs are invalid and will return \code{NA}. \cr
+#'
+#' The scale for socioeconomic deprivation is derived from the New Zealand Index of Deprivation; a small area-based measure that combines census data relating to income,
+#' home ownership, employment, qualifications, family structure, housing, access to transport and communications. The equations require NZDep to be categorised as quintiles,
+#' with 1 being the least deprived and 5 being the most deprived.
 #'
 #' @return
 #' returns either a single 5-year CVD risk estimate, or a numeric vector of risk estimates if \code{dat} is provided.
@@ -62,10 +75,7 @@
 #'
 #' @export
 #' @examples
-#' # As a calculator (dataset not provide)
-#' NoPriorCVDRisk_Policy(sex="F", age=65, eth="Maori", nzdep=5, diabetes=0, af=0, bpl=1, lld=1, athrombi=1)
-#'
-#' # As Vectoriser (dataset provided)
+#' # As a vectoriser (dataset provided)
 #' NoPriorCVDRisk_Policy(dat=TEST, sex=sex, age=age, eth=eth, nzdep=nzdep, diabetes=diabetes, af=af, lld=lld,
 #'                       athrombi=athromb, bpl=bpl, dp =6, allow.na = FALSE)
 #'

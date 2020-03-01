@@ -55,7 +55,7 @@
 #'              }}
 #' \item{sbp, tchdl}{numeric value of measured result. Note:
 #'            \itemize{
-#'              \item SBP and total:HDL values must be avaliable
+#'              \item SBP and total:HDL values must be available
 #'              }}
 #' \item{bmi}{numeric value of calculated BMI. If BMI is unknown, input as \code{NA}}
 #' \item{...}{further arguments:
@@ -84,7 +84,7 @@
 #' NoPriorCVDRisk_BMI(sex=F, age=55, eth=IN, exsmoker=Y, smoker=0, nzdep=5,  diabetes=T,
 #'                    af=Y, familyhx=T, lld=1, athrombi=Y, bpl=T, sbp=120, tchdl=3.2, bmi=42)
 #'
-#' # As vectoriser (dataset provided)
+#' # As a vectoriser (dataset provided)
 #' NoPriorCVDRisk_BMI(dat=DF, sex=sex, age=age, eth=ethnic_labels, smoker=smoking_status, nzdep=nzdep_quintiles,
 #'                    diabetes=diab_status, af=af, familyhx=fam_hx, lld=lipidlowering, athrombi=antithrombics,
 #'                    bpl=bplowering, sbp=systolic_bp, tchdl=tchdl_ratio, bmi=bmi)

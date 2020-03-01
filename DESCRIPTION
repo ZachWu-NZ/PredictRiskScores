@@ -1,7 +1,7 @@
 Package: PredictRiskScores
 Type: Package
 Title: Functions for generating PREDICT CVD risk scores
-Version: 0.8
+Version: 0.9.1
 Author: Billy Wu
 Maintainer: Billy Wu <billy.nz@gmail.com>
 Description: Function for PREDICT Risk Scores developed by the VIEW team from the University of Auckland

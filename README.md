@@ -78,15 +78,24 @@ PostACSRisk(sex=0, age=65, eth=43, nzdep=5, smoker=0, diabetes=0,
 ```
 [1] 0.4877
 ```
+Binary parameters can take a variety of input values. For example, the value for `TRUE` can be `T`, `Y`, `Yes`, or `1`, while the value for `FALSE` can be `F`, `N`, `No`, or `0`. Quotations are not required and case sensitivity is ignored.  
+```r
+NoPriorCVDRisk(sex=F, age=30, eth=M, exsmoker=0, smoker=TRUE, nzdep=3, diabetes=Y,
+               af=F, familyhx=1, lld=y, athrombi=yes, bpl=T, sbp=150, tchdl=5)
+
+```
+```
+[1] 0.0549
+```
 
 #### Vectorise Dataset
 When a dataset is supplied, a risk score is produced for each row of data. Each argument requires the variable name from the dataset.
 This can be handy when risk estimates are required for each row of data, or when datasets require vectorisation.
 
 ```r
-NoPriorCVDRisk(dat=DATA, sex=sex, age=age, eth=ethnicity, smoker=smoking_status, nzdep=nzdep, 
-                diabetes=diab_status, af=hx_af, familyhx=familyhx, lld=lld, athrombi=athrombotics, 
-                bpl=bpl, sbp=sbp, tchdl=tchdl)
+NoPriorCVDRisk(dat=DATA, sex=sex, age=age, eth=ethnicity, exsmoker=exsmoker, smoker=current_smk, nzdep=nzdep, 
+              diabetes=diab_status, af=hx_af, familyhx=familyhx, lld=lld, athrombi=athrombotics, bpl=bpl, 
+              sbp=sbp, tchdl=tchdl)
 ```
 ```
 [1] 0.3327 0.0489 0.0620 0.5441 0.0688 0.1672 0.5054 0.0442 0.0150 0.0387
@@ -94,9 +103,9 @@ NoPriorCVDRisk(dat=DATA, sex=sex, age=age, eth=ethnicity, smoker=smoking_status,
 When a dataset is supplied, the function returns a numeric vector of risk scores. Each element of the vector is positioned as per row index. As such, the resulting numeric vector can be 
 assigned back to the dataset as a new variable.
 ```r
-DATA$riskscores <- NoPriorCVDRisk(dat=DATA, sex=sex, age=age, eth=ethnicity, smoker=smoking_status, 
-                                    nzdep=nzdep, diabetes=diab_status, af=hx_af, familyhx=familyhx, 
-                                    lld=lld, athrombi=athrombotics, bpl=bpl, sbp=sbp, tchdl=tchdl)
+DATA$riskscores <- NoPriorCVDRisk(dat=DATA, sex=sex, age=age, eth=ethnicity, exsmoker=exsmoker, smoker=current_smk,
+                                  nzdep=nzdep, diabetes=diab_status, af=hx_af, familyhx=familyhx, lld=lld, 
+                                  athrombi=athrombotics, bpl=bpl, sbp=sbp, tchdl=tchdl)l)
 ```
 
 #### Integration with `data.table` and `dplyr`
@@ -107,18 +116,18 @@ The `data.table` syntax might seem confusing at first but it offers fast and eff
 ```r
 library(data.table); setDT(DATA)
 
-DATA[, riskscore := NoPriorCVDRisk(.SD, sex=sex, age=age, eth=ethnicity, smoker=smoking_status, 
-                                    nzdep=nzdep, diabetes=diab_status, af=hx_af, familyhx=familyhx, 
-                                    lld=lld, athrombi=athrombotics, bpl=bpl, sbp=sbp, tchdl=tchdl)]
+DATA[, riskscore := NoPriorCVDRisk(dat=DATA, sex=sex, age=age, eth=ethnicity, exsmoker=exsmoker, smoker=current_smk,
+                                  nzdep=nzdep, diabetes=diab_status, af=hx_af, familyhx=familyhx, lld=lld,
+                                  athrombi=athrombotics, bpl=bpl, sbp=sbp, tchdl=tchdl)]
 ```
 Users who are more comfortable with `dplyr` will find that the functions works with `mutate`. In the example below, a new column called `riskscore` is created.
 ```r
 library(dplyr)
 
 DATA %>%
-  mutate(riskscore = NoPriorCVDRisk(DATA, sex=sex, age=age, eth=ethnicity, smoker=smoking_status, 
-                                    nzdep=nzdep, diabetes=diab_status, af=hx_af, familyhx=familyhx, 
-                                    lld=lld, athrombi=athrombotics, bpl=bpl, sbp=sbp, tchdl=tchdl))
+  mutate(riskscore = NoPriorCVDRisk(dat=DATA, sex=sex, age=age, eth=ethnicity, exsmoker=exsmoker, smoker=current_smk,
+                                    nzdep=nzdep, diabetes=diab_status, af=hx_af, familyhx=familyhx, lld=lld,
+                                    athrombi=athrombotics, bpl=bpl, sbp=sbp, tchdl=tchdl))
 ```
 
 #### Further Arguements

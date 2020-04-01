@@ -39,16 +39,9 @@ This is an R package featuring functions for generating PREDICT cardiovascular d
     [Full Article](https://heart.bmj.com/content/early/2019/12/10/heartjnl-2019-315809.full)
 
 ### Installation
-The R package "devtools" is required to enable things from GitHub to be installed directly into your R environment.
-
-If devtools is not yet installed, then:
+To install package:
 ```r
-install.packages("devtools")
-```
-
-To install package, when devtools is available:
-```r
-devtools::install_github("billy-nz/PredictRiskScores")
+remotes::install_github("billy-nz/PredictRiskScores")
 ```
 
 To load the package:
